@@ -1,0 +1,166 @@
+//(displays UI)
+// Displays the main feed of posts in a scrollable list
+// Manages the loading state and error handling for post fetching
+// Includes a PostCard widget to display individual posts with their details
+import 'package:flutter/material.dart';
+import '../services/spotify_service.dart';
+
+class HomeScreen extends StatefulWidget { //StatefulWidget means it can update itself.
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final SpotifyService _spotifyService = SpotifyService(
+    accessToken: "BQB2m3k3iaLmISEy6tGM3W82B54FrTLCr9wWmeHRrn3ND67tZwl7uFa-NLj_B2O_X-_8VporcGcPsBfKlJi26iTEtZXPPhd90VZzEstdH6ZUhiI5CbSofAkyZWVeQyif5TpLvAaKvYlSJ9PIEYgtcKhn_MzgsgFu72F9cLmvP1iUVjNPBfnWAxLFeqykKOSNtiOa5-UB2FNJz5SHSv9408PdPQEGGYTKdthYi_TOkiqfUEk-vJulD71cN3weBoS5eC1stA"
+  );
+  Map<String, dynamic>? _currentTrack;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCurrentTrack();
+    // Refresh every 5 seconds
+    Future.delayed(Duration(seconds: 5), _fetchCurrentTrack);
+  }
+
+  Future<void> _fetchCurrentTrack() async {
+    try {
+      final track = await _spotifyService.getCurrentTrack();
+      print('Response from Spotify: $track'); 
+      
+      setState(() {
+        _currentTrack = track;
+        _isLoading = false;
+        _errorMessage = null;
+      });
+    } catch (e) {
+      print('Error fetching track: $e'); 
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Now Playing'),
+        backgroundColor: Colors.black,
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.black, Colors.grey[900]!],
+          ),
+        ),
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : _errorMessage != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Error: $_errorMessage',
+                          style: TextStyle(color: Colors.red, fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _fetchCurrentTrack,
+                          child: Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                : _currentTrack == null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'No track currently playing',
+                              style: TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                            SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _fetchCurrentTrack,
+                              child: Text('Refresh'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (_currentTrack!['item']?['album']?['images']?[0]?['url'] != null)
+                              Container(
+                                width: 300,
+                                height: 300,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      blurRadius: 10,
+                                      spreadRadius: 5,
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    _currentTrack!['item']['album']['images'][0]['url'],
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            SizedBox(height: 24),
+                            Text(
+                              _currentTrack!['item']?['name'] ?? 'Unknown Track',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              _currentTrack!['item']?['artists']?[0]?['name'] ?? 'Unknown Artist',
+                              style: TextStyle(
+                                color: Colors.grey[400],
+                                fontSize: 18,
+                              ),
+                            ),
+                            SizedBox(height: 24),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.album, color: Colors.grey[400]),
+                                SizedBox(width: 8),
+                                Text(
+                                  _currentTrack!['item']?['album']?['name'] ?? 'Unknown Album',
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+      ),
+    );
+  }
+}
