@@ -1,19 +1,18 @@
-//(displays UI)
-// Displays the main feed of posts in a scrollable list
-// Manages the loading state and error handling for post fetching
-// Includes a PostCard widget to display individual posts with their details
 import 'package:flutter/material.dart';
-import '../services/spotify_service.dart';
+import '../../data/services/spotify_service.dart';
+import '../../core/constants/app_constants.dart';
 
-class HomeScreen extends StatefulWidget { //StatefulWidget means it can update itself.
+class HomeScreen extends StatefulWidget {
+  final String? accessToken;
+  
+  const HomeScreen({Key? key, this.accessToken}) : super(key: key);
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final SpotifyService _spotifyService = SpotifyService(
-    accessToken: "BQB2m3k3iaLmISEy6tGM3W82B54FrTLCr9wWmeHRrn3ND67tZwl7uFa-NLj_B2O_X-_8VporcGcPsBfKlJi26iTEtZXPPhd90VZzEstdH6ZUhiI5CbSofAkyZWVeQyif5TpLvAaKvYlSJ9PIEYgtcKhn_MzgsgFu72F9cLmvP1iUVjNPBfnWAxLFeqykKOSNtiOa5-UB2FNJz5SHSv9408PdPQEGGYTKdthYi_TOkiqfUEk-vJulD71cN3weBoS5eC1stA"
-  );
+  late final SpotifyService _spotifyService;
   Map<String, dynamic>? _currentTrack;
   bool _isLoading = true;
   String? _errorMessage;
@@ -21,6 +20,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _spotifyService = SpotifyService(
+      accessToken: widget.accessToken ?? AppConstants.spotifyAccessToken
+    );
     _fetchCurrentTrack();
     // Refresh every 5 seconds
     Future.delayed(Duration(seconds: 5), _fetchCurrentTrack);

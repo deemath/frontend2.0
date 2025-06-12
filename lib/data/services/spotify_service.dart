@@ -1,13 +1,8 @@
-//(manages API calls)
-// Handles all communication with the backend server through HTTP requests
-// Provides methods to fetch posts and create new posts
-// Includes error handling for network requests and response processing
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../core/constants/app_constants.dart';
 
 class SpotifyService {
-  final String baseUrl = 'https://api.spotify.com/v1';
   final String accessToken;
 
   SpotifyService({required this.accessToken});
@@ -16,7 +11,7 @@ class SpotifyService {
     try {
       print('Making request to Spotify API...'); // Debug print
       final response = await http.get(
-        Uri.parse('$baseUrl/me/player/currently-playing'),
+        Uri.parse('${AppConstants.spotifyBaseUrl}/me/player/currently-playing'),
         headers: {
           'Authorization': 'Bearer $accessToken',
           'Content-Type': 'application/json',
@@ -41,4 +36,4 @@ class SpotifyService {
       throw Exception('Error getting current track: $e');
     }
   }
-}
+} 
