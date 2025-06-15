@@ -29,7 +29,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Noot',
-      theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.black,
+          elevation: 0,
+        ),
+        // Add other customizations if needed
+      ),
       home: const HomeScreen(),
     );
   }
