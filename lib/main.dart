@@ -16,6 +16,7 @@
 // Contains a sample counter app implementation that demonstrates state management
 import 'package:flutter/material.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/create_post.dart';
 import 'core/styles/theme.dart';
 
 void main() {
@@ -36,9 +37,12 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.black,
           elevation: 0,
         ),
-        // Add other customizations if needed
       ),
+      
       home: const HomeScreen(),
+      routes: {
+        '/create': (context) => const CreatePostPage(),
+      },
     );
   }
 }
