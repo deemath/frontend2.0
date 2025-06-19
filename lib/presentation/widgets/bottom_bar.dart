@@ -24,7 +24,6 @@ class BottomBar extends StatelessWidget {
           ),
           // Fanbase
           Image.asset('assets/images/fanbase.png', width: 35, height: 35, color: Colors.white),
-          // Profile with red dot
           Stack(
             children: [
               CircleAvatar(

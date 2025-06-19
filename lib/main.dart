@@ -18,6 +18,8 @@ import 'package:flutter/material.dart';
 import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/create_post.dart';
 import 'core/styles/theme.dart';
+import 'data/services/spotify_service.dart';
+import 'core/constants/app_constants.dart';
 
 void main() {
   runApp(const MyApp());
@@ -41,7 +43,11 @@ class MyApp extends StatelessWidget {
       
       home: const HomeScreen(),
       routes: {
-        '/create': (context) => const CreatePostPage(),
+        '/create': (context) => CreatePostPage(
+          spotifyService: SpotifyService(
+            accessToken: AppConstants.spotifyAccessToken,
+          ),
+        ),
       },
     );
   }

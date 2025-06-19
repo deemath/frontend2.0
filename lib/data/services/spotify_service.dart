@@ -16,6 +16,7 @@ class SpotifyService {
           'Authorization': 'Bearer $accessToken',
           'Content-Type': 'application/json',
         },
+        
       );
 
       print('Response status code: ${response.statusCode}'); // Debug print
@@ -34,6 +35,30 @@ class SpotifyService {
     } catch (e) {
       print('Error in getCurrentTrack: $e'); // Debug print
       throw Exception('Error getting current track: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> searchTracks(String query) async {
+    try {
+      final encodedQuery = Uri.encodeComponent(query);
+      final response = await http.get(
+        Uri.parse('${AppConstants.spotifyBaseUrl}/search?q=$encodedQuery&type=track,artist&limit=10'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else if (response.statusCode == 401) {
+        throw Exception('Access token expired or invalid. Please refresh your token.');
+      } else {
+        throw Exception('Failed to search tracks: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Error in searchTracks: $e');
+      throw Exception('Error searching tracks: $e');
     }
   }
 } 
