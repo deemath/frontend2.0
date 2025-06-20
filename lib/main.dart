@@ -1,3 +1,24 @@
+/* Note:
+SafeArea should be applied inside each screen's Scaffold body (e.g., HomeScreen, CreatePostPage)
+to prevent UI from being obscured by device notches, status bars, or system UI elements.
+
+class ExampleScreen extends StatelessWidget {
+  const ExampleScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Text('Hello, SafeArea!'),
+        ),
+      ),
+    );
+  }
+}
+
+*/
+
 import 'package:flutter/material.dart';
 import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/create_post.dart';
@@ -17,14 +38,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Noot',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: AppTheme.PrimaryColor,
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.black,
-          elevation: 0,
-        ),
-      ),
-      
+
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system, // Or ThemeMode.light / dark
+
       home: const HomeScreen(),
       routes: {
         '/create': (context) => CreatePostPage(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../data/services/spotify_service.dart';
+import '/data/services/spotify_service.dart';
 
 class CreatePostPage extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -51,34 +51,38 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Post'),
-        backgroundColor: Colors.black,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: _searchController,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: colorScheme.onPrimary),
               decoration: InputDecoration(
                 hintText: 'Search for a song or artist...',
-                hintStyle: const TextStyle(color: Colors.grey),
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                hintStyle: TextStyle(color: colorScheme.onPrimary.withOpacity(0.5)),
+                prefixIcon: Icon(Icons.search, color: colorScheme.onPrimary.withOpacity(0.5)),
                 suffixIcon: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                          valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary.withOpacity(0.5)),
                         ),
                       )
                     : IconButton(
-                        icon: const Icon(Icons.clear, color: Colors.grey),
+                        icon: Icon(Icons.clear, color: colorScheme.onPrimary.withOpacity(0.5)),
                         onPressed: () {
                           _searchController.clear();
                           setState(() {
@@ -87,18 +91,14 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         },
                       ),
                 filled: true,
-                fillColor: Colors.grey[900],
+                fillColor: theme.cardColor.withOpacity(0.1),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.grey),
+                  borderSide: BorderSide(color: colorScheme.onPrimary.withOpacity(0.4)),
                 ),
               ),
               onSubmitted: _performSearch,
@@ -121,11 +121,11 @@ class _CreatePostPageState extends State<CreatePostPage> {
                           : const SizedBox(width: 50, height: 50),
                       title: Text(
                         track['name'],
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: colorScheme.onPrimary),
                       ),
                       subtitle: Text(
                         track['artists'].map((artist) => artist['name']).join(', '),
-                        style: const TextStyle(color: Colors.grey),
+                        style: TextStyle(color: colorScheme.onPrimary.withOpacity(0.6)),
                       ),
                       onTap: () {
                         // TODO: Handle track selection
@@ -140,4 +140,4 @@ class _CreatePostPageState extends State<CreatePostPage> {
       ),
     );
   }
-} 
+}
