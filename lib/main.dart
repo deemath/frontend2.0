@@ -16,7 +16,10 @@
 // Contains a sample counter app implementation that demonstrates state management
 import 'package:flutter/material.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/create_post.dart';
 import 'core/styles/theme.dart';
+import 'data/services/spotify_service.dart';
+import 'core/constants/app_constants.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,9 +39,16 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.black,
           elevation: 0,
         ),
-        // Add other customizations if needed
       ),
+      
       home: const HomeScreen(),
+      routes: {
+        '/create': (context) => CreatePostPage(
+          spotifyService: SpotifyService(
+            accessToken: AppConstants.spotifyAccessToken,
+          ),
+        ),
+      },
     );
   }
 }
