@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
@@ -7,8 +6,10 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       elevation: 0,
       titleSpacing: 0,
       title: Row(
@@ -19,7 +20,7 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: Row(
               children: [
                 Image.asset(
-                  'assets/images/logo.png',
+                  isDark ? 'assets/images/logo_dark.png' :'assets/images/logo.png',
                   width: 100,
                   height: 40,
                 ),
@@ -29,20 +30,12 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
           Spacer(),
           // Heart Icon
           IconButton(
-            icon: Icon(Icons.favorite_border, color: Colors.white, size: 32),
+            icon: Icon(Icons.favorite_border, color: Theme.of(context).colorScheme.onPrimary, size: 32),
             onPressed: () {},
           ),
           // Message Icon
           IconButton(
-            icon: SizedBox(
-              width: 28,
-              height: 28,
-              child: Image.asset(
-                'assets/images/messenger.png',
-                color: Colors.white,
-                fit: BoxFit.contain,
-              ),
-            ),
+            icon: Icon(Icons.chat, color: Theme.of(context).colorScheme.onPrimary, size: 28),
             onPressed: () {},
           ),
           SizedBox(width: 10),

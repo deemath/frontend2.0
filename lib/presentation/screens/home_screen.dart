@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../data/services/spotify_service.dart';
-import '../../core/constants/app_constants.dart';
-import '../widgets/bar.dart';
-import '../widgets/bottom_bar.dart';
-import '../widgets/playing_bar.dart';
+import '/data/services/spotify_service.dart';
+// import '../../data/services/spotify_service.dart';
+import '/core/constants/app_constants.dart';
+import '/presentation/widgets/bar.dart';
+import '/presentation/widgets/bottom_bar.dart';
+import '/presentation/widgets/playing_bar.dart';
 import 'feed.dart';
 
 class HomeScreen extends StatefulWidget {

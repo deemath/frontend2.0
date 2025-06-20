@@ -64,12 +64,7 @@ flutter:
     - assets/images/
     - assets/fonts/
     - assets/images/logo.png
-    - assets/images/messenger.png
     - assets/images/spotify.png
-    - assets/images/home.png
-    - assets/images/search.png
-    - assets/images/create.png
-    - assets/images/fanbase.png
     - assets/images/hehe.png
     - assets/images/song.png
   # An image asset can refer to one or more resolution-specific "variants", see

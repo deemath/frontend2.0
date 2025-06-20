@@ -1,19 +1,24 @@
-/*
- * main.dart
- * 
- * This is the entry point of the Flutter application that initializes the app.
- * It sets up the basic theme and routing structure for the entire application.
- * 
- * Key responsibilities:
- * - Initializes the Flutter application
- * - Sets up the MaterialApp widget which provides the basic app structure
- * - Configures the initial route to HomeScreen
- * - Imports necessary dependencies for the app
- */
+/* Note:
+SafeArea should be applied inside each screen's Scaffold body (e.g., HomeScreen, CreatePostPage)
+to prevent UI from being obscured by device notches, status bars, or system UI elements.
 
-// This is the entry point of the Flutter application that initializes the app
-// Sets up the basic theme and routing structure
-// Contains a sample counter app implementation that demonstrates state management
+class ExampleScreen extends StatelessWidget {
+  const ExampleScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Text('Hello, SafeArea!'),
+        ),
+      ),
+    );
+  }
+}
+
+*/
+
 import 'package:flutter/material.dart';
 import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/create_post.dart';
@@ -33,14 +38,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Noot',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.black,
-          elevation: 0,
-        ),
-      ),
-      
+
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system, // Or ThemeMode.light / dark
+
       home: const HomeScreen(),
       routes: {
         '/create': (context) => CreatePostPage(

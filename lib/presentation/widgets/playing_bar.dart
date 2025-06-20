@@ -17,13 +17,25 @@ class PlayingBar extends StatelessWidget {
             height: 24,
           ),
           SizedBox(width: 30),
-          Icon(Icons.skip_previous, size: 30, color: Colors.grey),
+          IconButton(
+            icon: Icon(Icons.skip_previous, size: 30, color: Theme.of(context).colorScheme.secondary),
+            onPressed: () {},
+          ),
           SizedBox(width: 30),
-          Icon(Icons.pause, size: 30, color: Colors.grey),
+          IconButton(
+            icon: Icon(Icons.pause, size: 30, color: Theme.of(context).colorScheme.secondary),
+            onPressed: () {},
+          ),
           SizedBox(width: 30),
-          Icon(Icons.skip_next, size: 30, color: Colors.grey),
+          IconButton(
+            icon: Icon(Icons.skip_next, size: 30, color: Theme.of(context).colorScheme.secondary),
+            onPressed: () {},
+          ),
           SizedBox(width: 30),
-          Icon(Icons.volume_up, size: 30, color: Colors.grey),
+          IconButton(
+            icon: Icon(Icons.volume_up, size: 30, color: Theme.of(context).colorScheme.secondary),
+            onPressed: () {},
+          ),
         ],
       ),
     );
