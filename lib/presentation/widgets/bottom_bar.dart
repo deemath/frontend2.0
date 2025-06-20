@@ -12,23 +12,50 @@ class BottomBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           // Home
-          Image.asset('assets/images/home.png', width: 25, height: 25, color: Colors.white),
+          IconButton(
+            icon: Icon(
+              Icons.home,
+              size: 32,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            onPressed: () {},
+          ),
+
           // Search
-          Image.asset('assets/images/search.png', width: 25, height: 25, color: Colors.white),
-          // Create
-          GestureDetector(
-            onTap: () {
+          IconButton( 
+            icon: Icon(
+              Icons.search, 
+              size: 32, 
+              color: Theme.of(context).iconTheme.color),
+            onPressed: (){},
+          ),
+              
+          // Create (e.g., Add or Post)
+          IconButton(
+            icon: Icon(
+              Icons.add_circle_outline,
+              size: 32,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            onPressed: () {
               Navigator.pushNamed(context, '/create');
             },
-            child: Image.asset('assets/images/create.png', width: 25, height: 25, color: Colors.white),
           ),
-          // Fanbase
-          Image.asset('assets/images/fanbase.png', width: 35, height: 35, color: Colors.white),
+          // Fanbase (e.g., Group of people)
+          IconButton( 
+            icon: Icon(
+              Icons.groups, 
+              size: 32, 
+              color: Theme.of(context).iconTheme.color),
+            onPressed: (){},
+          ),
+
+          // Profile
           Stack(
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundImage: AssetImage('assets/images/hehe.png'), 
+                backgroundImage: AssetImage('assets/images/hehe.png'),
               )
             ],
           ),

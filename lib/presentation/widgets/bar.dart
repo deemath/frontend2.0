@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+// import 'package:flutter_svg/flutter_svg.dart';
 
 class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
@@ -34,15 +34,7 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           // Message Icon
           IconButton(
-            icon: SizedBox(
-              width: 28,
-              height: 28,
-              child: Image.asset(
-                'assets/images/messenger.png',
-                color: Colors.white,
-                fit: BoxFit.contain,
-              ),
-            ),
+            icon: Icon(Icons.chat, color: Theme.of(context).appBarTheme.iconTheme?.color, size: 28),
             onPressed: () {},
           ),
           SizedBox(width: 10),
