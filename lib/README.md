@@ -23,6 +23,8 @@ Contains core functionality and utilities used throughout the app.
 - **utils/**: Utility functions and helper classes
 - **constants/**: Constant values, configurations, and app-wide settings
 Date formatting utilities or app-wide constants like API URLs
+- **providers/**: Contains state management classes (such as ChangeNotifier or Riverpod providers) responsible for managing and exposing application state to the UI. This ensures a clear separation between business logic and presentation, making the app more modular and testable.
+- **styles/**: Centralized definitions for app-wide themes, text styles, and color schemes to ensure consistent UI appearance across the application.
 
 ### 4. main.dart
 The entry point of the Flutter application that:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/toggle_button.dart';
 
 class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
@@ -20,7 +21,7 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: Row(
               children: [
                 Image.asset(
-                  isDark ? 'assets/images/logo_dark.png' :'assets/images/logo.png',
+                  isDark ? 'assets/images/logo_white.png' :'assets/images/logo_black.png',
                   width: 100,
                   height: 40,
                 ),
@@ -28,6 +29,9 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           Spacer(),
+          // temparary toggle button
+          ToggleButton(),
+          SizedBox(width: 10),
           // Heart Icon
           IconButton(
             icon: Icon(Icons.favorite_border, color: Theme.of(context).colorScheme.onPrimary, size: 32),
