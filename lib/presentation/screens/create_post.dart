@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '/data/services/spotify_service.dart';
+import 'dart:async';
 
 class CreatePostPage extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -17,6 +20,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isLoading = false;
   Map<String, dynamic>? _searchResults;
+  Timer? _debounce;
 
   Future<void> _performSearch(String query) async {
     if (query.isEmpty) return;
@@ -26,11 +30,33 @@ class _CreatePostPageState extends State<CreatePostPage> {
     });
 
     try {
-      final results = await widget.spotifyService.searchTracks(query);
-      setState(() {
-        _searchResults = results;
-        _isLoading = false;
-      });
+      // Replace with  backend API endpoint
+      final url = Uri.parse('http://localhost:3000/api/spotify/search');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-spotify-token': widget.spotifyService.accessToken,
+        },
+        body: jsonEncode({'track_name': query}),
+      );
+
+      if (response.statusCode == 200) {
+        final results = jsonDecode(response.body);
+        setState(() {
+          _searchResults = results;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error searching: ${response.body}')),
+          );
+        }
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -44,7 +70,27 @@ class _CreatePostPageState extends State<CreatePostPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 600), () {
+      if (_searchController.text.isNotEmpty) {
+        _performSearch(_searchController.text);
+      } else {
+        setState(() {
+          _searchResults = null;
+        });
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -101,7 +147,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   borderSide: BorderSide(color: colorScheme.onPrimary.withOpacity(0.4)),
                 ),
               ),
-              onSubmitted: _performSearch,
             ),
             if (_searchResults != null) ...[
               const SizedBox(height: 16),
@@ -111,7 +156,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   itemBuilder: (context, index) {
                     final track = _searchResults!['tracks']['items'][index];
                     return ListTile(
-                      leading: track['album']['images'].isNotEmpty
+                      leading: track['album']['images'] != null && track['album']['images'].isNotEmpty
                           ? Image.network(
                               track['album']['images'][0]['url'],
                               width: 50,
@@ -124,11 +169,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         style: TextStyle(color: colorScheme.onPrimary),
                       ),
                       subtitle: Text(
-                        track['artists'].map((artist) => artist['name']).join(', '),
+                        track['artists'] is List
+                            ? track['artists'].join(', ')
+                            : track['artists'].toString(),
                         style: TextStyle(color: colorScheme.onPrimary.withOpacity(0.6)),
                       ),
                       onTap: () {
-                        // TODO: Handle track selection
+                        
                       },
                     );
                   },
