@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/post/post_actions.dart';
 import '../widgets/post/post_image.dart';
-import '../widgets/post/post_profile_details.dart';
+import '../widgets/post/post_details.dart';
 
 class FeedPage extends StatelessWidget {
   const FeedPage({super.key});
