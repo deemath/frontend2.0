@@ -6,5 +6,5 @@ class AppConstants {
   static const String spotifyBaseUrl = 'https://api.spotify.com/v1';
 
   // Spotify Access Token
-  static const String spotifyAccessToken = 'BQA2maZeUmQZlgzPdUL7fiNxrxKZcz9LbzxVn5owIaNURE6cQMqhlkPNAYW4xoVvb_kds2JsMUCGTvgMjiobuUBfy2VXaFdrtgWUfE5rXRbZbHYAYPVJt7yxvNkx7IHbE-uORSI0Petg4u4u9teoqdJGknxY691lj0B3H_EivjFnM6qmXFc1POYJ3j-eTFhq2xKHHmI0qRNG7DDeGfUQvzmz89E6E2F_hYyXc2k-jHXWJsegnlM-jfN4eOcABTjjf9J47Q';
+  static const String spotifyAccessToken = 'BQBwrj8INoRaQZCAmlzRxLcFA3QaNLcsbezdibX8_huvSggkgPj9rB4CGPa6wBkuOqxSP1RaH5bMhN3xcohMBvUui60efEOuBHnTEndZtRpAB8e1p2G23kBgPS9ysuvyD5QicCKW6z4hhrFpkaC83NBGnKT8-l3xZ-KbuVIvYE8K1uh2HGyfa-v1qVR5JqjkR4_nv2rNu_-424zDnzp_k-DRF1t9Mmug9NJHaCKUCcxIxrGvEytT1p0BF5SsTaLdLbW3mg';
 }
