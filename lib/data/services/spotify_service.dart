@@ -9,7 +9,7 @@ class SpotifyService {
 
   Future<Map<String, dynamic>?> getCurrentTrack() async {
     try {
-      print('Making request to Spotify API...'); // Debug print
+      print('Making request to Spotify API...'); 
       final response = await http.get(
         Uri.parse('${AppConstants.spotifyBaseUrl}/me/player/currently-playing'),
         headers: {
@@ -19,8 +19,8 @@ class SpotifyService {
         
       );
 
-      print('Response status code: ${response.statusCode}'); // Debug print
-      print('Response body: ${response.body}'); // Debug print
+      print('Response status code: ${response.statusCode}'); 
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         return json.decode(response.body);
@@ -33,7 +33,7 @@ class SpotifyService {
         throw Exception('Failed to get current track: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print('Error in getCurrentTrack: $e'); // Debug print
+      print('Error in getCurrentTrack: $e'); 
       throw Exception('Error getting current track: $e');
     }
   }
