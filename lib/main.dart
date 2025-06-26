@@ -27,6 +27,7 @@ import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/theme_provider.dart'; // 👈 Create this file
+import 'presentation/screens/profile/normal_user.dart';
 
 void main() {
   runApp(
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
                 accessToken: AppConstants.spotifyAccessToken,
               ),
             ),
+        '/profile': (context) => NormalUserProfilePage(),
       },
     );
   }
