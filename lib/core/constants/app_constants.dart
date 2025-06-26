@@ -1,10 +1,11 @@
 class AppConstants {
-  // Base URL for the backend API 
+  // Base URL for the backend API
   static const String baseUrl = 'http://localhost:3000';
 
   // Base URL for Spotify API
   static const String spotifyBaseUrl = 'https://api.spotify.com/v1';
 
   // Spotify Access Token
-  static const String spotifyAccessToken = 'BQDoF_uNwB_0Go0F8f61a-N9YTADRJwgLvU73gwzI-kITaAIRuKd-ajvN-cAnJRcwhfH8RJIN95yYVFvLQfR_rG5gdSELcWR5hOz49OsSI_qzA4ZLuaV8b1UhnRP83-9tXNMw8Y4THstuykE2QgGmFHs6Y4ByxX1PyhzLSvOp54YBE7LNEWgN6bdGxfGdpC719RiLmxqF_qoOfGz4ILLKEPFqfcumHoMkKPPAwqc9cXik0XIdOqFU4GNLhivYv8sgoxluQ';
+  static const String spotifyAccessToken =
+      'BQA8q-TfQefAqg5Iq2jJneAjeL-j8VuAI6MA5tO7ul63-wJp1tumVpjTo6QOTX4T6-gHTC0FMrweQa0jm7TETQsMvwFSxrfETFMpp0WY0y6fuNeVMdEENIBy7wAaOpbywfys7lV5eRJmj3CoGpvE94pAHrAhdvw_Tqf84rwRRG-Ubn4EN9tkRbzOSprkbnYnMzo8QHFK6zfxxcPjMJlfW89W2dKfHZVpq1IDIqcxr3-rWnSwE5Dz7vC2EiIcnOB14Q';
 }

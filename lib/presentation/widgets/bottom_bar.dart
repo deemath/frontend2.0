@@ -22,14 +22,12 @@ class BottomBar extends StatelessWidget {
           ),
 
           // Search
-          IconButton( 
-            icon: Icon(
-              Icons.search, 
-              size: 32, 
-              color: Theme.of(context).iconTheme.color),
-            onPressed: (){},
+          IconButton(
+            icon: Icon(Icons.search,
+                size: 32, color: Theme.of(context).iconTheme.color),
+            onPressed: () {},
           ),
-              
+
           // Create (e.g., Add or Post)
           IconButton(
             icon: Icon(
@@ -53,13 +51,18 @@ class BottomBar extends StatelessWidget {
           ),
 
           // Profile
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundImage: AssetImage('assets/images/hehe.png'),
-              )
-            ],
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/profile');
+            },
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundImage: AssetImage('assets/images/hehe.png'),
+                )
+              ],
+            ),
           ),
         ],
       ),

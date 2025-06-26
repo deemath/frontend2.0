@@ -9,7 +9,7 @@ import 'feed.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? accessToken;
-  
+
   const HomeScreen({Key? key, this.accessToken}) : super(key: key);
 
   @override
@@ -26,8 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _spotifyService = SpotifyService(
-      accessToken: widget.accessToken ?? AppConstants.spotifyAccessToken
-    );
+        accessToken: widget.accessToken ?? AppConstants.spotifyAccessToken);
     _fetchCurrentTrack();
     // Refresh every 5 seconds
     Future.delayed(Duration(seconds: 5), _fetchCurrentTrack);
@@ -36,15 +35,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _fetchCurrentTrack() async {
     try {
       final track = await _spotifyService.getCurrentTrack();
-      print('Response from Spotify: $track'); 
-      
+      print('Response from Spotify: $track');
+
       setState(() {
         _currentTrack = track;
         _isLoading = false;
         _errorMessage = null;
       });
     } catch (e) {
-      print('Error fetching track: $e'); 
+      print('Error fetching track: $e');
       setState(() {
         _isLoading = false;
         _errorMessage = e.toString();
@@ -177,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),*/
         ],
       ),
-      
+
       // Bottom bar
       bottomNavigationBar: BottomBar(),
     );
