@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '/data/services/spotify_service.dart';
 import 'dart:async';
+import 'create_new_noot.dart';
 
 class CreatePostPage extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -30,7 +31,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
     });
 
     try {
-      // Replace with  backend API endpoint
       final url = Uri.parse('http://localhost:3000/api/spotify/search');
       final response = await http.post(
         url,
@@ -156,9 +156,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   itemBuilder: (context, index) {
                     final track = _searchResults!['tracks']['items'][index];
                     return ListTile(
-                      leading: track['album']['images'] != null && track['album']['images'].isNotEmpty
+                      leading: track['album'] != null && track['album'].toString().isNotEmpty
                           ? Image.network(
-                              track['album']['images'][0]['url'],
+                              track['album'],
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
@@ -175,7 +175,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         style: TextStyle(color: colorScheme.onPrimary.withOpacity(0.6)),
                       ),
                       onTap: () {
-                        
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CreateNewNootPage(track: track),
+                          ),
+                        );
                       },
                     );
                   },

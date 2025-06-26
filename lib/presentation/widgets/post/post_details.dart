@@ -8,7 +8,7 @@ class PostProfileDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textColor = Theme.of(context).colorScheme.onPrimary;
-    // Use provided details or fallback to demo data
+    //  demo data
     final data = details ?? {
       'username': 'ishaanKhatter',
       'song': 'august - Taylor Swift',
