@@ -27,6 +27,7 @@ import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/theme_provider.dart'; // 👈 Create this file
+import 'presentation/screens/fanbase.dart';
 
 void main() {
   runApp(
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
                 accessToken: AppConstants.spotifyAccessToken,
               ),
             ),
+        '/fanbases': (context) => const FanbasePage(),
       },
     );
   }

@@ -47,7 +47,9 @@ class BottomBar extends StatelessWidget {
               Icons.groups, 
               size: 32, 
               color: Theme.of(context).iconTheme.color),
-            onPressed: (){},
+            onPressed: (){
+              Navigator.pushNamed(context, '/fanbases');
+            },
           ),
 
           // Profile
