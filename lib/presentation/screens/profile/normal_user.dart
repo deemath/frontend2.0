@@ -1,5 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+// import '../../widgets/profile/profile_stat_column.dart';
+import 'tabs/album_art_posts_tab.dart';
+import 'tabs/description_posts_tab.dart';
+import 'tabs/tagged_posts_tab.dart';
 
 class NormalUserProfilePage extends StatefulWidget {
   const NormalUserProfilePage({Key? key}) : super(key: key);
@@ -8,7 +12,8 @@ class NormalUserProfilePage extends StatefulWidget {
   State<NormalUserProfilePage> createState() => _NormalUserProfilePageState();
 }
 
-class _NormalUserProfilePageState extends State<NormalUserProfilePage> {
+class _NormalUserProfilePageState extends State<NormalUserProfilePage>
+    with SingleTickerProviderStateMixin {
   final String profileImage =
       'https://i.scdn.co/image/ab6761610000e5eb02e3c8b0e6e6e6e6e6e6e6e6';
   final String username = 'spotify_user';
@@ -17,18 +22,19 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage> {
   final int following = 180;
 
   final List<String> albumArts = [
-    'https://i.scdn.co/image/ab67616d0000b273e0e0e0e0e0e0e0e0e0e0e0e0',
-    'https://i.scdn.co/image/ab67616d0000b273f1f1f1f1f1f1f1f1f1f1f1f1',
-    'https://i.scdn.co/image/ab67616d0000b273a2a2a2a2a2a2a2a2a2a2a2a2',
-    'https://i.scdn.co/image/ab67616d0000b273b3b3b3b3b3b3b3b3b3b3b3b3',
-    'https://i.scdn.co/image/ab67616d0000b273c4c4c4c4c4c4c4c4c4c4c4c4',
-    'https://i.scdn.co/image/ab67616d0000b273d5d5d5d5d5d5d5d5d5d5d5d5',
-    'https://i.scdn.co/image/ab67616d0000b273e6e6e6e6e6e6e6e6e6e6e6e6',
-    'https://i.scdn.co/image/ab67616d0000b273f7f7f7f7f7f7f7f7f7f7f7f7',
-    'https://i.scdn.co/image/ab67616d0000b2731234567890abcdef12345678',
-    'https://i.scdn.co/image/ab67616d0000b273abcdefabcdefabcdefabcdefab',
-    'https://i.scdn.co/image/ab67616d0000b273111111111111111111111111',
-    'https://i.scdn.co/image/ab67616d0000b273222222222222222222222222',
+    'https://i.scdn.co/image/ab67616d0000b27313b3e37318a0c247b550bccd',
+    'https://i.scdn.co/image/ab67616d0000b2734e0362c225863f6ae2432651',
+    'https://i.scdn.co/image/ab67616d0000b273dcef905cb144d4867119850b',
+    'https://i.scdn.co/image/ab67616d0000b27383141000ee8ce3b893a0b425',
+    'https://i.scdn.co/image/ab67616d0000b273ccdddd46119a4ff53eaf1f5d',
+    'https://i.scdn.co/image/ab67616d0000b273726d48d93d02e1271774f023',
+    'https://i.scdn.co/image/ab67616d0000b27364fa1bda999f4fbd2b7c4bb7',
+    'https://i.scdn.co/image/ab67616d0000b273062c6573009fdebd43de443b',
+    'https://i.scdn.co/image/ab67616d0000b273a0cb974834e04f46b63b99a8',
+    'https://i.scdn.co/image/ab67616d0000b2736ff8bc258e3ebc835ffe14ca',
+    'https://i.scdn.co/image/ab67616d0000b273712701c5e263efc8726b1464',
+    'https://i.scdn.co/image/ab67616d0000b273f02c451189a709b9a952aaec',
+    'https://i.scdn.co/image/ab67616d0000b2737fcead687e99583072cc217b',
   ];
 
   final List<String> randomDescriptions = [
@@ -42,11 +48,26 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage> {
     "Discovering new beats daily.",
     "Let the music speak.",
     "Chasing melodies.",
+    "In a world of my own with music.",
   ];
+
+  late TabController _tabController;
 
   String getRandomDescription() {
     final random = Random();
     return randomDescriptions[random.nextInt(randomDescriptions.length)];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -58,100 +79,53 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage> {
         centerTitle: true,
         backgroundColor: Colors.black,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Profile header
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 44,
-                    backgroundImage: NetworkImage(profileImage),
-                  ),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildStatColumn('Posts', posts),
-                        _buildStatColumn('Followers', followers),
-                        _buildStatColumn('Following', following),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+      body: Column(
+        children: [
+          // Profile details (header, stats, description)
+          AlbumArtPostsTab(
+            username: username,
+            posts: posts,
+            followers: followers,
+            following: following,
+            albumArts: albumArts,
+            description: description,
+            showGrid: false, // Only show profile details, not grid
+          ),
+          // TabBar under profile details
+          Container(
+            color: Colors.black,
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: Colors.white,
+              tabs: const [
+                Tab(icon: Icon(Icons.grid_on)),
+                Tab(icon: Icon(Icons.description)),
+                Tab(icon: Icon(Icons.person_pin)),
+              ],
             ),
-            // Username and description
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      username,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      description,
-                      style: TextStyle(fontSize: 15),
-                    ),
-                  ],
+          ),
+          // TabBarView for posts
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                AlbumArtPostsTab(
+                  username: username,
+                  posts: posts,
+                  followers: followers,
+                  following: following,
+                  albumArts: albumArts,
+                  description: description,
+                  showGrid: true, // Only show grid
                 ),
-              ),
+                const DescriptionPostsTab(),
+                const TaggedPostsTab(),
+              ],
             ),
-            SizedBox(height: 16),
-            // Posts grid
-            GridView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: albumArts.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 2,
-                crossAxisSpacing: 2,
-                childAspectRatio: 1,
-              ),
-              itemBuilder: (context, index) {
-                return Image.network(
-                  albumArts[index],
-                  fit: BoxFit.cover,
-                );
-              },
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       backgroundColor: Colors.black,
-    );
-  }
-
-  Widget _buildStatColumn(String label, int count) {
-    return Column(
-      children: [
-        Text(
-          count.toString(),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
-          ),
-        ),
-        SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[400],
-          ),
-        ),
-      ],
     );
   }
 }
