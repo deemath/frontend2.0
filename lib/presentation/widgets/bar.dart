@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/toggle_button.dart';
+import '../screens/chat_list_screen.dart';
 
 class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
@@ -37,10 +38,17 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
             icon: Icon(Icons.favorite_border, color: Theme.of(context).colorScheme.onPrimary, size: 32),
             onPressed: () {},
           ),
-          // Message Icon
+          // Message Icon - Updated this section
           IconButton(
             icon: Icon(Icons.chat, color: Theme.of(context).colorScheme.onPrimary, size: 28),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatListScreen(),
+                ),
+              );
+            },
           ),
           SizedBox(width: 10),
         ],
