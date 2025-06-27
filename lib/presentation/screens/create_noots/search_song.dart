@@ -4,6 +4,8 @@ import 'dart:convert';
 import '/data/services/spotify_service.dart';
 import 'dart:async';
 import 'create_new_noot.dart';
+import '../../widgets/buttob.dart';
+import '../../widgets/playing_bar.dart';
 
 class CreatePostPage extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -102,7 +104,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Post'),
+        title: const Text('Create Noots'),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
       ),
@@ -111,6 +113,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            const PlayingBar(),
             TextField(
               controller: _searchController,
               style: TextStyle(color: colorScheme.onPrimary),
@@ -189,6 +192,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
             ],
           ],
         ),
+      ),
+      bottomNavigationBar: CustomBottomBar(
+        onSharePost: () {
+        },
+        onShareThoughts: () {
+        },
       ),
     );
   }
