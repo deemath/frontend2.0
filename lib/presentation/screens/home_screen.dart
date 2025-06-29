@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
         accessToken: widget.accessToken ?? AppConstants.spotifyAccessToken);
     _fetchCurrentTrack();
     // Refresh every 5 seconds
-    Future.delayed(Duration(seconds: 5), _fetchCurrentTrack);
+    Future.delayed(const Duration(seconds: 5), _fetchCurrentTrack);
   }
 
   Future<void> _fetchCurrentTrack() async {
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NootAppBar(),
-      body: Column(
+      body: const Column(
         children: [
           // Playing bar
           PlayingBar(),
@@ -178,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // Bottom bar
-      bottomNavigationBar: BottomBar(),
+      bottomNavigationBar: const BottomBar(),
     );
   }
 }

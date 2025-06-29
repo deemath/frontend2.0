@@ -5,7 +5,7 @@ class TaggedPostsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
         'Tagged posts will appear here.',
         style: TextStyle(color: Colors.white),
