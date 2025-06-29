@@ -5,7 +5,7 @@ class PostImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 500,
       child: Image.asset(
         'assets/images/song.png',

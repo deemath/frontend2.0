@@ -3,8 +3,10 @@ import '../widgets/toggle_button.dart';
 import '../screens/chat_list_screen.dart';
 
 class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const NootAppBar({super.key});
+
   @override
-  Size get preferredSize => Size.fromHeight(60);
+  Size get preferredSize => const Size.fromHeight(60);
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +31,10 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
           ),
-          Spacer(),
+          const Spacer(),
           // temparary toggle button
-          ToggleButton(),
-          SizedBox(width: 10),
+          const ToggleButton(),
+          const SizedBox(width: 10),
           // Heart Icon
           IconButton(
             icon: Icon(Icons.favorite_border, color: Theme.of(context).colorScheme.onPrimary, size: 32),
@@ -45,12 +47,12 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChatListScreen(),
+                  builder: (context) => const ChatListScreen(),
                 ),
               );
             },
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
         ],
       ),
     );

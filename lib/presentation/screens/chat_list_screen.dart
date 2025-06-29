@@ -25,7 +25,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         id: '1',
         senderId: '1',
         text: 'Hey! Check out this new song 🎵',
-        timestamp: DateTime.now().subtract(Duration(minutes: 5)),
+        timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
         isMe: false,
       ),
       unreadCount: 2,
@@ -43,7 +43,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         id: '2',
         senderId: '2',
         text: 'Thanks for sharing that playlist!',
-        timestamp: DateTime.now().subtract(Duration(hours: 1)),
+        timestamp: DateTime.now().subtract(const Duration(hours: 1)),
         isMe: false,
       ),
       unreadCount: 0,
@@ -61,7 +61,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         id: '3',
         senderId: 'me',
         text: 'Did you listen to that new album?',
-        timestamp: DateTime.now().subtract(Duration(hours: 2)),
+        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
         isMe: true,
       ),
       unreadCount: 0,
@@ -115,7 +115,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       color: Theme.of(context).colorScheme.secondary,
                     ),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 15),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 15),
                   ),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
@@ -195,7 +195,7 @@ class ChatListItem extends StatelessWidget {
               ],
             ),
             
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             
             // Chat details
             Expanded(
@@ -223,7 +223,7 @@ class ChatListItem extends StatelessWidget {
                     ],
                   ),
                   
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   
                   Row(
                     children: [
@@ -240,14 +240,14 @@ class ChatListItem extends StatelessWidget {
                       ),
                       if (chat.unreadCount > 0)
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.green,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             chat.unreadCount.toString(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,

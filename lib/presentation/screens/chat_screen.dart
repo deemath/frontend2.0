@@ -29,35 +29,35 @@ class _ChatScreenState extends State<ChatScreen> {
         id: '1',
         senderId: widget.chat.user.id,
         text: 'Hey! How are you doing?',
-        timestamp: DateTime.now().subtract(Duration(hours: 2)),
+        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
         isMe: false,
       ),
       Message(
         id: '2',
         senderId: 'me',
         text: 'I\'m good! Just discovered this amazing new song 🎵',
-        timestamp: DateTime.now().subtract(Duration(hours: 1, minutes: 45)),
+        timestamp: DateTime.now().subtract(const Duration(hours: 1, minutes: 45)),
         isMe: true,
       ),
       Message(
         id: '3',
         senderId: widget.chat.user.id,
         text: 'Really? What song is it?',
-        timestamp: DateTime.now().subtract(Duration(hours: 1, minutes: 30)),
+        timestamp: DateTime.now().subtract(const Duration(hours: 1, minutes: 30)),
         isMe: false,
       ),
       Message(
         id: '4',
         senderId: 'me',
         text: 'It\'s "Blinding Lights" by The Weeknd. You should check it out!',
-        timestamp: DateTime.now().subtract(Duration(hours: 1, minutes: 25)),
+        timestamp: DateTime.now().subtract(const Duration(hours: 1, minutes: 25)),
         isMe: true,
       ),
       Message(
         id: '5',
         senderId: widget.chat.user.id,
         text: 'Thanks for sharing that playlist! 🎶',
-        timestamp: DateTime.now().subtract(Duration(minutes: 30)),
+        timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
         isMe: false,
       ),
     ];
@@ -83,11 +83,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _scrollToBottom() {
-    Future.delayed(Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
       }
@@ -135,7 +135,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
               ],
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -182,7 +182,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
                   final message = messages[index];
@@ -193,7 +193,7 @@ class _ChatScreenState extends State<ChatScreen> {
             
             // Message input
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
                 border: Border(
@@ -227,7 +227,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
+                          contentPadding: const EdgeInsets.symmetric(
                             horizontal: 20,
                             vertical: 12,
                           ),
@@ -242,7 +242,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   
                   IconButton(
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.send,
                       color: Colors.green,
                     ),
@@ -273,21 +273,21 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!message.isMe) ...[
-            CircleAvatar(
+            const CircleAvatar(
               radius: 12,
               backgroundImage: AssetImage('assets/images/hehe.png'),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
           ],
           
           Flexible(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: message.isMe 
                     ? Colors.green 
@@ -306,7 +306,7 @@ class MessageBubble extends StatelessWidget {
                       fontSize: 14,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     _formatTime(message.timestamp),
                     style: TextStyle(
@@ -322,8 +322,8 @@ class MessageBubble extends StatelessWidget {
           ),
           
           if (message.isMe) ...[
-            SizedBox(width: 8),
-            CircleAvatar(
+            const SizedBox(width: 8),
+            const CircleAvatar(
               radius: 12,
               backgroundImage: AssetImage('assets/images/hehe.png'),
             ),
