@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+import 'row_one_widget.dart';
+import 'row_two_widget.dart';
+import 'row_three_widget.dart';
+
+class DemoContentWidget extends StatelessWidget {
+  const DemoContentWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          color: Colors.black.withOpacity(0.2),
+          width: 1.0,
+        ),
+      ),
+      child: const Column(
+        children: [
+          // Row 1: 2 columns
+          RowOneWidget(),
+          // Gap between Row 1 and Row 2
+          // const SizedBox(height: 5.0),
+          // Row 2: 1 column (full width) - Square shape
+          RowTwoWidget(),
+          // Gap between Row 2 and Row 3
+          // const SizedBox(height: 5.0),
+          // Row 3: 2 columns
+          RowThreeWidget(),
+        ],
+      ),
+    );
+  }
+}
