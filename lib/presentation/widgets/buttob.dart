@@ -23,32 +23,32 @@ class CustomBottomBar extends StatelessWidget {
           Expanded(
             child: ElevatedButton(
               onPressed: onSharePost,
-              child: Text('Share Post'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: customPurple,
                 foregroundColor: Colors.white,
-                textStyle: TextStyle(fontWeight: FontWeight.bold),
+                textStyle: const TextStyle(fontWeight: FontWeight.bold),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
+              child: Text('Share Post'),
             ),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: ElevatedButton(
               onPressed: onShareThoughts,
-              child: Text('Share Thoughts'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: customPurple,
                 foregroundColor: Colors.white,
-                textStyle: TextStyle(fontWeight: FontWeight.bold),
+                textStyle: const TextStyle(fontWeight: FontWeight.bold),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
+              child: Text('Share Thoughts'),
             ),
           ),
         ],

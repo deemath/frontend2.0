@@ -29,6 +29,7 @@ import 'core/constants/app_constants.dart';
 import 'core/providers/theme_provider.dart'; // 👈 Create this file
 import 'presentation/screens/fanbase.dart';
 import 'presentation/screens/profile/normal_user.dart';
+import 'package:frontend/presentation/screens/search_feed_screen.dart';
 
 void main() {
   runApp(
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
             ),
         '/fanbases': (context) => const FanbasePage(),
         '/profile': (context) => NormalUserProfilePage(),
+        '/search': (context) => SearchFeedScreen(),
       },
     );
   }

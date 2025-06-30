@@ -25,7 +25,9 @@ class BottomBar extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.search,
                 size: 32, color: Theme.of(context).iconTheme.color),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/search');
+            },
           ),
 
           // Create (e.g., Add or Post)

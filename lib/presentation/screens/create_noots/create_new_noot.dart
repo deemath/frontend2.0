@@ -33,7 +33,7 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
         children: [
           const PlayingBar(),
           if (albumImage != null && albumImage.isNotEmpty)
-            Container(
+            SizedBox(
               width: double.infinity,
               height: MediaQuery.of(context).size.height * 0.45,
               child: Center(

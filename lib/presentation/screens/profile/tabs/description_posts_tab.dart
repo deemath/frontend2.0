@@ -5,7 +5,7 @@ class DescriptionPostsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
         'Description-based posts will appear here.',
         style: TextStyle(color: Colors.white),

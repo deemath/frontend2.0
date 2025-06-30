@@ -32,7 +32,7 @@ class AlbumArtPostsTab extends StatelessWidget {
                   const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 44,
                     backgroundImage: AssetImage('assets/images/hehe.png'),
                   ),
@@ -59,12 +59,12 @@ class AlbumArtPostsTab extends StatelessWidget {
                     Text(
                       username,
                       style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                          const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Text(
                       description,
-                      style: TextStyle(fontSize: 15),
+                      style: const TextStyle(fontSize: 15),
                     ),
                   ],
                 ),
@@ -72,12 +72,12 @@ class AlbumArtPostsTab extends StatelessWidget {
             ),
           ],
           if (showGrid) ...[
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             GridView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: albumArts.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 mainAxisSpacing: 2,
                 crossAxisSpacing: 2,
