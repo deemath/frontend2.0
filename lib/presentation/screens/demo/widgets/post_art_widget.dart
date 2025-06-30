@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class RowTwoWidget extends StatelessWidget {
-  const RowTwoWidget({super.key});
+class PostArtWidget extends StatelessWidget {
+  const PostArtWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class RowTwoWidget extends StatelessWidget {
           ),
           child: const Center(
             child: Text(
-              'Row 2, Full Width',
+              'Post Art',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,

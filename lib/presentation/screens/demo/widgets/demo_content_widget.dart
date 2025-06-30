@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'row_one_widget.dart';
-import 'row_two_widget.dart';
-import 'row_three_widget.dart';
+import 'header_widget.dart';
+import 'post_art_widget.dart';
+import 'footer_widget.dart';
 
 class DemoContentWidget extends StatelessWidget {
   const DemoContentWidget({super.key});
@@ -20,15 +20,15 @@ class DemoContentWidget extends StatelessWidget {
       child: const Column(
         children: [
           // Row 1: 2 columns
-          RowOneWidget(),
+          HeaderWidget(),
           // Gap between Row 1 and Row 2
           // const SizedBox(height: 5.0),
           // Row 2: 1 column (full width) - Square shape
-          RowTwoWidget(),
+          PostArtWidget(),
           // Gap between Row 2 and Row 3
           // const SizedBox(height: 5.0),
           // Row 3: 2 columns
-          RowThreeWidget(),
+          FooterWidget(),
         ],
       ),
     );
