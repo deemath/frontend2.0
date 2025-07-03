@@ -28,7 +28,8 @@ class InstagramSearchBar extends StatelessWidget {
           children: [
             // Back arrow on the left
             IconButton(
-              icon: Icon(Icons.arrow_back, color: theme.iconTheme.color?.withOpacity(0.7)),
+              icon: Icon(Icons.arrow_back,
+                  color: theme.iconTheme.color?.withOpacity(0.7)),
               onPressed: onBack ?? () => Navigator.of(context).maybePop(),
             ),
             // Expanded TextField
@@ -36,6 +37,7 @@ class InstagramSearchBar extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 onChanged: onChanged,
+                onSubmitted: onChanged, // Add this line
                 style: TextStyle(
                   color: theme.colorScheme.onSurface,
                   fontSize: 16,
@@ -54,10 +56,12 @@ class InstagramSearchBar extends StatelessWidget {
                     children: [
                       if (controller.text.isNotEmpty)
                         IconButton(
-                          icon: Icon(Icons.clear, color: theme.iconTheme.color?.withOpacity(0.7)),
+                          icon: Icon(Icons.clear,
+                              color: theme.iconTheme.color?.withOpacity(0.7)),
                           onPressed: onClear ?? () => controller.clear(),
                         ),
-                      Icon(Icons.search, color: theme.iconTheme.color?.withOpacity(0.7)),
+                      Icon(Icons.search,
+                          color: theme.iconTheme.color?.withOpacity(0.7)),
                     ],
                   ),
                 ),
