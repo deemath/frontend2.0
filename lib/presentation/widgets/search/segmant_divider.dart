@@ -23,25 +23,28 @@ class SegmentDivider extends StatelessWidget {
     return Container(
       color: backgroundColor,
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(segments.length, (index) {
-          final isSelected = index == selectedIndex;
-          return GestureDetector(
-            onTap: () => onSegmentSelected(index),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              // No background color change for selected
-              child: Text(
-                segments[index],
-                style: TextStyle(
-                  color: unselectedTextColor,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: List.generate(segments.length, (index) {
+            final isSelected = index == selectedIndex;
+            return GestureDetector(
+              onTap: () => onSegmentSelected(index),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  segments[index],
+                  style: TextStyle(
+                    color: unselectedTextColor,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
                 ),
               ),
-            ),
-          );
-        }),
+            );
+          }),
+        ),
       ),
     );
   }
