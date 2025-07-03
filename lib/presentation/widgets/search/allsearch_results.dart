@@ -39,7 +39,9 @@ class AllSearchResults extends StatelessWidget {
         ),
         ...results.map(
           (item) => ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.person)),
+            leading: const CircleAvatar(
+              backgroundImage: AssetImage('assets/images/hehe.png'),
+            ),
             title: Text(item['name'] ?? ''),
             subtitle: Text(item['subtitle'] ?? ''),
             onTap: () {},

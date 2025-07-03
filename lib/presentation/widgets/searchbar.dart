@@ -5,6 +5,7 @@ class InstagramSearchBar extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
   final VoidCallback? onBack;
+  final ValueChanged<String>? onSubmitted; // <-- Add this line
 
   const InstagramSearchBar({
     Key? key,
@@ -12,6 +13,7 @@ class InstagramSearchBar extends StatelessWidget {
     this.onChanged,
     this.onClear,
     this.onBack,
+    this.onSubmitted, // <-- Add this line
   }) : super(key: key);
 
   @override
@@ -37,7 +39,7 @@ class InstagramSearchBar extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 onChanged: onChanged,
-                onSubmitted: onChanged, // Add this line
+                onSubmitted: onSubmitted, // <-- Add this line
                 style: TextStyle(
                   color: theme.colorScheme.onSurface,
                   fontSize: 16,
