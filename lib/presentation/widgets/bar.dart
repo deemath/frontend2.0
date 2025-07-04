@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/toggle_button.dart';
 import '../screens/chat_list_screen.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
   const NootAppBar({super.key});
@@ -34,15 +35,13 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
           const Spacer(),
           // temparary toggle button
           const ToggleButton(),
-          const SizedBox(width: 10),
-          // Heart Icon
           IconButton(
-            icon: Icon(Icons.favorite_border, color: Theme.of(context).colorScheme.onPrimary, size: 32),
+            icon: Icon(LucideIcons.heart, color: Theme.of(context).colorScheme.onPrimary, size: 22),
             onPressed: () {},
           ),
           // Message Icon - Updated this section
           IconButton(
-            icon: Icon(Icons.chat, color: Theme.of(context).colorScheme.onPrimary, size: 28),
+            icon: Icon(LucideIcons.messagesSquare, color: Theme.of(context).colorScheme.onPrimary, size: 22),
             onPressed: () {
               Navigator.push(
                 context,

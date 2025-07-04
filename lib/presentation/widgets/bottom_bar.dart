@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class BottomBar extends StatelessWidget {
   const BottomBar({super.key});
@@ -14,8 +15,8 @@ class BottomBar extends StatelessWidget {
           // Home
           IconButton(
             icon: Icon(
-              Icons.home,
-              size: 32,
+              LucideIcons.home,
+              size: 22,
               color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () {},
@@ -23,8 +24,8 @@ class BottomBar extends StatelessWidget {
 
           // Search
           IconButton(
-            icon: Icon(Icons.search,
-                size: 32, color: Theme.of(context).iconTheme.color),
+            icon: Icon(LucideIcons.search,
+              size: 22, color: Theme.of(context).iconTheme.color),
             onPressed: () {
               Navigator.pushNamed(context, '/search');
             },
@@ -33,8 +34,8 @@ class BottomBar extends StatelessWidget {
           // Create (e.g., Add or Post)
           IconButton(
             icon: Icon(
-              Icons.add_circle_outline,
-              size: 32,
+              LucideIcons.plusCircle,
+              size: 22,
               color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () {
@@ -42,10 +43,14 @@ class BottomBar extends StatelessWidget {
             },
           ),
           // Fanbase (e.g., Group of people)
-          IconButton(
-            icon: Icon(Icons.groups,
-                size: 32, color: Theme.of(context).iconTheme.color),
-            onPressed: () {},
+          IconButton( 
+            icon: Icon(
+              LucideIcons.users, 
+              size: 22, 
+              color: Theme.of(context).iconTheme.color),
+            onPressed: (){
+              Navigator.pushNamed(context, '/fanbases');
+            },
           ),
 
           // Profile
@@ -56,7 +61,7 @@ class BottomBar extends StatelessWidget {
             child: Stack(
               children: [
                 CircleAvatar(
-                  radius: 16,
+                  radius: 14,
                   backgroundImage: AssetImage('assets/images/hehe.png'),
                 )
               ],

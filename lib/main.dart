@@ -28,6 +28,7 @@ import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/theme_provider.dart'; // 👈 Create this file
+import 'presentation/screens/fanbase.dart';
 import 'presentation/screens/profile/normal_user.dart';
 import 'package:frontend/presentation/screens/search_feed_screen.dart';
 
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
                 accessToken: AppConstants.spotifyAccessToken,
               ),
             ),
+        '/fanbases': (context) => FanbasePage(),
         '/profile': (context) => NormalUserProfilePage(),
         '/search': (context) => SearchFeedScreen(),
         '/demo': (context) => DemoScreen(),
