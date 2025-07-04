@@ -1,78 +1,89 @@
 import 'package:flutter/material.dart';
-import '../widgets/playing_bar.dart';
-import '../widgets/bottom_bar.dart';
-import '../widgets/fanbases/fanbase_card.dart';
+import '/presentation/widgets/musicplayer_bar.dart';
+import '/presentation/widgets/bottom_bar.dart';
+import '/presentation/widgets/fanbases/fanbase_card.dart';
 
-class FanbasePage extends StatefulWidget {
-  const FanbasePage({super.key});
-
-  @override
-  State<FanbasePage> createState() => _FanbasePageState();
-}
-
-class _FanbasePageState extends State<FanbasePage> {
-  late List<Map<String, dynamic>> fanbases;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadFanbases();
-  }
-
-  void _loadFanbases() {
-    fanbases = [
-      {
-        'title': '128 Democrats cross the aisle and help Republicans block...',
-        'subtitle': 'AOC-backed bid to impeach Trump over Iran strikes',
-        'url': 'https://www.independent.co.uk/news/world/americas/us-politics/trump-impeachment-iran',
-        'votes': 24000,
-        'comments': 2200,
-        'award': 1,
-        'image': ['https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png'],
-      },
-      {
-        'title': 'Taylor Swift announces new album during concert',
-        'subtitle': 'Midnights to be released next month',
-        'url': 'https://example.com/taylor-swift',
-        'votes': 19000,
-        'comments': 3500,
-        'award': 3,
-        'image': [],
-      },
-    ];
-    setState(() {});
-  }
+class FanbasePage extends StatelessWidget {
+  final List<Map<String, dynamic>> fanbases = [
+    {
+      'profileImageUrl': 'assets/images/spotify.png',
+      'fanbaseName': 'Owlsykins',
+      'topic': 'Computer Science is the worst major, I can’t believe I did this to myself...',
+    },
+    {
+      'profileImageUrl': 'assets/images/spotify.png',
+      'fanbaseName': 'Desynkd',
+      'topic': 'I’m a computer science professor at UC Berkeley. Tech jobs are drying up and...',
+    },
+    {
+      'profileImageUrl': 'assets/images/spotify.png',
+      'fanbaseName': 'Cloudhopper',
+      'topic': 'The computer science graduate coming out of top schools like Berkeley with 4.0 GPA still...',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text('Fanbases'),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        title: const Text('Fanbases'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadFanbases,
-            tooltip: 'Reload fanbases',
-          )
-        ],
       ),
       body: Column(
         children: [
-          PlayingBar(),
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(12),
               itemCount: fanbases.length,
               itemBuilder: (context, index) {
-                return FanbaseCard(post: fanbases[index]);
+                return FanbaseCard(
+                  profileImageUrl: fanbases[index]['profileImageUrl'],
+                  fanbaseName: fanbases[index]['fanbaseName'],
+                  topic: fanbases[index]['topic'],
+                  onJoin: () {},
+                );
               },
             ),
           ),
-
+          // Comment out or define MusicPlayerBar and BottomBar if needed
+          MusicPlayerBar(title: 'Bluestar', playing: false),
+          // BottomBar(),
         ],
       ),
-      bottomNavigationBar: BottomBar(),
+      bottomNavigationBar: BottomBar(), // Uncomment and define if needed
     );
   }
 }
+
+// import 'package:flutter/material.dart';
+// import '/presentation/widgets/fanbases/fanbase_background.dart';
+// import '/presentation/widgets/fanbases/fanbase_card.dart';
+
+// class FanbaseScreen extends StatelessWidget {
+//   const FanbaseScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.white,
+//       body: Center(
+//         child: AspectRatio(
+//           aspectRatio: 1,
+//           child: Stack(
+//             children: [
+//               CustomPaint(
+//                 painter: FanbaseBackground(),
+//                 child: SizedBox.expand(),
+//               ),
+//               const FanbaseCardWidget(
+//                 profileImageUrl: 'assets/images/user.png',
+//                 fanbaseName: 'Music Lovers',
+//                 topic: 'Let\'s discuss the latest trends in music and share our favorite tracks!',
+//                 onJoin: null, // Replace with real callback
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

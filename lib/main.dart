@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
                 accessToken: AppConstants.spotifyAccessToken,
               ),
             ),
-        '/fanbases': (context) => const FanbasePage(),
+        '/fanbases': (context) => FanbasePage(),
         '/profile': (context) => NormalUserProfilePage(),
         '/search': (context) => SearchFeedScreen(),
         '/demo': (context) => DemoScreen(),
