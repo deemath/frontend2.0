@@ -22,6 +22,7 @@ class ExampleScreen extends StatelessWidget {
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/demo/demo.dart';
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
@@ -52,8 +53,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: themeProvider.themeMode, 
-
+      themeMode: themeProvider.themeMode,
       home: const HomeScreen(),
       routes: {
         '/create': (context) => CreatePostPage(
@@ -64,6 +64,7 @@ class MyApp extends StatelessWidget {
         '/fanbases': (context) => const FanbasePage(),
         '/profile': (context) => NormalUserProfilePage(),
         '/search': (context) => SearchFeedScreen(),
+        '/demo': (context) => DemoScreen(),
       },
     );
   }
