@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/common/musicplayer_bar.dart';
+import '../../../data/services/song_post_service.dart';
 
 class CreateNewNootPage extends StatefulWidget {
   final Map<String, dynamic> track;
@@ -12,11 +13,77 @@ class CreateNewNootPage extends StatefulWidget {
 
 class _CreateNewNootPageState extends State<CreateNewNootPage> {
   final TextEditingController _captionController = TextEditingController();
+  final SongPostService _songPostService = SongPostService();
+  bool _isLoading = false;
 
   @override
   void dispose() {
     _captionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _createPost() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final track = widget.track;
+      final String trackId = track['id'] ?? '';
+      final String songName = track['name'] ?? '';
+      final String artists = track['artists'] is List ? track['artists'].join(", ") : track['artists'].toString();
+      final String? albumImage = track['album'];
+      final String caption = _captionController.text.trim();
+
+      final result = await _songPostService.createPost(
+        trackId: trackId,
+        songName: songName,
+        artists: artists,
+        albumImage: albumImage,
+        caption: caption.isNotEmpty ? caption : null,
+      );
+
+      if (result['success']) {
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message']),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Navigate back to previous screen
+          Navigator.of(context).pop();
+        }
+      } else {
+        // Show error message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message']),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -81,8 +148,7 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {
-                },
+                onPressed: _isLoading ? null : _createPost,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8E08EF),
                   foregroundColor: Colors.white,
@@ -91,7 +157,16 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Share'),
+                child: _isLoading 
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text('Share'),
               ),
             ),
           ),
