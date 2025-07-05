@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/presentation/widgets/search/allsearch_results.dart';
+import 'package:frontend/presentation/widgets/search/explore_feed.dart';
 import 'package:frontend/presentation/widgets/search/segmant_divider.dart';
 import 'package:frontend/presentation/widgets/searchbar.dart';
+import 'package:frontend/presentation/widgets/search/category_selector.dart';
 
 class SearchFeedScreen extends StatefulWidget {
   const SearchFeedScreen({Key? key}) : super(key: key);
@@ -85,6 +87,24 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
     );
   }
 
+  // Temporary mock images for explore feed (add your own asset images)
+  final List<String> _exploreImages = [
+    'assets/images/hehe.png',
+    'assets/images/hehe.png',
+    'assets/images/hehe.png',
+    // Add more asset image paths here
+  ];
+
+  final List<String> _categories = [
+    'Trending',
+    'Pop',
+    'Superhits',
+    'Kollywood',
+    'Raps',
+    'Kpop'
+  ];
+  int _selectedCategory = 0;
+
   @override
   Widget build(BuildContext context) {
     final showResults = _hasSearched && _query.isNotEmpty;
@@ -92,43 +112,63 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
       appBar: AppBar(
         title: InstagramSearchBar(
           controller: _searchController,
-          onChanged: _onSearchChanged, // Only updates _query
-          onSubmitted: _onSearchSubmitted, // Triggers results
+          onChanged: _onSearchChanged,
+          onSubmitted: _onSearchSubmitted,
         ),
         automaticallyImplyLeading: false,
       ),
-      body: showResults
-          ? Column(
-              children: [
-                SegmentDivider(
-                  segments: _segments,
-                  selectedIndex: _selectedSegment,
-                  onSegmentSelected: (index) {
-                    setState(() {
-                      _selectedSegment = index;
-                    });
-                  },
-                ),
-                Expanded(
-                  child: ListView(
+      body: Column(
+        children: [
+          // Category selector below the search bar
+          CategorySelector(
+            categories: _categories,
+            selectedIndex: _selectedCategory,
+            onCategorySelected: (index) {
+              setState(() {
+                _selectedCategory = index;
+                // Optionally filter explore feed or results here
+              });
+            },
+          ),
+          Expanded(
+            child: showResults
+                ? Column(
                     children: [
-                      if (_selectedSegment == 0)
-                        AllSearchResults(
-                          results: _allResults,
-                          query: _query,
+                      SegmentDivider(
+                        segments: _segments,
+                        selectedIndex: _selectedSegment,
+                        onSegmentSelected: (index) {
+                          setState(() {
+                            _selectedSegment = index;
+                          });
+                        },
+                      ),
+                      Expanded(
+                        child: ListView(
+                          children: [
+                            if (_selectedSegment == 0)
+                              AllSearchResults(
+                                results: _allResults,
+                                query: _query,
+                              ),
+                            if (_selectedSegment == 1)
+                              _buildSection(
+                                  'People', _mockResults['People'] ?? []),
+                            if (_selectedSegment == 2)
+                              _buildSection(
+                                  'Pages', _mockResults['Pages'] ?? []),
+                            if (_selectedSegment == 3)
+                              _buildSection(
+                                  'Groups', _mockResults['Groups'] ?? []),
+                          ],
                         ),
-                      if (_selectedSegment == 1)
-                        _buildSection('People', _mockResults['People'] ?? []),
-                      if (_selectedSegment == 2)
-                        _buildSection('Pages', _mockResults['Pages'] ?? []),
-                      if (_selectedSegment == 3)
-                        _buildSection('Groups', _mockResults['Groups'] ?? []),
+                      ),
                     ],
-                  ),
-                ),
-              ],
-            )
-          : const Center(child: Text('Search results here')),
+                  )
+                : ExploreFeed(imageUrls: _exploreImages),
+          ),
+        ],
+      ),
     );
   }
 }
