@@ -5,7 +5,7 @@ import '/core/constants/app_constants.dart';
 import '/presentation/widgets/bar.dart';
 import '/presentation/widgets/bottom_bar.dart';
 import '/presentation/widgets/playing_bar.dart';
-import 'feed.dart';
+import 'feed/feed.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? accessToken;

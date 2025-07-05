@@ -33,7 +33,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     });
 
     try {
-      final url = Uri.parse('http://localhost:3000/api/spotify/search');
+      final url = Uri.parse('http://localhost:3000/api/spotify/search/');
       final response = await http.post(
         url,
         headers: {
