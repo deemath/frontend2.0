@@ -26,8 +26,6 @@ import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/auth/signup_screen.dart';
 
-import 'presentation/screens/demo/demo.dart';
-
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
@@ -35,9 +33,11 @@ import 'data/services/auth_service.dart';
 import 'core/constants/app_constants.dart';
 
 import 'core/providers/theme_provider.dart'; // 👈 Create this file
-import 'presentation/screens/fanbase.dart';
+import 'presentation/screens/fanbase/fanbase.dart';
 import 'presentation/screens/profile/normal_user.dart';
-import 'package:frontend/presentation/screens/search_feed_screen.dart';
+import 'presentation/screens/search/search_feed_screen.dart';
+import 'presentation/widgets/view_song_post/feed.dart';
+
 
 
 void main() {
@@ -80,7 +80,8 @@ class MyApp extends StatelessWidget {
         '/fanbases': (context) => FanbasePage(),
         '/profile': (context) => NormalUserProfilePage(),
         '/search': (context) => SearchFeedScreen(),
-        '/demo': (context) => DemoScreen(),
+
+        '/feed': (context) => FeedPage(),
       },
     );
   }

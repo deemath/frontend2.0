@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/toggle_button.dart';
-import '../screens/chat_list_screen.dart';
+import '../toggle_button.dart';
+import '../../screens/chat/chat_list_screen.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class NootAppBar extends StatelessWidget implements PreferredSizeWidget {

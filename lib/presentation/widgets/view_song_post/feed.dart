@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import './bg_container.dart';
-import './widgets/demo_content_widget.dart';
+import './feed_bg_container.dart';
+import './feed_post.dart';
 
-class DemoScreen extends StatelessWidget {
-  const DemoScreen({super.key});
+class FeedPage extends StatelessWidget {
+  const FeedPage({super.key});
 
   @override
   Widget build(BuildContext context) {

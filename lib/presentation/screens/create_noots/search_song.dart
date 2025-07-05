@@ -4,8 +4,8 @@ import 'dart:convert';
 import '/data/services/spotify_service.dart';
 import 'dart:async';
 import 'create_new_noot.dart';
-import '../../widgets/buttob.dart';
-import '../../widgets/playing_bar.dart';
+import '../../widgets/create_post/button.dart';
+import '../../widgets/common/musicplayer_bar.dart';
 
 class CreatePostPage extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -33,7 +33,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     });
 
     try {
-      final url = Uri.parse('http://localhost:3000/api/spotify/search');
+      final url = Uri.parse('http://localhost:3000/api/spotify/search/');
       final response = await http.post(
         url,
         headers: {
@@ -78,7 +78,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
   }
 
   void _onSearchChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 600), () {
       if (_searchController.text.isNotEmpty) {
         _performSearch(_searchController.text);
@@ -113,7 +113,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const PlayingBar(),
+            MusicPlayerBar(title: 'Now Playing', playing: false),
             TextField(
               controller: _searchController,
               style: TextStyle(color: colorScheme.onPrimary),
@@ -155,9 +155,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
-                  itemCount: _searchResults!['tracks']['items'].length,
+                  itemCount: _searchResults?['tracks']?['items']?.length ?? 0,
                   itemBuilder: (context, index) {
-                    final track = _searchResults!['tracks']['items'][index];
+                    final track = _searchResults?['tracks']?['items']?[index];
+                    if (track == null) return const SizedBox.shrink();
                     return ListTile(
                       leading: track['album'] != null && track['album'].toString().isNotEmpty
                           ? Image.network(
@@ -168,13 +169,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
                             )
                           : const SizedBox(width: 50, height: 50),
                       title: Text(
-                        track['name'],
+                        track['name'] ?? 'Unknown Track',
                         style: TextStyle(color: colorScheme.onPrimary),
                       ),
                       subtitle: Text(
                         track['artists'] is List
                             ? track['artists'].join(', ')
-                            : track['artists'].toString(),
+                            : track['artists']?.toString() ?? 'Unknown Artist',
                         style: TextStyle(color: colorScheme.onPrimary.withOpacity(0.6)),
                       ),
                       onTap: () {

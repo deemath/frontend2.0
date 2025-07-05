@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import '/data/services/spotify_service.dart';
 // import '../../data/services/spotify_service.dart';
 import '/core/constants/app_constants.dart';
-import '/presentation/widgets/bar.dart';
-import '/presentation/widgets/bottom_bar.dart';
-import '/presentation/widgets/playing_bar.dart';
-import 'feed.dart';
-import '/presentation/widgets/musicplayer_bar.dart';
+import '/presentation/widgets/home/bar.dart';
+import '/presentation/widgets/common/bottom_bar.dart';
+
+
+import '/presentation/widgets/view_song_post/feed.dart';
+import '/presentation/widgets/common/musicplayer_bar.dart';
+
 
 class HomeScreen extends StatefulWidget {
   final String? accessToken;
