@@ -26,9 +26,6 @@ import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/auth/signup_screen.dart';
 
-import 'presentation/screens/demo/demo.dart';
-
-
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
