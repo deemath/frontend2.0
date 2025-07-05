@@ -5,6 +5,7 @@ class InstagramSearchBar extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
   final VoidCallback? onBack;
+  final ValueChanged<String>? onSubmitted; // <-- Add this line
 
   const InstagramSearchBar({
     Key? key,
@@ -12,6 +13,7 @@ class InstagramSearchBar extends StatelessWidget {
     this.onChanged,
     this.onClear,
     this.onBack,
+    this.onSubmitted, // <-- Add this line
   }) : super(key: key);
 
   @override
@@ -28,7 +30,8 @@ class InstagramSearchBar extends StatelessWidget {
           children: [
             // Back arrow on the left
             IconButton(
-              icon: Icon(Icons.arrow_back, color: theme.iconTheme.color?.withOpacity(0.7)),
+              icon: Icon(Icons.arrow_back,
+                  color: theme.iconTheme.color?.withOpacity(0.7)),
               onPressed: onBack ?? () => Navigator.of(context).maybePop(),
             ),
             // Expanded TextField
@@ -36,6 +39,7 @@ class InstagramSearchBar extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 onChanged: onChanged,
+                onSubmitted: onSubmitted, // <-- Add this line
                 style: TextStyle(
                   color: theme.colorScheme.onSurface,
                   fontSize: 16,
@@ -54,10 +58,12 @@ class InstagramSearchBar extends StatelessWidget {
                     children: [
                       if (controller.text.isNotEmpty)
                         IconButton(
-                          icon: Icon(Icons.clear, color: theme.iconTheme.color?.withOpacity(0.7)),
+                          icon: Icon(Icons.clear,
+                              color: theme.iconTheme.color?.withOpacity(0.7)),
                           onPressed: onClear ?? () => controller.clear(),
                         ),
-                      Icon(Icons.search, color: theme.iconTheme.color?.withOpacity(0.7)),
+                      Icon(Icons.search,
+                          color: theme.iconTheme.color?.withOpacity(0.7)),
                     ],
                   ),
                 ),

@@ -5,7 +5,11 @@ import '/core/constants/app_constants.dart';
 import '/presentation/widgets/bar.dart';
 import '/presentation/widgets/bottom_bar.dart';
 import '/presentation/widgets/playing_bar.dart';
-import 'feed/feed.dart';
+
+
+import 'feed.dart';
+import '/presentation/widgets/musicplayer_bar.dart';
+
 
 class HomeScreen extends StatefulWidget {
   final String? accessToken;
@@ -55,10 +59,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NootAppBar(),
-      body: const Column(
+      body: Column(
         children: [
-          // Playing bar
-          PlayingBar(),
+          // PlayingBar(),
           // Feed below playing bar
           Expanded(
             child: FeedPage(),
@@ -174,9 +177,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
             ),*/
+          MusicPlayerBar(title: 'Bluestar', playing: false),
         ],
       ),
-
       // Bottom bar
       bottomNavigationBar: const BottomBar(),
     );
