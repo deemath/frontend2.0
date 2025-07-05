@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class BottomBar extends StatelessWidget {
   const BottomBar({super.key});
@@ -14,27 +15,27 @@ class BottomBar extends StatelessWidget {
           // Home
           IconButton(
             icon: Icon(
-              Icons.home,
-              size: 32,
+              LucideIcons.home,
+              size: 22,
               color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () {},
           ),
 
           // Search
-          IconButton( 
-            icon: Icon(
-              Icons.search, 
-              size: 32, 
-              color: Theme.of(context).iconTheme.color),
-            onPressed: (){},
+          IconButton(
+            icon: Icon(LucideIcons.search,
+              size: 22, color: Theme.of(context).iconTheme.color),
+            onPressed: () {
+              Navigator.pushNamed(context, '/search');
+            },
           ),
-              
+
           // Create (e.g., Add or Post)
           IconButton(
             icon: Icon(
-              Icons.add_circle_outline,
-              size: 32,
+              LucideIcons.plusCircle,
+              size: 22,
               color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () {
@@ -44,20 +45,27 @@ class BottomBar extends StatelessWidget {
           // Fanbase (e.g., Group of people)
           IconButton( 
             icon: Icon(
-              Icons.groups, 
-              size: 32, 
+              LucideIcons.users, 
+              size: 22, 
               color: Theme.of(context).iconTheme.color),
-            onPressed: (){},
+            onPressed: (){
+              Navigator.pushNamed(context, '/fanbases');
+            },
           ),
 
           // Profile
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundImage: AssetImage('assets/images/hehe.png'),
-              )
-            ],
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/profile');
+            },
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  radius: 14,
+                  backgroundImage: AssetImage('assets/images/hehe.png'),
+                )
+              ],
+            ),
           ),
         ],
       ),

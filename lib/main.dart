@@ -22,14 +22,23 @@ class ExampleScreen extends StatelessWidget {
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'presentation/screens/home_screen.dart';
+
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/auth/signup_screen.dart';
+
+import 'presentation/screens/demo/demo.dart';
+
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
 import 'data/services/auth_service.dart';
 import 'core/constants/app_constants.dart';
-import 'core/providers/theme_provider.dart';
+
+import 'core/providers/theme_provider.dart'; // 👈 Create this file
+import 'presentation/screens/fanbase.dart';
+import 'presentation/screens/profile/normal_user.dart';
+import 'package:frontend/presentation/screens/search_feed_screen.dart';
+
 
 void main() {
   runApp(
@@ -53,9 +62,12 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
+
       
       // Start with login screen, then check auth status
-      home: const AuthWrapper(),
+      // home: const AuthWrapper(),
+      home: const HomeScreen(),
+
       routes: {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),
@@ -65,6 +77,10 @@ class MyApp extends StatelessWidget {
                 accessToken: AppConstants.spotifyAccessToken,
               ),
             ),
+        '/fanbases': (context) => FanbasePage(),
+        '/profile': (context) => NormalUserProfilePage(),
+        '/search': (context) => SearchFeedScreen(),
+        '/demo': (context) => DemoScreen(),
       },
     );
   }
