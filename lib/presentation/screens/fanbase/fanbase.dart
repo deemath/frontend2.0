@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '/presentation/widgets/musicplayer_bar.dart';
-import '/presentation/widgets/bottom_bar.dart';
+import '/presentation/widgets/common/musicplayer_bar.dart';
+import '/presentation/widgets/common/bottom_bar.dart';
 import '/presentation/widgets/fanbases/fanbase_card.dart';
 
 class FanbasePage extends StatelessWidget {

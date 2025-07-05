@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:frontend/presentation/widgets/search/allsearch_results.dart';
 import 'package:frontend/presentation/widgets/search/explore_feed.dart';
 import 'package:frontend/presentation/widgets/search/segmant_divider.dart';
-import 'package:frontend/presentation/widgets/searchbar.dart';
+
+import 'package:frontend/presentation/widgets/search/searchbar.dart';
+
 import 'package:frontend/presentation/widgets/search/category_selector.dart';
+
 
 class SearchFeedScreen extends StatefulWidget {
   const SearchFeedScreen({Key? key}) : super(key: key);

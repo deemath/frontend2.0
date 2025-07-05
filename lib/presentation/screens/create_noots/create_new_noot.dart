@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../widgets/playing_bar.dart';
+import '../../widgets/common/musicplayer_bar.dart';
 
 class CreateNewNootPage extends StatefulWidget {
   final Map<String, dynamic> track;
@@ -31,7 +31,7 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
       body: Column(
 
         children: [
-          const PlayingBar(),
+          MusicPlayerBar(title: 'Now Playing', playing: false),
           if (albumImage != null && albumImage.isNotEmpty)
             SizedBox(
               width: double.infinity,

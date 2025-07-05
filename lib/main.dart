@@ -26,8 +26,6 @@ import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/auth/signup_screen.dart';
 
-import 'presentation/screens/demo/demo.dart';
-
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
@@ -35,10 +33,16 @@ import 'data/services/auth_service.dart';
 import 'core/constants/app_constants.dart';
 
 import 'core/providers/theme_provider.dart'; // 👈 Create this file
-import 'presentation/screens/fanbase.dart';
+import 'presentation/screens/fanbase/fanbase.dart';
 import 'presentation/screens/profile/normal_user.dart';
+<<<<<<< HEAD
 import 'package:frontend/presentation/screens/search_feed_screen.dart';
 import 'presentation/widgets/despost/demo.dart';
+=======
+import 'presentation/screens/search/search_feed_screen.dart';
+import 'presentation/widgets/view_song_post/feed.dart';
+
+>>>>>>> 4ab6310c4ffbec552c1418bd07e743549ad42968
 
 
 void main() {
@@ -83,6 +87,8 @@ class MyApp extends StatelessWidget {
         '/search': (context) => SearchFeedScreen(),
         '/demo': (context) => DemoScreen(),
         '/demodespost': (context) => DemoScreen2(),
+
+        '/feed': (context) => FeedPage(),
       },
     );
   }

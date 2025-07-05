@@ -40,6 +40,6 @@ class Chat {
     required this.id,
     required this.user,
     required this.lastMessage,
-    required this.unreadCount,
+    this.unreadCount = 0,
   });
 }
