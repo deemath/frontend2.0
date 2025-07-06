@@ -7,5 +7,5 @@ class AppConstants {
 
   // Spotify Access Token
   static const String spotifyAccessToken =
-      'BQCd_fHQFXOk_CeeNaHWCd-4GNrBkrS-Jo17bxThyt7dW1lXCINKlkzMBfcxIfBkdZrQtKJKr4v4PUMBdeXhE2oAU5OUHk_ChovK4LzXjt6rYNOAHpVZI62akg8xlBq1kdU3iRGz-KeeJvbvSNlb7IOvlGffpcakqQjVmYg3AIfunynO2nOwbr_Np-_HRxgl-7S8Gpgwixvo52aPpxwmOcUVEFzX8_m0l2IG7luFFX-4hyaol0WCD0_4jmj4RA7YF8iIepLk';
+      'BQDWUEzjpL4wPNTvWdgrxLtHtmDtOczBuweP9VgNGD_QfhKcoEsYb-Px1QvBG3c8402SpagSAHs3KfwCqFjb_rxLBTxPxPB4xhuQB93eKWLfXrpP6RpmaicgVb3UPDGXLiLMPEI5fnYlwzEJtobpQ9VLsd4wEPQDDnJdCe61fmVjJVHV3E5tSST1kJ3qNkRm-pHADuertoO37vjqyFpbPVTiM4LblR_PAQlGJ06JKRCEQlqcLFbdYuL_7d_YSm5NBrgudhz9';
 }
