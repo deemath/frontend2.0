@@ -224,4 +224,165 @@ class DemoContentWidget extends StatelessWidget {
       ),
     );
   }
-} 
+}
+
+// ================= FeedPostWidget =================
+class FeedPostWidget extends StatelessWidget {
+  final Map<String, dynamic> post;
+  final VoidCallback onLike;
+  final VoidCallback onComment;
+  final VoidCallback onPlay;
+  final bool isLiked;
+  final bool isPlaying;
+
+  const FeedPostWidget({
+    super.key,
+    required this.post,
+    required this.onLike,
+    required this.onComment,
+    required this.onPlay,
+    required this.isLiked,
+    required this.isPlaying,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          // Header with user details
+          Expanded(
+            flex: 72,
+            child: Row(
+              children: [
+                // User details
+                Expanded(
+                  flex: 359,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Profile Picture
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: AssetImage(post['userAvatar'] ?? 'assets/images/hehe.png'),
+                        ),
+                        const SizedBox(width: 18),
+                        // Username
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              post['username'] ?? 'Unknown User',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Song control
+                Expanded(
+                  flex: 131,
+                  child: GestureDetector(
+                    onTap: onPlay,
+                    child: Container(
+                      margin: const EdgeInsets.all(4.0),
+                      child: Icon(
+                        isPlaying ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Post art
+          PostArtWidget(),
+          // Footer with track details and interactions
+          Expanded(
+            flex: 73,
+            child: Row(
+              children: [
+                // Track details
+                Expanded(
+                  flex: 359,
+                  child: Container(
+                    margin: const EdgeInsets.all(4.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          post['trackName'] ?? 'Unknown Track',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          post['artistName'] ?? 'Unknown Artist',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Interactions
+                Expanded(
+                  flex: 131,
+                  child: Container(
+                    margin: const EdgeInsets.all(4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Like button
+                        GestureDetector(
+                          onTap: onLike,
+                          child: Icon(
+                            isLiked ? Icons.favorite : Icons.favorite_border,
+                            color: isLiked ? Colors.red : Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                        // Comment button
+                        GestureDetector(
+                          onTap: onComment,
+                          child: const Icon(
+                            Icons.comment_outlined,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
