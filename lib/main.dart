@@ -81,7 +81,6 @@ class MyApp extends StatelessWidget {
         '/fanbases': (context) => FanbasePage(),
         '/profile': (context) => NormalUserProfilePage(),
         '/search': (context) => SearchFeedScreen(),
-
         '/feed': (context) => FeedPage(),
         '/showpost': (context) => const ShowAllPostsScreen(),
         // '/post/:id': (context) {
