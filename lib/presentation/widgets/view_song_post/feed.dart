@@ -30,7 +30,7 @@ class _FeedPageState extends State<FeedPage> {
       });
 
       final result = await _songPostService.getAllPosts();
-      
+
       if (result['success']) {
         setState(() {
           _posts = List<Map<String, dynamic>>.from(result['data']);
@@ -118,6 +118,7 @@ class _FeedPageState extends State<FeedPage> {
       );
     }
 
+    // REMOVE THIS LATER
     // For now, show the first post. Later you can implement pagination or scrolling
     return FeedPostWidget(
       post: _posts.first,

@@ -40,9 +40,7 @@ import 'presentation/screens/profile/normal_user.dart';
 import 'presentation/screens/search/search_feed_screen.dart';
 import 'presentation/widgets/view_song_post/feed.dart';
 import 'presentation/screens/show_all_posts_screen.dart';
-import 'presentation/screens/post_detail_screen.dart';
-
-
+// import 'presentation/screens/post_detail_screen.dart';
 
 void main() {
   runApp(
@@ -67,7 +65,6 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
 
-      
       // Start with login screen, then check auth status
       // home: const AuthWrapper(),
       home: const HomeScreen(),
@@ -87,11 +84,11 @@ class MyApp extends StatelessWidget {
 
         '/feed': (context) => FeedPage(),
         '/showpost': (context) => const ShowAllPostsScreen(),
-        '/post/:id': (context) {
-          final postId = ModalRoute.of(context)!.settings.arguments as String? ?? 
-                        Uri.parse(ModalRoute.of(context)!.settings.name!).pathSegments.last;
-          return PostDetailScreen(postId: postId);
-        },
+        // '/post/:id': (context) {
+        //   final postId = ModalRoute.of(context)!.settings.arguments as String? ??
+        //                 Uri.parse(ModalRoute.of(context)!.settings.name!).pathSegments.last;
+        //   return PostDetailScreen(postId: postId);
+        // },
       },
     );
   }
@@ -118,7 +115,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Future<void> _checkAuthStatus() async {
     final authService = AuthService();
     final isLoggedIn = await authService.isLoggedIn();
-    
+
     setState(() {
       _isLoggedIn = isLoggedIn;
       _isLoading = false;
