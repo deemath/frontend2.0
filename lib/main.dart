@@ -21,6 +21,8 @@ class ExampleScreen extends StatelessWidget {
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uni_links/uni_links.dart';
+import 'dart:async';
 import 'presentation/screens/home_screen.dart';
 
 import 'presentation/screens/auth/login_screen.dart';
@@ -41,6 +43,8 @@ import 'presentation/widgets/despost/demo.dart';
 =======
 import 'presentation/screens/search/search_feed_screen.dart';
 import 'presentation/widgets/view_song_post/feed.dart';
+import 'presentation/screens/show_all_posts_screen.dart';
+import 'presentation/screens/post_detail_screen.dart';
 
 >>>>>>> 4ab6310c4ffbec552c1418bd07e743549ad42968
 
@@ -89,6 +93,12 @@ class MyApp extends StatelessWidget {
         '/demodespost': (context) => DemoScreen2(),
 
         '/feed': (context) => FeedPage(),
+        '/showpost': (context) => const ShowAllPostsScreen(),
+        '/post/:id': (context) {
+          final postId = ModalRoute.of(context)!.settings.arguments as String? ?? 
+                        Uri.parse(ModalRoute.of(context)!.settings.name!).pathSegments.last;
+          return PostDetailScreen(postId: postId);
+        },
       },
     );
   }

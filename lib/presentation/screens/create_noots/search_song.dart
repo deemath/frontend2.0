@@ -33,14 +33,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
     });
 
     try {
-      final url = Uri.parse('http://localhost:3000/api/spotify/search/');
-      final response = await http.post(
+      final url = Uri.parse('http://localhost:3000/spotify/search/track?track_name=${Uri.encodeComponent(query)}');
+      
+      final response = await http.get(
         url,
         headers: {
-          'Content-Type': 'application/json',
           'x-spotify-token': widget.spotifyService.accessToken,
         },
-        body: jsonEncode({'track_name': query}),
       );
 
       if (response.statusCode == 200) {
