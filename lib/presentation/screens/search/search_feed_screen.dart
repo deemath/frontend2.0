@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/data/services/search_service.dart';
 import 'package:frontend/presentation/widgets/search/allsearch_results.dart';
 import 'package:frontend/presentation/widgets/search/explore_feed.dart';
 import 'package:frontend/presentation/widgets/search/segmant_divider.dart';
@@ -6,7 +7,6 @@ import 'package:frontend/presentation/widgets/search/segmant_divider.dart';
 import 'package:frontend/presentation/widgets/search/searchbar.dart';
 
 import 'package:frontend/presentation/widgets/search/category_selector.dart';
-
 
 class SearchFeedScreen extends StatefulWidget {
   const SearchFeedScreen({Key? key}) : super(key: key);
@@ -31,6 +31,12 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
     'Playlists'
   ];
 
+  // Add this to your state
+  final SearchService _searchService = SearchService();
+  List<Map<String, dynamic>> _searchResults = [];
+  bool _isLoading = false;
+  String? _error;
+
   // Mock search results
   final Map<String, List<Map<String, String>>> _mockResults = {
     'People': [
@@ -51,11 +57,25 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
     return _mockResults.values.expand((list) => list).toList();
   }
 
-  void _onSearchSubmitted(String query) {
+  void _onSearchSubmitted(String query) async {
     setState(() {
       _query = query;
       _hasSearched = query.trim().isNotEmpty;
+      _isLoading = true;
+      _error = null;
     });
+    try {
+      final results = await _searchService.search(query);
+      setState(() {
+        _searchResults = results;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _error = e.toString();
+      });
+    }
   }
 
   void _onSearchChanged(String query) {
@@ -122,17 +142,18 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
       ),
       body: Column(
         children: [
-          // Category selector below the search bar
-          CategorySelector(
-            categories: _categories,
-            selectedIndex: _selectedCategory,
-            onCategorySelected: (index) {
-              setState(() {
-                _selectedCategory = index;
-                // Optionally filter explore feed or results here
-              });
-            },
-          ),
+          // Only show CategorySelector if not showing results
+          if (!showResults)
+            CategorySelector(
+              categories: _categories,
+              selectedIndex: _selectedCategory,
+              onCategorySelected: (index) {
+                setState(() {
+                  _selectedCategory = index;
+                  // Optionally filter explore feed or results here
+                });
+              },
+            ),
           Expanded(
             child: showResults
                 ? Column(
@@ -151,7 +172,7 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
                           children: [
                             if (_selectedSegment == 0)
                               AllSearchResults(
-                                results: _allResults,
+                                results: _searchResults, // <-- USE THIS
                                 query: _query,
                               ),
                             if (_selectedSegment == 1)

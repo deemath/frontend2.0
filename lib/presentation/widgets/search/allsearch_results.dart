@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AllSearchResults extends StatelessWidget {
-  final List<Map<String, String>> results;
+  final List<Map<String, dynamic>> results;
   final String? query;
 
   const AllSearchResults({
@@ -43,7 +43,7 @@ class AllSearchResults extends StatelessWidget {
               backgroundImage: AssetImage('assets/images/hehe.png'),
             ),
             title: Text(item['name'] ?? ''),
-            subtitle: Text(item['subtitle'] ?? ''),
+            subtitle: Text(item['type'] ?? ''),
             onTap: () {},
           ),
         ),
@@ -52,3 +52,9 @@ class AllSearchResults extends StatelessWidget {
     );
   }
 }
+
+// Usage example:
+// AllSearchResults(
+//   results: _searchResults,
+//   query: _query,
+// )
