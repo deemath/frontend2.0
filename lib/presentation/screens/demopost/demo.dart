@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import './demo_content_widget.dart';
-import './bg_container.dart';
+import 'widgets/bg_container.dart';
+import 'widgets/demo_content_widget.dart';
 
 class DemoScreen extends StatelessWidget {
   const DemoScreen({super.key});
@@ -15,17 +14,19 @@ class DemoScreen extends StatelessWidget {
         child: Stack(
           children: [
             // Background container with fixed aspect ratio
+            //this layer contains the background shape
             AspectRatio(
-              aspectRatio: 0.8235294118, // 490 / 595 as a constant double
+              aspectRatio: 490 / 595,
               child: CustomPaint(
                 painter: BackgroundContainer(),
                 child: Container(),
               ),
             ),
             // Container layer on top of background
-            const AspectRatio(
-              aspectRatio: 0.8235294118, // 490 / 595 as a constant double
-              child: DemoContentWidget(),
+            //squre infront of the background shape
+            AspectRatio(
+              aspectRatio: 490 / 595, // Same aspect ratio for overlay
+              child: const DemoContentWidget(),
             ),
           ],
         ),

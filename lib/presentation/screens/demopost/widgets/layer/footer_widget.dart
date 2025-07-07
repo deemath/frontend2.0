@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'track_detail_widget.dart';
-import 'interaction_widget.dart';
+import 'layer/track_detail_widget.dart';
+import 'layer/interaction_widget.dart';
 
 class FooterWidget extends StatelessWidget {
   const FooterWidget({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'header_widget.dart';
-import 'post_art_widget.dart';
-import 'footer_widget.dart';
+import 'layer/header_widget.dart';
+import 'layer/post_art_widget.dart';
+import 'layer/footer_widget.dart';
 
 class DemoContentWidget extends StatelessWidget {
   const DemoContentWidget({super.key});

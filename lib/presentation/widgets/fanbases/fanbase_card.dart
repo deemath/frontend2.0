@@ -1,164 +1,106 @@
 import 'package:flutter/material.dart';
+import './fanbase_interations.dart';
 import './fanbase_profilebar.dart';
-// import './demo/demo.dart';
 
 class FanbaseCard extends StatelessWidget {
+  final int numLikes;
+  final int numPosts;
+  final int numShares;
   final String profileImageUrl;
   final String fanbaseName;
   final String topic;
+  final String fanbaseId;
+  final bool isJoined;
   final VoidCallback onJoin;
 
-  FanbaseCard({
+  const FanbaseCard({
+    super.key,
+    required this.numLikes,
+    required this.numPosts,
+    required this.numShares,
     required this.profileImageUrl,
     required this.fanbaseName,
     required this.topic,
+    required this.fanbaseId,
+    required this.isJoined,
     required this.onJoin,
   });
 
+  String truncateText(String text, int maxLength, {bool addEllipsis = true}) {
+    if (text.length <= maxLength) return text;
+    return addEllipsis ? '${text.substring(0, maxLength)}...' : text.substring(0, maxLength);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      padding: EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Column(
-        
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // DemoScreen(),
-              ProfileNameRow(
-                profileImageUrl: profileImageUrl,
-                fanbaseName: fanbaseName,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(18.0),
-                    topRight: Radius.circular(18.0),
-                  ),
+    final theme = Theme.of(context).colorScheme;
+
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/fanbase/$fanbaseId'),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        padding: const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: theme.primary,
+          borderRadius: BorderRadius.circular(16.0),
+          border: Border.all(
+            color: theme.outlineVariant,
+            width: 1.2,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// Top Row: Profile + Join Button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ProfileNameRow(
+                  profileImageUrl: profileImageUrl,
+                  fanbaseName: truncateText(fanbaseName, 20),
                 ),
-                child: ElevatedButton(
+                OutlinedButton(
                   onPressed: onJoin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
-                    foregroundColor: Colors.white,
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: isJoined ? Colors.transparent : Colors.purple,
+                    foregroundColor: isJoined ? theme.onPrimary : Colors.white,
+                    side: const BorderSide(color: Colors.purple),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   ),
-                  child: const Text('Join'),
+                  child: Text(isJoined ? 'Joined' : 'Join'),
                 ),
-              )
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(18.0),
-                      bottomLeft: Radius.circular(18.0),
-                      bottomRight: Radius.circular(18.0),
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    topic,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 14.0,
-                    ),
-                  ),
+              ],
+            ),
+
+            const SizedBox(height: 16.0),
+
+            /// Topic
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                truncateText(topic, 55),
+                style: TextStyle(
+                  color: theme.onPrimary,
+                  fontSize: 14.5,
                 ),
               ),
-            ],
-          ),
-        ],
+            ),
+
+            const SizedBox(height: 10.0),
+
+            /// Interaction stats
+            FanbaseInterations(
+              numLikes: numLikes,
+              numPosts: numPosts,
+              numShares: numShares,
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
-// import 'package:flutter/material.dart';
-// import './fanbase_profilebar.dart';
-
-// class FanbaseCardWidget extends StatelessWidget {
-//   final String profileImageUrl;
-//   final String fanbaseName;
-//   final String topic;
-//   final VoidCallback? onJoin;
-
-//   const FanbaseCardWidget({
-//     super.key,
-//     required this.profileImageUrl,
-//     required this.fanbaseName,
-//     required this.topic,
-//     required this.onJoin,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       child: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 ProfileNameRow(
-//                   profileImageUrl: profileImageUrl,
-//                   fanbaseName: fanbaseName,
-//                 ),
-//                 ElevatedButton(
-//                   onPressed: onJoin,
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: Colors.purple,
-//                     foregroundColor: Colors.white,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(8.0),
-//                     ),
-//                     padding: const EdgeInsets.symmetric(
-//                       horizontal: 16.0,
-//                       vertical: 8.0,
-//                     ),
-//                   ),
-//                   child: const Text('Join'),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           Expanded(
-//             child: Container(
-//               margin: const EdgeInsets.all(12.0),
-//               padding: const EdgeInsets.all(16.0),
-//               // decoration: BoxDecoration(
-//               //   color: Colors.white,
-//               //   borderRadius: BorderRadius.circular(12.0),
-//               // ),
-//               child: Text(
-//                 topic,
-//                 style: TextStyle(
-//                   color: Theme.of(context).colorScheme.primary,
-//                   fontSize: 14.0,
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-

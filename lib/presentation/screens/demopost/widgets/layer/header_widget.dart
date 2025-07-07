@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'user_detail_widget.dart';
-import 'song_control_widget.dart';
+import 'layer/user_detail_widget.dart';
+import 'layer/song_control_widget.dart';
 
 class HeaderWidget extends StatelessWidget {
   const HeaderWidget({super.key});

@@ -37,10 +37,12 @@ import 'core/constants/app_constants.dart';
 import 'core/providers/theme_provider.dart'; // 👈 Create this file
 import 'presentation/screens/fanbase/fanbase.dart';
 import 'presentation/screens/profile/normal_user.dart';
+// import 'package:frontend/presentation/screens/search/search_feed_screen.dart';
+import 'presentation/widgets/despost/demo.dart';
 import 'presentation/screens/search/search_feed_screen.dart';
 import 'presentation/widgets/view_song_post/feed.dart';
 import 'presentation/screens/show_all_posts_screen.dart';
-// import 'presentation/screens/post_detail_screen.dart';
+import 'presentation/screens/fanbase/fanbase_details.dart';
 
 void main() {
   runApp(
@@ -65,30 +67,77 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
 
+      onGenerateRoute: (settings) {
+        final uri = Uri.parse(settings.name ?? '');
+        if (uri.pathSegments.length == 2 && uri.pathSegments[0] == 'fanbase') {
+          final id = uri.pathSegments[1];
+          return MaterialPageRoute(
+            builder: (_) => FanbaseDetailScreen(fanbaseId: id),
+          );
+        }
+
+        // Add other routes
+        switch (settings.name) {
+          case '/home':
+            return MaterialPageRoute(builder: (_) => const HomeScreen());
+          case '/login':
+            return MaterialPageRoute(builder: (_) => const LoginScreen());
+          case '/signup':
+            return MaterialPageRoute(builder: (_) => const SignupScreen());
+          case '/create':
+            return MaterialPageRoute(
+              builder: (_) => CreatePostPage(
+                spotifyService: SpotifyService(
+                  accessToken: AppConstants.spotifyAccessToken,
+                ),
+              ),
+            );
+          case '/fanbases':
+            return MaterialPageRoute(builder: (_) => FanbasePage());
+          case '/profile':
+            return MaterialPageRoute(builder: (_) => NormalUserProfilePage());
+          case '/search':
+            return MaterialPageRoute(builder: (_) => SearchFeedScreen());
+          case '/demodespost':
+            return MaterialPageRoute(builder: (_) => DemoScreen2());
+          case '/feed':
+            return MaterialPageRoute(builder: (_) => FeedPage());
+          case '/showpost':
+            return MaterialPageRoute(
+                builder: (_) => const ShowAllPostsScreen());
+          default:
+            return MaterialPageRoute(
+              builder: (_) => Scaffold(
+                body: Center(child: Text('Page not found: ${settings.name}')),
+              ),
+            );
+        }
+      },
+      // Remove the routes: property if you use onGenerateRoute
+      initialRoute: '/home',
+
       // Start with login screen, then check auth status
       // home: const AuthWrapper(),
-      home: const HomeScreen(),
+      // home: const HomeScreen(),
 
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignupScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/create': (context) => CreatePostPage(
-              spotifyService: SpotifyService(
-                accessToken: AppConstants.spotifyAccessToken,
-              ),
-            ),
-        '/fanbases': (context) => FanbasePage(),
-        '/profile': (context) => NormalUserProfilePage(),
-        '/search': (context) => SearchFeedScreen(),
-        '/feed': (context) => FeedPage(),
-        '/showpost': (context) => const ShowAllPostsScreen(),
-        // '/post/:id': (context) {
-        //   final postId = ModalRoute.of(context)!.settings.arguments as String? ??
-        //                 Uri.parse(ModalRoute.of(context)!.settings.name!).pathSegments.last;
-        //   return PostDetailScreen(postId: postId);
-        // },
-      },
+      // routes: {
+      //   '/login': (context) => const LoginScreen(),
+      //   '/signup': (context) => const SignupScreen(),
+      //   '/home': (context) => const HomeScreen(),
+      //   '/create': (context) => CreatePostPage(
+      //         spotifyService: SpotifyService(
+      //           accessToken: AppConstants.spotifyAccessToken,
+      //         ),
+      //       ),
+      //   '/fanbases': (context) => FanbasePage(),
+      //   '/profile': (context) => NormalUserProfilePage(),
+      //   '/search': (context) => SearchFeedScreen(),
+      //   // '/demo': (context) => DemoScreen(),
+      //   '/demodespost': (context) => DemoScreen2(),
+
+      //   '/feed': (context) => FeedPage(),
+      //   '/showpost': (context) => const ShowAllPostsScreen(),
+      // },
     );
   }
 }
