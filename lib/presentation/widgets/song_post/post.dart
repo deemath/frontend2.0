@@ -1,0 +1,418 @@
+import 'package:flutter/material.dart';
+
+// ================= SongControlWidget =================
+class SongControlWidget extends StatelessWidget {
+  const SongControlWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: 131,
+      child: Container(
+        margin: const EdgeInsets.all(4.0),
+        child: const Center(
+          child: Text(
+            'Song Control',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ================= TrackDetailWidget =================
+class TrackDetailWidget extends StatelessWidget {
+  const TrackDetailWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: 359,
+      child: Container(
+        margin: const EdgeInsets.all(4.0),
+        child: const Center(
+          child: Text(
+            'Track Details',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ================= UserDetailWidget =================
+class UserDetailWidget extends StatelessWidget {
+  final Map<String, dynamic>? details;
+
+  const UserDetailWidget({super.key, this.details});
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor = Theme.of(context).colorScheme.onPrimary;
+    // demo data
+    final data = details ??
+        {
+          'username': 'ishaanKhatter',
+          'song': 'august - Taylor Swift',
+          'avatar': 'assets/images/hehe.png',
+        };
+
+    return Expanded(
+      flex: 359,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Large Profile Picture
+            CircleAvatar(
+              radius: 32,
+              backgroundColor: Colors.transparent,
+              backgroundImage: AssetImage(data['avatar']),
+            ),
+            const SizedBox(width: 18),
+            // Username only, vertically centered
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  data['username'],
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ================= InteractionWidget =================
+class InteractionWidget extends StatelessWidget {
+  const InteractionWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: 131,
+      child: Container(
+        margin: const EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8.0),
+          border: Border.all(color: Colors.black.withOpacity(0.3)),
+        ),
+        child: const Center(
+          child: Text(
+            'Interactions',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ================= PostArtWidget =================
+class PostArtWidget extends StatelessWidget {
+  final String? albumImage;
+
+  const PostArtWidget({super.key, this.albumImage});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate square size: width minus left and right margins
+        double squareSize =
+            constraints.maxWidth - 18.0; // 9.0 left + 9.0 right margins
+        return Container(
+          height: squareSize, // Height equals width to make it square
+          margin: const EdgeInsets.only(
+            left: 9.0,
+            right: 9.0,
+            top: 9.0,
+            bottom: 9.0,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: albumImage != null && albumImage!.startsWith('http')
+                ? Image.network(
+                    albumImage!,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/images/song.png',
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      );
+                    },
+                  )
+                : Image.asset(
+                    'assets/images/song.png',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ================= FooterWidget =================
+class FooterWidget extends StatelessWidget {
+  const FooterWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Expanded(
+      flex: 73,
+      child: Row(
+        children: [
+          TrackDetailWidget(),
+          InteractionWidget(),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= HeaderWidget =================
+class HeaderWidget extends StatelessWidget {
+  const HeaderWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Expanded(
+      flex: 72,
+      child: Row(
+        children: [
+          UserDetailWidget(),
+          SongControlWidget(),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= DemoContentWidget =================
+class DemoContentWidget extends StatelessWidget {
+  const DemoContentWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: const Column(
+        children: [
+          // Row 1: 2 columns
+          HeaderWidget(),
+          // Row 2: 1 column (full width) - Square shape
+          PostArtWidget(),
+          // Row 3: 2 columns
+          FooterWidget(),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= Post Widget =================
+class Post extends StatelessWidget {
+  final String? trackId;
+  final String? songName;
+  final String? artists;
+  final String? albumImage;
+  final String? caption;
+  final String username;
+  final String? userImage;
+
+  final VoidCallback? onLike;
+  final VoidCallback? onComment;
+  final VoidCallback? onPlay;
+  final bool isLiked;
+  final bool isPlaying;
+
+  const Post({
+    super.key,
+    this.trackId,
+    this.songName,
+    this.artists,
+    this.albumImage,
+    this.caption,
+    required this.username,
+    this.userImage,
+    this.onLike,
+    this.onComment,
+    this.onPlay,
+    this.isLiked = false,
+    this.isPlaying = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          // Header with user details
+          Expanded(
+            flex: 72,
+            child: Row(
+              children: [
+                // User details
+                Expanded(
+                  flex: 359,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 12.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Profile Picture
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage:
+                              userImage != null && userImage!.startsWith('http')
+                                  ? NetworkImage(userImage!) as ImageProvider
+                                  : AssetImage(
+                                      userImage ?? 'assets/images/hehe.png'),
+                        ),
+                        const SizedBox(width: 18),
+                        // Username
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              username,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Song control
+                Expanded(
+                  flex: 131,
+                  child: GestureDetector(
+                    onTap: onPlay,
+                    child: Container(
+                      margin: const EdgeInsets.all(4.0),
+                      child: Icon(
+                        isPlaying ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Post art
+          PostArtWidget(albumImage: albumImage),
+          // Footer with track details and interactions
+          Expanded(
+            flex: 73,
+            child: Row(
+              children: [
+                // Track details
+                Expanded(
+                  flex: 359,
+                  child: Container(
+                    margin: const EdgeInsets.all(4.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          songName ?? 'Unknown Track',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          artists ?? 'Unknown Artist',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Interactions
+                Expanded(
+                  flex: 131,
+                  child: Container(
+                    margin: const EdgeInsets.all(4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Like button
+                        GestureDetector(
+                          onTap: onLike,
+                          child: Icon(
+                            isLiked ? Icons.favorite : Icons.favorite_border,
+                            color: isLiked ? Colors.red : Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                        // Comment button
+                        GestureDetector(
+                          onTap: onComment,
+                          child: const Icon(
+                            Icons.comment_outlined,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
