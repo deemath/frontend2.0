@@ -140,4 +140,22 @@ class SongPostService {
     );
     return jsonDecode(response.body);
   }
+
+  Future<Map<String, dynamic>> addComment(String postId, String userId, String username, String text) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/$postId/comment'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'userId': userId, 'username': username, 'text': text}),
+    );
+    return jsonDecode(response.body);
+  }
+
+  Future<Map<String, dynamic>> likeComment(String postId, String commentId, String userId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/$postId/comment/$commentId/like'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'userId': userId}),
+    );
+    return jsonDecode(response.body);
+  }
 } 

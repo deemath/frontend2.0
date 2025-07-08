@@ -8,6 +8,8 @@ import '../../core/constants/app_constants.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart'; 
+import '../widgets/song_post/comment.dart';
+
 
 class ShowAllPostsScreen extends StatefulWidget {
   const ShowAllPostsScreen({Key? key}) : super(key: key);
@@ -229,7 +231,7 @@ class _ShowAllPostsScreenState extends State<ShowAllPostsScreen> {
                 const SizedBox(width: 16),
                 _buildActionButton(
                   icon: Icons.chat_bubble_outline,
-                  label: '${post.comments}',
+                  label: '${post.comments.length}',
                   onTap: () => _handleComment(post),
                 ),
                 const SizedBox(width: 16),
@@ -293,7 +295,7 @@ class _ShowAllPostsScreenState extends State<ShowAllPostsScreen> {
       return;
     }
 
-    // Optimistically update UI
+   
     setState(() {
       if (post.likedByMe) {
         post.likedByMe = false;
@@ -306,7 +308,7 @@ class _ShowAllPostsScreenState extends State<ShowAllPostsScreen> {
 
     final result = await _songPostService.likePost(post.id, currentUserId);
     if (!result['success']) {
-      // Revert UI if failed
+      
       setState(() {
         if (post.likedByMe) {
           post.likedByMe = false;
@@ -323,9 +325,37 @@ class _ShowAllPostsScreenState extends State<ShowAllPostsScreen> {
   }
 
   void _handleComment(Post post) {
-    // TODO: Implement comment functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Comment on ${post.songName}')),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.75,
+        child: CommentSection(
+          comments: post.comments,
+          onAddComment: (text) async {
+            final prefs = await SharedPreferences.getInstance();
+            final userDataString = prefs.getString('user_data');
+            final userData = userDataString != null ? jsonDecode(userDataString) : {'_id': '685fb750cc084ba7e0ef8533', 'username': 'owl'};
+            final result = await _songPostService.addComment(post.id, userData['_id'], userData['username'], text);
+            if (result['success']) {
+              setState(() {
+                post.comments = (result['data']['comments'] as List<dynamic>).map((c) => Comment.fromJson(c)).toList();
+              });
+              Navigator.of(context).pop();
+              _handleComment(post); // reopen to refresh
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result['message'] ?? 'Failed to add comment')));
+            }
+          },
+          postId: post.id,
+          currentUserId: userId ?? '',
+          songPostService: _songPostService,
+        ),
+      ),
     );
   }
 
