@@ -95,7 +95,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   @override
   void didUpdateWidget(MusicPlayerBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // If the visibility state changed, adjust our timer frequency
     if (oldWidget.isHidden != widget.isHidden) {
       _resetRefreshTimer();
@@ -123,7 +123,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
         if (mounted) {
           // Get the top-level is_playing status to determine if there's an active session
           final bool isActiveSession = data['is_playing'] ?? false;
-          
+
           setState(() {
             // Store the active session status
             _hasActiveSession = isActiveSession;
@@ -153,7 +153,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
             // Unlock controls after receiving an update from the backend
             _controlsLocked = false;
           });
-          
+
           // Notify parent widget about session status change
           if (widget.onSessionStatusChanged != null) {
             widget.onSessionStatusChanged!(_hasActiveSession);
@@ -171,8 +171,10 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   void _resetRefreshTimer() {
     _refreshTimer?.cancel();
     // Use a more frequent check interval when widget is hidden to detect new sessions faster
-    final interval = widget.isHidden ? const Duration(seconds: 3) : const Duration(seconds: 5);
-    
+    final interval = widget.isHidden
+        ? const Duration(seconds: 3)
+        : const Duration(seconds: 5);
+
     _refreshTimer = Timer.periodic(interval, (_) {
       // Always fetch track data regardless of visibility
       _fetchCurrentTrack();
@@ -352,7 +354,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
       decoration: BoxDecoration(
-        boxShadow: widget.isHidden 
+        boxShadow: widget.isHidden
             ? [] // No shadow when hidden
             : [
                 BoxShadow(

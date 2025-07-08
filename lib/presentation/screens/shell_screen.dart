@@ -52,7 +52,8 @@ class _ShellScreenState extends State<ShellScreen> {
               // Height is 0 when hidden, otherwise use the widget's natural height
               height: _showMusicPlayer ? null : 0.0,
               // When height is 0, don't take any space and clip overflowing content
-              constraints: _showMusicPlayer ? null : BoxConstraints(maxHeight: 0.0),
+              constraints:
+                  _showMusicPlayer ? null : BoxConstraints(maxHeight: 0.0),
               child: SingleChildScrollView(
                 // Use SingleChildScrollView to avoid layout issues when animating height
                 physics: NeverScrollableScrollPhysics(),
