@@ -2,7 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class BottomBar extends StatelessWidget {
-  const BottomBar({super.key});
+  /// The currently selected index for highlighting the active tab
+  final int currentIndex;
+
+  /// Callback when a tab is tapped
+  final Function(int)? onTap;
+
+  const BottomBar({
+    super.key,
+    this.currentIndex = 0,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,17 +27,36 @@ class BottomBar extends StatelessWidget {
             icon: Icon(
               LucideIcons.home,
               size: 22,
-              color: Theme.of(context).iconTheme.color,
+              color: currentIndex == 0
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).iconTheme.color,
             ),
-            onPressed: () {},
+            onPressed: () {
+              if (onTap != null) {
+                onTap!(0);
+              } else {
+                // Legacy support - will be removed when shell is fully implemented
+                Navigator.pushNamed(context, '/home');
+              }
+            },
           ),
 
           // Search
           IconButton(
-            icon: Icon(LucideIcons.search,
-              size: 22, color: Theme.of(context).iconTheme.color),
+            icon: Icon(
+              LucideIcons.search,
+              size: 22,
+              color: currentIndex == 1
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).iconTheme.color,
+            ),
             onPressed: () {
-              Navigator.pushNamed(context, '/search');
+              if (onTap != null) {
+                onTap!(1);
+              } else {
+                // Legacy support
+                Navigator.pushNamed(context, '/search');
+              }
             },
           ),
 
@@ -36,27 +65,47 @@ class BottomBar extends StatelessWidget {
             icon: Icon(
               LucideIcons.plusCircle,
               size: 22,
-              color: Theme.of(context).iconTheme.color,
+              color: currentIndex == 2
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).iconTheme.color,
             ),
             onPressed: () {
-              Navigator.pushNamed(context, '/create');
+              if (onTap != null) {
+                onTap!(2);
+              } else {
+                // Legacy support
+                Navigator.pushNamed(context, '/create');
+              }
             },
           ),
           // Fanbase (e.g., Group of people)
-          IconButton( 
+          IconButton(
             icon: Icon(
-              LucideIcons.users, 
-              size: 22, 
-              color: Theme.of(context).iconTheme.color),
-            onPressed: (){
-              Navigator.pushNamed(context, '/fanbases');
+              LucideIcons.users,
+              size: 22,
+              color: currentIndex == 3
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).iconTheme.color,
+            ),
+            onPressed: () {
+              if (onTap != null) {
+                onTap!(3);
+              } else {
+                // Legacy support
+                Navigator.pushNamed(context, '/fanbases');
+              }
             },
           ),
 
           // Profile
           GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/profile');
+              if (onTap != null) {
+                onTap!(4);
+              } else {
+                // Legacy support
+                Navigator.pushNamed(context, '/profile');
+              }
             },
             child: Stack(
               children: [

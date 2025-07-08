@@ -33,7 +33,9 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
       final track = widget.track;
       final String trackId = track['id'] ?? '';
       final String songName = track['name'] ?? '';
-      final String artists = track['artists'] is List ? track['artists'].join(", ") : track['artists'].toString();
+      final String artists = track['artists'] is List
+          ? track['artists'].join(", ")
+          : track['artists'].toString();
       final String? albumImage = track['album'];
       final String caption = _captionController.text.trim();
 
@@ -90,21 +92,27 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
   Widget build(BuildContext context) {
     final track = widget.track;
     final String songName = track['name'] ?? '';
-    final String artists = track['artists'] is List ? track['artists'].join(", ") : track['artists'].toString();
+    final String artists = track['artists'] is List
+        ? track['artists'].join(", ")
+        : track['artists'].toString();
     final String? albumImage = track['album'];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Create New Noot')),
       body: Column(
-
         children: [
-          MusicPlayerBar(title: 'Now Playing', playing: false),
+          // MusicPlayerBar(title: 'Now Playing', playing: false),
           if (albumImage != null && albumImage.isNotEmpty)
             SizedBox(
               width: double.infinity,
               height: MediaQuery.of(context).size.height * 0.45,
               child: Center(
-                child: Image.network(albumImage, fit: BoxFit.cover, width: 500, height: 400, errorBuilder: (context, error, stackTrace) => const Icon(Icons.music_note, size: 100)),
+                child: Image.network(albumImage,
+                    fit: BoxFit.cover,
+                    width: 500,
+                    height: 400,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.music_note, size: 100)),
               ),
             )
           else
@@ -112,7 +120,8 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
               color: Colors.grey[300],
               width: double.infinity,
               height: MediaQuery.of(context).size.height * 0.35,
-              child: const Center(child: Text('No Image', style: TextStyle(fontSize: 18))),
+              child: const Center(
+                  child: Text('No Image', style: TextStyle(fontSize: 18))),
             ),
           const SizedBox(height: 24),
           Container(
@@ -137,7 +146,8 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
             child: Center(
               child: Text(
                 '$songName  •  $artists',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -152,21 +162,22 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8E08EF),
                   foregroundColor: Colors.white,
-                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  textStyle: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: _isLoading 
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Text('Share'),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('Share'),
               ),
             ),
           ),
