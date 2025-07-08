@@ -24,17 +24,26 @@ class MusicPlayerControls extends StatelessWidget {
       children: [
         IconButton(
           icon: Icon(LucideIcons.skipBack,
-              color: Theme.of(context).colorScheme.onPrimary, size: 20),
+              color: onPrevious == null
+                  ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
+                  : Theme.of(context).colorScheme.onPrimary,
+              size: 20),
           onPressed: onPrevious,
         ),
         IconButton(
           icon: Icon(playing ? LucideIcons.pause : LucideIcons.play,
-              color: Theme.of(context).colorScheme.onPrimary, size: 20),
+              color: onPlayPause == null
+                  ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
+                  : Theme.of(context).colorScheme.onPrimary,
+              size: 20),
           onPressed: onPlayPause,
         ),
         IconButton(
           icon: Icon(LucideIcons.skipForward,
-              color: Theme.of(context).colorScheme.onPrimary, size: 20),
+              color: onNext == null
+                  ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
+                  : Theme.of(context).colorScheme.onPrimary,
+              size: 20),
           onPressed: onNext,
         ),
       ],
@@ -58,6 +67,8 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   String _trackName = 'No track playing';
   String _artistName = '';
   bool _isPlaying = false;
+  bool _controlsLocked = false;
+  bool _hasActiveSession = false;
   Timer? _refreshTimer;
 
   @override
@@ -95,11 +106,12 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
 
         if (mounted) {
           setState(() {
-            // Update playing state
-            _isPlaying = data['is_playing'] ?? false;
-
-            // Check if we have track data
-            if (data['track'] != null) {
+            // Get the top-level is_playing status to determine if there's an active session
+            _hasActiveSession = data['is_playing'] ?? false;
+            
+            // Check if we have track data and an active session
+            if (data['track'] != null && _hasActiveSession) {
+              // Update track information
               _trackName = data['track']['name'] ?? 'Unknown Track';
 
               if (data['track']['artists'] != null &&
@@ -108,6 +120,9 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
               } else {
                 _artistName = 'Unknown Artist';
               }
+              
+              // Use track.is_playing for the actual play/pause state
+              _isPlaying = data['track']['is_playing'] ?? false;
             } else {
               // If no track playing or track information is not available
               _trackName = "It's silent in here...";
@@ -115,6 +130,9 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
               // Ensure playback status is consistent
               _isPlaying = false;
             }
+            
+            // Unlock controls after receiving an update from the backend
+            _controlsLocked = false;
           });
         }
       } else {
@@ -134,18 +152,24 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   }
 
   Future<void> _togglePlayback() async {
-    // Only proceed if we have an auth token
-    if (widget.authToken.isEmpty) {
+    // Only proceed if we have an auth token and controls are not locked
+    if (widget.authToken.isEmpty || _controlsLocked) {
       return;
     }
+    
+    // Lock controls to prevent spamming
+    setState(() {
+      _controlsLocked = true;
+    });
 
     try {
-      // If currently playing, pause the track; otherwise resume
-      final endpoint = _isPlaying
+      // Determine which action to take based on current playback state
+      final shouldPause = _isPlaying;
+      final endpoint = shouldPause
           ? 'http://localhost:3000/spotify/player/pause'
           : 'http://localhost:3000/spotify/player/play';
 
-      final response = _isPlaying
+      final response = shouldPause
           ? await http.put(
               Uri.parse(endpoint),
               headers: {
@@ -163,21 +187,32 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
             );
 
       if (response.statusCode == 200) {
-        // Immediately update UI state for better responsiveness
-        setState(() {
-          _isPlaying = !_isPlaying; // Toggle the playing state directly
+        // Cancel the previous timer to avoid conflicting updates
+        _refreshTimer?.cancel();
+
+        // Immediately fetch the current track to get the actual play state
+        _fetchCurrentTrack();
+        
+        // Also restart the periodic timer after a short delay
+        _refreshTimer = Timer(const Duration(seconds: 2), () {
+          // Fetch again after giving Spotify servers time to update
+          _fetchCurrentTrack();
+          // Then restart the periodic timer
+          _resetRefreshTimer();
         });
-
-        // Fetch the current track to ensure UI is in sync with Spotify
-        Future.delayed(const Duration(milliseconds: 500), _fetchCurrentTrack);
-
-        // Reset the refresh timer to start counting from now
-        _resetRefreshTimer();
       } else {
+        // Unlock controls in case of error
+        setState(() {
+          _controlsLocked = false;
+        });
         print(
-            'Failed to ${_isPlaying ? 'pause' : 'resume'} playback: ${response.statusCode}');
+            'Failed to ${shouldPause ? 'pause' : 'resume'} playback: ${response.statusCode}');
       }
     } catch (e) {
+      // Unlock controls in case of error
+      setState(() {
+        _controlsLocked = false;
+      });
       print('Error toggling playback: $e');
     }
   }
@@ -227,21 +262,27 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
                       fontSize: 11)),
           ],
         ),
-        // Only show controls if we have an actual track (not the placeholder message)
-        if (_trackName != "It's silent in here...")
+        // Only show controls if we have an active session with a track
+        if (_trackName != "It's silent in here..." && _hasActiveSession)
           MusicPlayerControls(
             playing: _isPlaying,
-            onPrevious: () {
+            onPrevious: _controlsLocked ? null : () {
               // Previous track functionality could be implemented in the future
+              setState(() {
+                _controlsLocked = true;
+              });
               _resetRefreshTimer(); // Reset timer when button is pressed
               _fetchCurrentTrack(); // Fetch updated track info immediately
             },
-            onPlayPause: () {
+            onPlayPause: _controlsLocked ? null : () {
               _togglePlayback();
               // Timer is already reset in _togglePlayback method
             },
-            onNext: () {
+            onNext: _controlsLocked ? null : () {
               // Next track functionality could be implemented in the future
+              setState(() {
+                _controlsLocked = true;
+              });
               _resetRefreshTimer(); // Reset timer when button is pressed
               _fetchCurrentTrack(); // Fetch updated track info immediately
             },
