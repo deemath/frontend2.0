@@ -21,12 +21,9 @@ class ExampleScreen extends StatelessWidget {
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uni_links/uni_links.dart';
-import 'dart:async';
-import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/shell_screen.dart';
 
 import 'presentation/screens/auth/login_screen.dart';
-import 'presentation/screens/auth/signup_screen.dart';
 
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
@@ -98,7 +95,8 @@ class MyApp extends StatelessWidget {
         // Add other routes
         switch (settings.name) {
           case '/home':
-            return MaterialPageRoute(builder: (_) => const HomeScreen());
+            // Use the shell screen instead of directly navigating to HomeScreen
+            return MaterialPageRoute(builder: (_) => const ShellScreen());
           case '/login':
             return MaterialPageRoute(builder: (_) => const LoginScreen());
           // case '/signup':

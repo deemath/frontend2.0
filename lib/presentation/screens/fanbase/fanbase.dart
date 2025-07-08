@@ -16,7 +16,8 @@ class _FanbasePageState extends State<FanbasePage> {
       'id': '1',
       'profileImageUrl': 'assets/images/spotify.png',
       'fanbaseName': 'Owlsykins',
-      'topic': 'Computer Science is the worst major, I can’t believe I did this to myself...',
+      'topic':
+          'Computer Science is the worst major, I can’t believe I did this to myself...',
       'numLikes': 120,
       'numPosts': 45,
       'numShares': 30,
@@ -26,7 +27,8 @@ class _FanbasePageState extends State<FanbasePage> {
       'id': '2',
       'profileImageUrl': 'assets/images/spotify.png',
       'fanbaseName': 'Desynkd',
-      'topic': 'I’m a computer science professor at UC Berkeley. Tech jobs are drying up and...',
+      'topic':
+          'I’m a computer science professor at UC Berkeley. Tech jobs are drying up and...',
       'numLikes': 200,
       'numPosts': 75,
       'numShares': 50,
@@ -36,7 +38,8 @@ class _FanbasePageState extends State<FanbasePage> {
       'id': '3',
       'profileImageUrl': 'assets/images/spotify.png',
       'fanbaseName': 'Cloudhopper',
-      'topic': 'The computer science graduate coming out of top schools like Berkeley with 4.0 GPA still...',
+      'topic':
+          'The computer science graduate coming out of top schools like Berkeley with 4.0 GPA still...',
       'numLikes': 150,
       'numPosts': 60,
       'numShares': 40,
@@ -78,7 +81,7 @@ class _FanbasePageState extends State<FanbasePage> {
               },
             ),
           ),
-          MusicPlayerBar(title: 'Bluestar', playing: false),
+          // MusicPlayerBar(title: 'Bluestar', playing: false),
         ],
       ),
       bottomNavigationBar: const BottomBar(),

@@ -33,8 +33,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
     });
 
     try {
-      final url = Uri.parse('http://localhost:3000/spotify/search/track?track_name=${Uri.encodeComponent(query)}');
-      
+      final url = Uri.parse(
+          'http://localhost:3000/spotify/search/track?track_name=${Uri.encodeComponent(query)}');
+
       final response = await http.get(
         url,
         headers: {
@@ -112,25 +113,29 @@ class _CreatePostPageState extends State<CreatePostPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            MusicPlayerBar(title: 'Now Playing', playing: false),
+            // MusicPlayerBar(title: 'Now Playing', playing: false),
             TextField(
               controller: _searchController,
               style: TextStyle(color: colorScheme.onPrimary),
               decoration: InputDecoration(
                 hintText: 'Search for a song or artist...',
-                hintStyle: TextStyle(color: colorScheme.onPrimary.withOpacity(0.5)),
-                prefixIcon: Icon(Icons.search, color: colorScheme.onPrimary.withOpacity(0.5)),
+                hintStyle:
+                    TextStyle(color: colorScheme.onPrimary.withOpacity(0.5)),
+                prefixIcon: Icon(Icons.search,
+                    color: colorScheme.onPrimary.withOpacity(0.5)),
                 suffixIcon: _isLoading
                     ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary.withOpacity(0.5)),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              colorScheme.onPrimary.withOpacity(0.5)),
                         ),
                       )
                     : IconButton(
-                        icon: Icon(Icons.clear, color: colorScheme.onPrimary.withOpacity(0.5)),
+                        icon: Icon(Icons.clear,
+                            color: colorScheme.onPrimary.withOpacity(0.5)),
                         onPressed: () {
                           _searchController.clear();
                           setState(() {
@@ -146,7 +151,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: colorScheme.onPrimary.withOpacity(0.4)),
+                  borderSide:
+                      BorderSide(color: colorScheme.onPrimary.withOpacity(0.4)),
                 ),
               ),
             ),
@@ -159,7 +165,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     final track = _searchResults?['tracks']?['items']?[index];
                     if (track == null) return const SizedBox.shrink();
                     return ListTile(
-                      leading: track['album'] != null && track['album'].toString().isNotEmpty
+                      leading: track['album'] != null &&
+                              track['album'].toString().isNotEmpty
                           ? Image.network(
                               track['album'],
                               width: 50,
@@ -175,13 +182,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         track['artists'] is List
                             ? track['artists'].join(', ')
                             : track['artists']?.toString() ?? 'Unknown Artist',
-                        style: TextStyle(color: colorScheme.onPrimary.withOpacity(0.6)),
+                        style: TextStyle(
+                            color: colorScheme.onPrimary.withOpacity(0.6)),
                       ),
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CreateNewNootPage(track: track),
+                            builder: (context) =>
+                                CreateNewNootPage(track: track),
                           ),
                         );
                       },
@@ -194,10 +203,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
         ),
       ),
       bottomNavigationBar: CustomBottomBar(
-        onSharePost: () {
-        },
-        onShareThoughts: () {
-        },
+        onSharePost: () {},
+        onShareThoughts: () {},
       ),
     );
   }
