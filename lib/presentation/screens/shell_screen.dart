@@ -28,6 +28,7 @@ class ShellScreen extends StatefulWidget {
 
 class _ShellScreenState extends State<ShellScreen> {
   int _currentIndex = 0;
+  bool _showMusicPlayer = false;
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +43,31 @@ class _ShellScreenState extends State<ShellScreen> {
               inShell: true, // Tell HomeScreen it's inside the shell
             ),
           ),
-          // Music player added back to show current track
+          // Music player widget - always rendered but conditionally visible
           Consumer<AuthProvider>(
-            builder: (context, authProvider, _) => MusicPlayerBar(
-              authToken: authProvider.token ?? '',
+            builder: (context, authProvider, _) => AnimatedContainer(
+              // Animate height changes for smooth transitions
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              // Height is 0 when hidden, otherwise use the widget's natural height
+              height: _showMusicPlayer ? null : 0.0,
+              // When height is 0, don't take any space and clip overflowing content
+              constraints: _showMusicPlayer ? null : BoxConstraints(maxHeight: 0.0),
+              child: SingleChildScrollView(
+                // Use SingleChildScrollView to avoid layout issues when animating height
+                physics: NeverScrollableScrollPhysics(),
+                child: MusicPlayerBar(
+                  authToken: authProvider.token ?? '',
+                  // Keep the widget alive and polling regardless of visibility
+                  isHidden: !_showMusicPlayer,
+                  // Update visibility state when session status changes
+                  onSessionStatusChanged: (isActive) {
+                    setState(() {
+                      _showMusicPlayer = isActive;
+                    });
+                  },
+                ),
+              ),
             ),
           ),
         ],

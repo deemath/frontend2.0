@@ -53,10 +53,16 @@ class MusicPlayerControls extends StatelessWidget {
 
 class MusicPlayerBar extends StatefulWidget {
   final String authToken;
+  // Add a callback to expose active session state
+  final void Function(bool isActive)? onSessionStatusChanged;
+  // Track whether the widget is visually hidden
+  final bool isHidden;
 
   const MusicPlayerBar({
     Key? key,
     required this.authToken,
+    this.onSessionStatusChanged,
+    this.isHidden = false,
   }) : super(key: key);
 
   @override
@@ -86,6 +92,16 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(MusicPlayerBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // If the visibility state changed, adjust our timer frequency
+    if (oldWidget.isHidden != widget.isHidden) {
+      _resetRefreshTimer();
+    }
+  }
+
   Future<void> _fetchCurrentTrack() async {
     // Only fetch if we have an auth token
     if (widget.authToken.isEmpty) {
@@ -105,10 +121,13 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
         final data = jsonDecode(response.body);
 
         if (mounted) {
+          // Get the top-level is_playing status to determine if there's an active session
+          final bool isActiveSession = data['is_playing'] ?? false;
+          
           setState(() {
-            // Get the top-level is_playing status to determine if there's an active session
-            _hasActiveSession = data['is_playing'] ?? false;
-            
+            // Store the active session status
+            _hasActiveSession = isActiveSession;
+
             // Check if we have track data and an active session
             if (data['track'] != null && _hasActiveSession) {
               // Update track information
@@ -120,7 +139,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
               } else {
                 _artistName = 'Unknown Artist';
               }
-              
+
               // Use track.is_playing for the actual play/pause state
               _isPlaying = data['track']['is_playing'] ?? false;
             } else {
@@ -130,10 +149,15 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
               // Ensure playback status is consistent
               _isPlaying = false;
             }
-            
+
             // Unlock controls after receiving an update from the backend
             _controlsLocked = false;
           });
+          
+          // Notify parent widget about session status change
+          if (widget.onSessionStatusChanged != null) {
+            widget.onSessionStatusChanged!(_hasActiveSession);
+          }
         }
       } else {
         print('Failed to load current track: ${response.statusCode}');
@@ -146,9 +170,113 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   // Helper method to reset and restart the refresh timer
   void _resetRefreshTimer() {
     _refreshTimer?.cancel();
-    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    // Use a more frequent check interval when widget is hidden to detect new sessions faster
+    final interval = widget.isHidden ? const Duration(seconds: 3) : const Duration(seconds: 5);
+    
+    _refreshTimer = Timer.periodic(interval, (_) {
+      // Always fetch track data regardless of visibility
       _fetchCurrentTrack();
     });
+  }
+
+  Future<void> _skipToPreviousTrack() async {
+    // Only proceed if we have an auth token and controls are not locked
+    if (widget.authToken.isEmpty || _controlsLocked) {
+      return;
+    }
+
+    // Lock controls to prevent spamming
+    setState(() {
+      _controlsLocked = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:3000/spotify/player/previous'),
+        headers: {
+          'Authorization': 'Bearer ${widget.authToken}',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Cancel the previous timer to avoid conflicting updates
+        _refreshTimer?.cancel();
+
+        // Immediately fetch the current track to get the updated track info
+        _fetchCurrentTrack();
+
+        // Also restart the periodic timer after a short delay
+        _refreshTimer = Timer(const Duration(seconds: 2), () {
+          // Fetch again after giving Spotify servers time to update
+          _fetchCurrentTrack();
+          // Then restart the periodic timer
+          _resetRefreshTimer();
+        });
+      } else {
+        // Unlock controls in case of error
+        setState(() {
+          _controlsLocked = false;
+        });
+        print('Failed to skip to previous track: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Unlock controls in case of error
+      setState(() {
+        _controlsLocked = false;
+      });
+      print('Error skipping to previous track: $e');
+    }
+  }
+
+  Future<void> _skipToNextTrack() async {
+    // Only proceed if we have an auth token and controls are not locked
+    if (widget.authToken.isEmpty || _controlsLocked) {
+      return;
+    }
+
+    // Lock controls to prevent spamming
+    setState(() {
+      _controlsLocked = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:3000/spotify/player/next'),
+        headers: {
+          'Authorization': 'Bearer ${widget.authToken}',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Cancel the previous timer to avoid conflicting updates
+        _refreshTimer?.cancel();
+
+        // Immediately fetch the current track to get the updated track info
+        _fetchCurrentTrack();
+
+        // Also restart the periodic timer after a short delay
+        _refreshTimer = Timer(const Duration(seconds: 2), () {
+          // Fetch again after giving Spotify servers time to update
+          _fetchCurrentTrack();
+          // Then restart the periodic timer
+          _resetRefreshTimer();
+        });
+      } else {
+        // Unlock controls in case of error
+        setState(() {
+          _controlsLocked = false;
+        });
+        print('Failed to skip to next track: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Unlock controls in case of error
+      setState(() {
+        _controlsLocked = false;
+      });
+      print('Error skipping to next track: $e');
+    }
   }
 
   Future<void> _togglePlayback() async {
@@ -156,7 +284,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
     if (widget.authToken.isEmpty || _controlsLocked) {
       return;
     }
-    
+
     // Lock controls to prevent spamming
     setState(() {
       _controlsLocked = true;
@@ -192,7 +320,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
 
         // Immediately fetch the current track to get the actual play state
         _fetchCurrentTrack();
-        
+
         // Also restart the periodic timer after a short delay
         _refreshTimer = Timer(const Duration(seconds: 2), () {
           // Fetch again after giving Spotify servers time to update
@@ -219,16 +347,20 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
 
   @override
   Widget build(BuildContext context) {
+    // The widget still builds and makes API calls even when hidden,
+    // but we apply visual adjustments when it's hidden
     return Container(
       padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
       decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.secondary,
-            blurRadius: 5.0,
-            offset: Offset(0, -1),
-          ),
-        ],
+        boxShadow: widget.isHidden 
+            ? [] // No shadow when hidden
+            : [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.secondary,
+                  blurRadius: 5.0,
+                  offset: Offset(0, -1),
+                ),
+              ],
         color: Theme.of(context).colorScheme.primary,
       ),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -266,26 +398,22 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
         if (_trackName != "It's silent in here..." && _hasActiveSession)
           MusicPlayerControls(
             playing: _isPlaying,
-            onPrevious: _controlsLocked ? null : () {
-              // Previous track functionality could be implemented in the future
-              setState(() {
-                _controlsLocked = true;
-              });
-              _resetRefreshTimer(); // Reset timer when button is pressed
-              _fetchCurrentTrack(); // Fetch updated track info immediately
-            },
-            onPlayPause: _controlsLocked ? null : () {
-              _togglePlayback();
-              // Timer is already reset in _togglePlayback method
-            },
-            onNext: _controlsLocked ? null : () {
-              // Next track functionality could be implemented in the future
-              setState(() {
-                _controlsLocked = true;
-              });
-              _resetRefreshTimer(); // Reset timer when button is pressed
-              _fetchCurrentTrack(); // Fetch updated track info immediately
-            },
+            onPrevious: _controlsLocked
+                ? null
+                : () {
+                    _skipToPreviousTrack();
+                  },
+            onPlayPause: _controlsLocked
+                ? null
+                : () {
+                    _togglePlayback();
+                    // Timer is already reset in _togglePlayback method
+                  },
+            onNext: _controlsLocked
+                ? null
+                : () {
+                    _skipToNextTrack();
+                  },
           ),
       ]),
     );
