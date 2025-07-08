@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'tabs/album_art_posts_tab.dart';
 import 'tabs/description_posts_tab.dart';
 import 'tabs/tagged_posts_tab.dart';
+import 'settings/edit_profile.dart'; // <-- Add this import
 
 class NormalUserProfilePage extends StatefulWidget {
+  static const routeName = '/profile/normal';
+
   const NormalUserProfilePage({Key? key}) : super(key: key);
 
   @override
@@ -90,6 +93,29 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
             albumArts: albumArts,
             description: description,
             showGrid: false, // Only show profile details, not grid
+          ),
+          // --- Add Edit Profile Button ---
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: SizedBox(
+              width: 160,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const EditProfilePage()),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.white),
+                ),
+                child: const Text(
+                  'Edit Profile',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
           ),
           // TabBar under profile details
           Container(
