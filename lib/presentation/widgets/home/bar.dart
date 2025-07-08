@@ -14,6 +14,7 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppBar(
+      automaticallyImplyLeading: false,
       backgroundColor: Theme.of(context).colorScheme.primary,
       elevation: 0,
       titleSpacing: 0,

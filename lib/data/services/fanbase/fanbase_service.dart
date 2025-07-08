@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../../models/fanbase/fanbase_model.dart';
 // import '../config.dart';
 
-const String baseUrl = 'http://localhost:43981'; // or your server IP in LAN/WAN
+const String baseUrl = 'http://localhost:3000'; 
 
 class FanbaseService {
   static Future<List<Fanbase>> getAllFanbases() async {

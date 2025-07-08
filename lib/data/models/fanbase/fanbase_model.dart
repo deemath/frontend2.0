@@ -1,14 +1,16 @@
 class Fanbase {
   final String id;
   final String fanbaseName;
-  final String topic;
+  final String fanbaseTopic;
+  final String fanbasePhotoUrl;
   final int numLikes;
   final int numPosts;
 
   Fanbase({
     required this.id,
     required this.fanbaseName,
-    required this.topic,
+    required this.fanbaseTopic,
+    required this.fanbasePhotoUrl,
     required this.numLikes,
     required this.numPosts,
   });
@@ -17,7 +19,8 @@ class Fanbase {
     return Fanbase(
       id: json['_id'],
       fanbaseName: json['fanbaseName'],
-      topic: json['description'],
+      fanbaseTopic: json['topic'],
+      fanbasePhotoUrl: json['fanbasePhotoUrl'] ?? 'assets/images/favicon.png',
       numLikes: json['numberOfLikes'] ?? 0,
       numPosts: json['numberOfComments'] ?? 0,
     );
