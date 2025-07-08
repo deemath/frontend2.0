@@ -63,6 +63,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return MaterialApp(
       title: 'Noot',
@@ -71,6 +72,21 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
       onGenerateRoute: (settings) {
+        // Route protection logic
+        final isAuthenticated = authProvider.isAuthenticated;
+
+        // List of protected routes that require authentication
+        final protectedRoutes = ['/home', '/demodespost'];
+
+        // Redirect to login if trying to access protected route while not authenticated
+        if (protectedRoutes.contains(settings.name) && !isAuthenticated) {
+          return MaterialPageRoute(
+            builder: (_) => const LoginScreen(),
+            settings: RouteSettings(name: '/login'),
+          );
+        }
+
+        // Original route handling
         final uri = Uri.parse(settings.name ?? '');
         if (uri.pathSegments.length == 2 && uri.pathSegments[0] == 'fanbase') {
           final id = uri.pathSegments[1];
@@ -116,7 +132,7 @@ class MyApp extends StatelessWidget {
             );
         }
       },
-      initialRoute: '/home',
+      initialRoute: authProvider.isAuthenticated ? '/home' : '/login',
     );
   }
 }
