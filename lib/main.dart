@@ -41,7 +41,7 @@ import 'presentation/screens/profile/normal_user.dart';
 // import 'package:frontend/presentation/screens/search/search_feed_screen.dart';
 import 'presentation/widgets/despost/demo.dart';
 import 'presentation/screens/search/search_feed_screen.dart';
-import 'presentation/widgets/view_song_post/feed.dart';
+import 'presentation/widgets/song_post/feed.dart';
 import 'presentation/screens/show_all_posts_screen.dart';
 import 'presentation/screens/fanbase/fanbase_details.dart';
 

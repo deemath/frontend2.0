@@ -5,7 +5,7 @@ import '/core/constants/app_constants.dart';
 import '/presentation/widgets/home/bar.dart';
 import '/presentation/widgets/common/bottom_bar.dart';
 
-import '/presentation/widgets/view_song_post/feed.dart';
+import '/presentation/widgets/song_post/feed.dart';
 import '/presentation/widgets/common/musicplayer_bar.dart';
 
 class HomeScreen extends StatefulWidget {
