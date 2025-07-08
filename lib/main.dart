@@ -31,10 +31,11 @@ import 'presentation/screens/auth/signup_screen.dart';
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
-import 'data/services/auth_service.dart';
+// import 'data/services/auth_service.dart';
 import 'core/constants/app_constants.dart';
 
-import 'core/providers/theme_provider.dart'; // 👈 Create this file
+import 'core/providers/theme_provider.dart'; // Theme provider
+import 'core/providers/auth_provider.dart'; // Auth provider for global access
 import 'presentation/screens/fanbase/fanbase.dart';
 import 'presentation/screens/profile/normal_user.dart';
 // import 'package:frontend/presentation/screens/search/search_feed_screen.dart';
@@ -44,12 +45,13 @@ import 'presentation/widgets/view_song_post/feed.dart';
 import 'presentation/screens/show_all_posts_screen.dart';
 import 'presentation/screens/fanbase/fanbase_details.dart';
 
-
-
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -68,7 +70,6 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
-
       onGenerateRoute: (settings) {
         final uri = Uri.parse(settings.name ?? '');
         if (uri.pathSegments.length == 2 && uri.pathSegments[0] == 'fanbase') {
@@ -78,14 +79,14 @@ class MyApp extends StatelessWidget {
           );
         }
 
-      // Add other routes
+        // Add other routes
         switch (settings.name) {
           case '/home':
             return MaterialPageRoute(builder: (_) => const HomeScreen());
           case '/login':
             return MaterialPageRoute(builder: (_) => const LoginScreen());
-          case '/signup':
-            return MaterialPageRoute(builder: (_) => const SignupScreen());
+          // case '/signup':
+          //   return MaterialPageRoute(builder: (_) => const SignupScreen());
           case '/create':
             return MaterialPageRoute(
               builder: (_) => CreatePostPage(
@@ -105,7 +106,8 @@ class MyApp extends StatelessWidget {
           case '/feed':
             return MaterialPageRoute(builder: (_) => FeedPage());
           case '/showpost':
-            return MaterialPageRoute(builder: (_) => const ShowAllPostsScreen());
+            return MaterialPageRoute(
+                builder: (_) => const ShowAllPostsScreen());
           default:
             return MaterialPageRoute(
               builder: (_) => Scaffold(
@@ -114,77 +116,7 @@ class MyApp extends StatelessWidget {
             );
         }
       },
-      // Remove the routes: property if you use onGenerateRoute
       initialRoute: '/home',
-
-
-      // Start with login screen, then check auth status
-      // home: const AuthWrapper(),
-      // home: const HomeScreen(),
-
-      // routes: {
-      //   '/login': (context) => const LoginScreen(),
-      //   '/signup': (context) => const SignupScreen(),
-      //   '/home': (context) => const HomeScreen(),
-      //   '/create': (context) => CreatePostPage(
-      //         spotifyService: SpotifyService(
-      //           accessToken: AppConstants.spotifyAccessToken,
-      //         ),
-      //       ),
-      //   '/fanbases': (context) => FanbasePage(),
-      //   '/profile': (context) => NormalUserProfilePage(),
-      //   '/search': (context) => SearchFeedScreen(),
-      //   // '/demo': (context) => DemoScreen(),
-      //   '/demodespost': (context) => DemoScreen2(),
-
-      //   '/feed': (context) => FeedPage(),
-      //   '/showpost': (context) => const ShowAllPostsScreen(),
-      // },
     );
-  }
-}
-
-// Wrapper to check authentication status on app start
-class AuthWrapper extends StatefulWidget {
-  const AuthWrapper({Key? key}) : super(key: key);
-
-  @override
-  State<AuthWrapper> createState() => _AuthWrapperState();
-}
-
-class _AuthWrapperState extends State<AuthWrapper> {
-  bool _isLoading = true;
-  bool _isLoggedIn = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAuthStatus();
-  }
-
-  Future<void> _checkAuthStatus() async {
-    final authService = AuthService();
-    final isLoggedIn = await authService.isLoggedIn();
-
-    setState(() {
-      _isLoggedIn = isLoggedIn;
-      _isLoading = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        body: Center(
-          child: CircularProgressIndicator(
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-        ),
-      );
-    }
-
-    return _isLoggedIn ? const HomeScreen() : const LoginScreen();
   }
 }

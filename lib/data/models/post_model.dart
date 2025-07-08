@@ -7,8 +7,10 @@ class Post {
   final String? caption;
   final String userId;
   final String username;
-  final int likes;
-  final int comments;
+  int likes;
+  int comments;
+  List<String> likedBy;
+  bool likedByMe;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -23,6 +25,8 @@ class Post {
     required this.username,
     required this.likes,
     required this.comments,
+    required this.likedBy,
+    required this.likedByMe,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -39,6 +43,8 @@ class Post {
       username: json['username'] ?? '',
       likes: json['likes'] ?? 0,
       comments: json['comments'] ?? 0,
+      likedBy: (json['likedBy'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      likedByMe: false,
       createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(json['updatedAt'] ?? DateTime.now().toIso8601String()),
     );
@@ -56,6 +62,7 @@ class Post {
       'username': username,
       'likes': likes,
       'comments': comments,
+      'likedBy': likedBy,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };

@@ -30,8 +30,8 @@ class SongPostService {
       
       // For testing, use dummy user data
       final userData = {
-        '_id': 'test_user_id_123',
-        'username': 'test_user'
+        '_id': '685fb750cc084ba7e0ef8533',
+        'username': 'owl'
       };
       
       final response = await http.post(
@@ -130,5 +130,14 @@ class SongPostService {
         'message': 'Network error: $e',
       };
     }
+  }
+
+  Future<Map<String, dynamic>> likePost(String postId, String userId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/$postId/like'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'userId': userId}),
+    );
+    return jsonDecode(response.body);
   }
 } 
