@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palette_generator/palette_generator.dart';
 import '../song_post/post.dart';
 import '../song_post/post_shape.dart';
 
@@ -45,6 +46,90 @@ class _FeedWidgetState extends State<FeedWidget> {
     }
   ];
 
+  // Map to store extracted colors for each album image
+  final Map<String, Color> _extractedColors = {};
+  final Color _defaultColor = Color.fromARGB(255, 17, 37, 37);
+
+  @override
+  void initState() {
+    super.initState();
+    _extractColorsFromAlbumImages();
+  }
+
+  // Method to extract dark colors from album images
+  Future<void> _extractColorsFromAlbumImages() async {
+    for (final post in feedPosts) {
+      final albumImageUrl = post['albumImage'] as String;
+      if (!_extractedColors.containsKey(albumImageUrl)) {
+        try {
+          final PaletteGenerator paletteGenerator =
+              await PaletteGenerator.fromImageProvider(
+            NetworkImage(albumImageUrl),
+            size: Size(100, 100), // Smaller size for faster processing
+            maximumColorCount: 10, // Extract up to 10 colors
+          );
+
+          // Try to get the dark muted color first, then fall back to other options
+          Color? extractedColor = paletteGenerator.darkMutedColor?.color;
+
+          // If no dark muted color, try dark vibrant or just the dominant color
+          if (extractedColor == null) {
+            extractedColor = paletteGenerator.darkVibrantColor?.color;
+            if (extractedColor == null) {
+              extractedColor = paletteGenerator.dominantColor?.color;
+            }
+          }
+
+          // If color was extracted, store it, otherwise use default
+          if (extractedColor != null) {
+            // Ensure the color is dark enough
+            if (_isDarkEnough(extractedColor)) {
+              setState(() {
+                _extractedColors[albumImageUrl] = extractedColor!;
+              });
+            } else {
+              // Darken the color if it's not dark enough
+              setState(() {
+                _extractedColors[albumImageUrl] = _darkenColor(extractedColor!);
+              });
+            }
+          } else {
+            setState(() {
+              _extractedColors[albumImageUrl] = _defaultColor;
+            });
+          }
+        } catch (e) {
+          print('Error extracting color from $albumImageUrl: $e');
+          setState(() {
+            _extractedColors[albumImageUrl] = _defaultColor;
+          });
+        }
+      }
+    }
+  }
+
+  // Helper method to check if a color is dark enough
+  bool _isDarkEnough(Color color) {
+    // Calculate relative luminance (0 for black, 1 for white)
+    double luminance =
+        0.299 * color.red + 0.587 * color.green + 0.114 * color.blue;
+    luminance = luminance / 255;
+
+    // Return true if the color is dark enough (luminance < 0.5)
+    return luminance < 0.4; // Lower threshold for darker colors
+  }
+
+  // Helper method to darken a color
+  Color _darkenColor(Color color) {
+    const double darkenFactor = 0.6; // Higher values make the color darker
+    return Color.fromARGB(
+      color.alpha,
+      (color.red * darkenFactor).round(),
+      (color.green * darkenFactor).round(),
+      (color.blue * darkenFactor).round(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -73,6 +158,10 @@ class _FeedWidgetState extends State<FeedWidget> {
     // Define the aspect ratio for consistency
     const postAspectRatio = 490 / 595;
 
+    // Get the extracted color for this post or use default if not available yet
+    final albumImageUrl = post['albumImage'] as String;
+    final backgroundColor = _extractedColors[albumImageUrl] ?? _defaultColor;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       // Use AspectRatio to ensure proper sizing
@@ -83,8 +172,7 @@ class _FeedWidgetState extends State<FeedWidget> {
           children: [
             // Layer for post_shape widget
             CustomPaint(
-              painter: PostShape(
-                  backgroundColor: const Color.fromARGB(255, 17, 37, 37)),
+              painter: PostShape(backgroundColor: backgroundColor),
               child: Container(),
             ),
             // Layer for post widget

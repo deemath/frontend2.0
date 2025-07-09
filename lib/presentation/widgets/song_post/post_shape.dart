@@ -7,7 +7,10 @@ class PostShape extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint();
+    // Configure paint with the background color provided
+    Paint paint = Paint()
+      ..color = backgroundColor
+      ..style = PaintingStyle.fill;
     Path path = Path();
 
     // Path number 1
@@ -46,11 +49,14 @@ class PostShape extends CustomPainter {
     path.cubicTo(size.width * 0.04, size.height * 0.09, size.width * 0.69,
         size.height * 0.09, size.width * 0.69, size.height * 0.09);
     path.close(); // Close the path for proper rendering
+
+    // Draw the path with the background color from feed_widget.dart
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false; // Static background doesn't need repainting
+  bool shouldRepaint(covariant PostShape oldDelegate) {
+    // Repaint if the background color changes
+    return backgroundColor != oldDelegate.backgroundColor;
   }
 }
