@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'dart:async';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:provider/provider.dart';
+import 'package:frontend/core/providers/auth_provider.dart';
+import 'package:frontend/data/services/auth_service.dart';
 
 class MusicPlayerControls extends StatelessWidget {
   final bool playing;
@@ -52,15 +54,13 @@ class MusicPlayerControls extends StatelessWidget {
 }
 
 class MusicPlayerBar extends StatefulWidget {
-  final String authToken;
-  // Add a callback to expose active session state
+  // Callback to expose active session state
   final void Function(bool isActive)? onSessionStatusChanged;
   // Track whether the widget is visually hidden
   final bool isHidden;
 
   const MusicPlayerBar({
     Key? key,
-    required this.authToken,
     this.onSessionStatusChanged,
     this.isHidden = false,
   }) : super(key: key);
@@ -76,14 +76,29 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   bool _controlsLocked = false;
   bool _hasActiveSession = false;
   Timer? _refreshTimer;
+  late AuthService _authService;
+  late Dio _dio;
 
   @override
   void initState() {
     super.initState();
-    _fetchCurrentTrack();
+
+    // Wait until didChangeDependencies to access providers
 
     // Initialize the refresh timer
     _resetRefreshTimer();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Initialize auth service and DIO
+    _authService = Provider.of<AuthService>(context, listen: false);
+    _dio = _authService.dio;
+
+    // Fetch initial track data
+    _fetchCurrentTrack();
   }
 
   @override
@@ -103,22 +118,19 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   }
 
   Future<void> _fetchCurrentTrack() async {
-    // Only fetch if we have an auth token
-    if (widget.authToken.isEmpty) {
+    // Only fetch if user is authenticated
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isAuthenticated) {
       return;
     }
 
     try {
-      final response = await http.get(
-        Uri.parse('http://localhost:3000/spotify/player/current-track'),
-        headers: {
-          'Authorization': 'Bearer ${widget.authToken}',
-          'Content-Type': 'application/json',
-        },
+      final response = await _dio.get(
+        '/spotify/player/current-track',
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = response.data;
 
         if (mounted) {
           // Get the top-level is_playing status to determine if there's an active session
@@ -182,8 +194,9 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   }
 
   Future<void> _skipToPreviousTrack() async {
-    // Only proceed if we have an auth token and controls are not locked
-    if (widget.authToken.isEmpty || _controlsLocked) {
+    // Only proceed if user is authenticated and controls are not locked
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isAuthenticated || _controlsLocked) {
       return;
     }
 
@@ -193,13 +206,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
     });
 
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:3000/spotify/player/previous'),
-        headers: {
-          'Authorization': 'Bearer ${widget.authToken}',
-          'Content-Type': 'application/json',
-        },
-      );
+      final response = await _dio.post('/spotify/player/previous');
 
       if (response.statusCode == 200) {
         // Cancel the previous timer to avoid conflicting updates
@@ -232,8 +239,9 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   }
 
   Future<void> _skipToNextTrack() async {
-    // Only proceed if we have an auth token and controls are not locked
-    if (widget.authToken.isEmpty || _controlsLocked) {
+    // Only proceed if user is authenticated and controls are not locked
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isAuthenticated || _controlsLocked) {
       return;
     }
 
@@ -243,13 +251,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
     });
 
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:3000/spotify/player/next'),
-        headers: {
-          'Authorization': 'Bearer ${widget.authToken}',
-          'Content-Type': 'application/json',
-        },
-      );
+      final response = await _dio.post('/spotify/player/next');
 
       if (response.statusCode == 200) {
         // Cancel the previous timer to avoid conflicting updates
@@ -282,8 +284,9 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   }
 
   Future<void> _togglePlayback() async {
-    // Only proceed if we have an auth token and controls are not locked
-    if (widget.authToken.isEmpty || _controlsLocked) {
+    // Only proceed if user is authenticated and controls are not locked
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isAuthenticated || _controlsLocked) {
       return;
     }
 
@@ -295,26 +298,13 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
     try {
       // Determine which action to take based on current playback state
       final shouldPause = _isPlaying;
-      final endpoint = shouldPause
-          ? 'http://localhost:3000/spotify/player/pause'
-          : 'http://localhost:3000/spotify/player/play';
+      final endpoint =
+          shouldPause ? '/spotify/player/pause' : '/spotify/player/play';
 
       final response = shouldPause
-          ? await http.put(
-              Uri.parse(endpoint),
-              headers: {
-                'Authorization': 'Bearer ${widget.authToken}',
-                'Content-Type': 'application/json',
-              },
-            )
-          : await http.post(
-              Uri.parse(endpoint),
-              headers: {
-                'Authorization': 'Bearer ${widget.authToken}',
-                'Content-Type': 'application/json',
-              },
-              body: '{}', // Empty JSON object for resuming playback
-            );
+          ? await _dio.put(endpoint)
+          : await _dio.post(endpoint,
+              data: {}); // Empty JSON object for resuming playback
 
       if (response.statusCode == 200) {
         // Cancel the previous timer to avoid conflicting updates
@@ -358,8 +348,9 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
             ? [] // No shadow when hidden
             : [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.secondary,
-                  blurRadius: 5.0,
+                  // color: Theme.of(context).colorScheme.secondary,
+                  color: Colors.black,
+                  blurRadius: 10.0,
                   offset: Offset(0, -1),
                 ),
               ],
