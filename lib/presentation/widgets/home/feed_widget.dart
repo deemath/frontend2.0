@@ -134,13 +134,13 @@ class _FeedWidgetState extends State<FeedWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            'Feed',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-        ),
+        // const Padding(
+        //   padding: EdgeInsets.all(16.0),
+        //   child: Text(
+        //     'Feed',
+        //     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+        //   ),
+        // ),
         Expanded(
           child: ListView.builder(
             itemCount: feedPosts.length,
@@ -200,6 +200,8 @@ class _FeedWidgetState extends State<FeedWidget> {
               isLiked: false,
               isPlaying: false,
             ),
+            // Have a AutoSizeText widget for post['username'] and post['caption']
+            // Have a bottom margin before next widget
           ],
         ),
       ),

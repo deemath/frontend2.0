@@ -348,8 +348,9 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
             ? [] // No shadow when hidden
             : [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.secondary,
-                  blurRadius: 5.0,
+                  // color: Theme.of(context).colorScheme.secondary,
+                  color: Colors.black,
+                  blurRadius: 10.0,
                   offset: Offset(0, -1),
                 ),
               ],
