@@ -70,52 +70,49 @@ class _FeedWidgetState extends State<FeedWidget> {
   }
 
   Widget _buildPostItem(Map<String, dynamic> post) {
+    // Define the aspect ratio for consistency
+    const postAspectRatio = 490 / 595;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 24.0),
-      height: 600, // Fixed height for the post
-      child: Scaffold(
-        // backgroundColor: Colors.white,
-        body: Container(
-          margin: const EdgeInsets.all(16.0),
-          child: Stack(
-            children: [
-              // Layer for post_shape widget
-              AspectRatio(
-                aspectRatio: 490 / 595,
-                child: CustomPaint(
-                  painter: PostShape(backgroundColor: const Color(0xff423E4E)),
-                  child: Container(),
-                ),
-              ),
-              // Layer for post widget
-              AspectRatio(
-                aspectRatio: 490 / 595, // Same aspect ratio for overlay
-                child: Post(
-                  trackId: post['trackId'],
-                  songName: post['songName'],
-                  artists: post['artists'],
-                  albumImage: post['albumImage'],
-                  caption: post['caption'],
-                  username: post['username'] ?? 'Unknown User',
-                  userImage: 'assets/images/hehe.png', // Default profile image
-                  onLike: () {
-                    // Placeholder for like action
-                    print('Liked post: ${post['_id']}');
-                  },
-                  onComment: () {
-                    // Placeholder for comment action
-                    print('Comment on post: ${post['_id']}');
-                  },
-                  onPlay: () {
-                    // Placeholder for play action
-                    print('Play post: ${post['_id']}');
-                  },
-                  isLiked: false,
-                  isPlaying: false,
-                ),
-              ),
-            ],
-          ),
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      // Use AspectRatio to ensure proper sizing
+      child: AspectRatio(
+        aspectRatio: postAspectRatio,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Layer for post_shape widget
+            CustomPaint(
+              painter: PostShape(
+                  backgroundColor: const Color.fromARGB(255, 17, 37, 37)),
+              child: Container(),
+            ),
+            // Layer for post widget
+            Post(
+              trackId: post['trackId'],
+              songName: post['songName'],
+              artists: post['artists'],
+              albumImage: post['albumImage'],
+              caption: post['caption'],
+              username: post['username'] ?? 'Unknown User',
+              userImage:
+                  'assets/images/profile_picture.jpg', // Default profile image
+              onLike: () {
+                // Placeholder for like action
+                print('Liked post: ${post['_id']}');
+              },
+              onComment: () {
+                // Placeholder for comment action
+                print('Comment on post: ${post['_id']}');
+              },
+              onPlay: () {
+                // Placeholder for play action
+                print('Play post: ${post['_id']}');
+              },
+              isLiked: false,
+              isPlaying: false,
+            ),
+          ],
         ),
       ),
     );

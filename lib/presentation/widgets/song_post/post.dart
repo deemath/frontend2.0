@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 // ================= SongControlWidget =================
 class SongControlWidget extends StatelessWidget {
-  const SongControlWidget({super.key});
+  final String? trackId;
+
+  const SongControlWidget({super.key, this.trackId});
 
   @override
   Widget build(BuildContext context) {
@@ -26,22 +29,55 @@ class SongControlWidget extends StatelessWidget {
 
 // ================= TrackDetailWidget =================
 class TrackDetailWidget extends StatelessWidget {
-  const TrackDetailWidget({super.key});
+  final String? songName;
+  final String? artists;
+
+  const TrackDetailWidget({
+    super.key,
+    this.songName,
+    this.artists,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       flex: 359,
       child: Container(
-        margin: const EdgeInsets.all(4.0),
-        child: const Center(
-          child: Text(
-            'Track Details',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Song name - larger and bolder
+            AutoSizeText(
+              songName ?? 'Unknown Track',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+              minFontSize: 8,
+              maxFontSize: 12,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.left,
             ),
-          ),
+            const SizedBox(height: 2), // Reduced spacing
+            // Artists - smaller text
+            AutoSizeText(
+              artists ?? 'Unknown Artist',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 10,
+                fontWeight: FontWeight.w300,
+              ),
+              minFontSize: 4,
+              maxFontSize: 10,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.left,
+            ),
+          ],
         ),
       ),
     );
@@ -51,46 +87,63 @@ class TrackDetailWidget extends StatelessWidget {
 // ================= UserDetailWidget =================
 class UserDetailWidget extends StatelessWidget {
   final Map<String, dynamic>? details;
+  final String? username;
+  final String? userImage;
 
-  const UserDetailWidget({super.key, this.details});
+  const UserDetailWidget({
+    super.key,
+    this.details,
+    this.username,
+    this.userImage,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).colorScheme.onPrimary;
-    // demo data
-    final data = details ??
-        {
-          'username': 'ishaanKhatter',
-          'song': 'august - Taylor Swift',
-          'avatar': 'assets/images/hehe.png',
-        };
-
     return Expanded(
       flex: 359,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      child: Container(
+        margin: const EdgeInsets.only(left: 0, bottom: 4.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Large Profile Picture
-            CircleAvatar(
-              radius: 32,
-              backgroundColor: Colors.transparent,
-              backgroundImage: AssetImage(data['avatar']),
+            // User Image - taking maximum height possible
+            AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(16.0),
+                  image: userImage != null
+                      ? DecorationImage(
+                          image: userImage!.startsWith('http')
+                              ? NetworkImage(userImage!) as ImageProvider
+                              : AssetImage(userImage!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+              ),
             ),
-            const SizedBox(width: 18),
-            // Username only, vertically centered
+            const SizedBox(width: 12),
+            // Username in AutoSizeText
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  data['username'],
+                child: AutoSizeText(
+                  username ?? 'Unknown User',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
                     fontWeight: FontWeight.w600,
                     fontSize: 18,
                     letterSpacing: 0.2,
                   ),
+                  minFontSize: 14,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
                 ),
               ),
             ),
@@ -152,7 +205,7 @@ class PostArtWidget extends StatelessWidget {
             bottom: 9.0,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: BorderRadius.circular(16.0),
             child: albumImage != null && albumImage!.startsWith('http')
                 ? Image.network(
                     albumImage!,
@@ -183,16 +236,26 @@ class PostArtWidget extends StatelessWidget {
 
 // ================= FooterWidget =================
 class FooterWidget extends StatelessWidget {
-  const FooterWidget({super.key});
+  final String? songName;
+  final String? artists;
+
+  const FooterWidget({
+    super.key,
+    this.songName,
+    this.artists,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Expanded(
-      flex: 73,
+    return Expanded(
+      flex: 131,
       child: Row(
         children: [
-          TrackDetailWidget(),
-          InteractionWidget(),
+          TrackDetailWidget(
+            songName: songName,
+            artists: artists,
+          ),
+          const InteractionWidget(),
         ],
       ),
     );
@@ -201,16 +264,30 @@ class FooterWidget extends StatelessWidget {
 
 // ================= HeaderWidget =================
 class HeaderWidget extends StatelessWidget {
-  const HeaderWidget({super.key});
+  final String? username;
+  final String? userImage;
+  final String? trackId;
+
+  const HeaderWidget({
+    super.key,
+    this.username,
+    this.userImage,
+    this.trackId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Expanded(
-      flex: 72,
+    return Expanded(
+      flex: 131,
       child: Row(
         children: [
-          UserDetailWidget(),
-          SongControlWidget(),
+          UserDetailWidget(
+            username: username,
+            userImage: userImage,
+          ),
+          SongControlWidget(
+            trackId: trackId,
+          ),
         ],
       ),
     );
@@ -275,141 +352,15 @@ class Post extends StatelessWidget {
     return Container(
       child: Column(
         children: [
-          // Header with user details
-          Expanded(
-            flex: 72,
-            child: Row(
-              children: [
-                // User details
-                Expanded(
-                  flex: 359,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 12.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Profile Picture
-                        CircleAvatar(
-                          radius: 32,
-                          backgroundColor: Colors.transparent,
-                          backgroundImage:
-                              userImage != null && userImage!.startsWith('http')
-                                  ? NetworkImage(userImage!) as ImageProvider
-                                  : AssetImage(
-                                      userImage ?? 'assets/images/hehe.png'),
-                        ),
-                        const SizedBox(width: 18),
-                        // Username
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              username,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Song control
-                Expanded(
-                  flex: 131,
-                  child: GestureDetector(
-                    onTap: onPlay,
-                    child: Container(
-                      margin: const EdgeInsets.all(4.0),
-                      child: Icon(
-                        isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          HeaderWidget(
+            username: username,
+            userImage: userImage,
+            trackId: trackId,
           ),
-          // Post art
           PostArtWidget(albumImage: albumImage),
-          // Footer with track details and interactions
-          Expanded(
-            flex: 73,
-            child: Row(
-              children: [
-                // Track details
-                Expanded(
-                  flex: 359,
-                  child: Container(
-                    margin: const EdgeInsets.all(4.0),
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          songName ?? 'Unknown Track',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          artists ?? 'Unknown Artist',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Interactions
-                Expanded(
-                  flex: 131,
-                  child: Container(
-                    margin: const EdgeInsets.all(4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Like button
-                        GestureDetector(
-                          onTap: onLike,
-                          child: Icon(
-                            isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: isLiked ? Colors.red : Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                        // Comment button
-                        GestureDetector(
-                          onTap: onComment,
-                          child: const Icon(
-                            Icons.comment_outlined,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          FooterWidget(
+            songName: songName,
+            artists: artists,
           ),
         ],
       ),
