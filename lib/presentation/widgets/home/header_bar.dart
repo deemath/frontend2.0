@@ -26,7 +26,9 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: Row(
               children: [
                 Image.asset(
-                  isDark ? 'assets/images/logo_white.png' :'assets/images/logo_black.png',
+                  isDark
+                      ? 'assets/images/logo_white.png'
+                      : 'assets/images/logo_black.png',
                   width: 100,
                   height: 40,
                 ),
@@ -37,12 +39,14 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
           // temparary toggle button
           const ToggleButton(),
           IconButton(
-            icon: Icon(LucideIcons.heart, color: Theme.of(context).colorScheme.onPrimary, size: 22),
+            icon: Icon(LucideIcons.heart,
+                color: Theme.of(context).colorScheme.onPrimary, size: 22),
             onPressed: () {},
           ),
           // Message Icon - Updated this section
           IconButton(
-            icon: Icon(LucideIcons.messagesSquare, color: Theme.of(context).colorScheme.onPrimary, size: 22),
+            icon: Icon(LucideIcons.messagesSquare,
+                color: Theme.of(context).colorScheme.onPrimary, size: 22),
             onPressed: () {
               Navigator.push(
                 context,
