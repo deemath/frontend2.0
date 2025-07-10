@@ -9,7 +9,7 @@ class PostArtWidget extends StatelessWidget {
       builder: (context, constraints) {
         // Calculate square size: width minus left and right margins
         double squareSize =
-            constraints.maxWidth - 18.0; // 9.0 left + 9.0 right margins
+            constraints.maxWidth * 0.65; // 9.0 left + 9.0 right margins
         return Container(
           height: squareSize, // Height equals width to make it square
           margin: const EdgeInsets.only(

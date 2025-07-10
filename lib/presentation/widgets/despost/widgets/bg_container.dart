@@ -3,52 +3,46 @@ import 'package:flutter/material.dart';
 class BackgroundContainer extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint();
-    Path path = Path();
+    final paint = Paint()..style = PaintingStyle.fill;
+    paint.color = const Color(0xFF423E4E);
 
-    // Path number 1
+    final w = size.width;
+    final h = size.height;
 
-    paint.color = const Color(0xff423E4E);
-    path = Path();
-    path.lineTo(size.width * 0.69, size.height * 0.09);
-    path.cubicTo(size.width * 0.71, size.height * 0.09, size.width * 0.73,
-        size.height * 0.08, size.width * 0.73, size.height * 0.06);
-    path.cubicTo(size.width * 0.73, size.height * 0.06, size.width * 0.73,
-        size.height * 0.03, size.width * 0.73, size.height * 0.03);
-    path.cubicTo(size.width * 0.73, size.height * 0.01, size.width * 0.75, 0,
-        size.width * 0.77, 0);
-    path.cubicTo(
-        size.width * 0.77, 0, size.width * 0.96, 0, size.width * 0.96, 0);
-    path.cubicTo(size.width * 0.98, 0, size.width, size.height * 0.01,
-        size.width, size.height * 0.03);
-    path.cubicTo(size.width, size.height * 0.03, size.width, size.height * 0.87,
-        size.width, size.height * 0.87);
-    path.cubicTo(size.width, size.height * 0.89, size.width * 0.98,
-        size.height * 0.91, size.width * 0.96, size.height * 0.91);
-    path.cubicTo(size.width * 0.96, size.height * 0.91, size.width * 0.77,
-        size.height * 0.91, size.width * 0.77, size.height * 0.91);
-    path.cubicTo(size.width * 0.75, size.height * 0.91, size.width * 0.73,
-        size.height * 0.92, size.width * 0.73, size.height * 0.94);
-    path.cubicTo(size.width * 0.73, size.height * 0.94, size.width * 0.73,
-        size.height * 0.97, size.width * 0.73, size.height * 0.97);
-    path.cubicTo(size.width * 0.73, size.height, size.width * 0.71, size.height,
-        size.width * 0.69, size.height);
-    path.cubicTo(size.width * 0.69, size.height, size.width * 0.04, size.height,
-        size.width * 0.04, size.height);
-    path.cubicTo(
-        size.width * 0.02, size.height, 0, size.height, 0, size.height * 0.97);
-    path.cubicTo(
-        0, size.height * 0.97, 0, size.height * 0.12, 0, size.height * 0.12);
-    path.cubicTo(0, size.height * 0.11, size.width * 0.02, size.height * 0.09,
-        size.width * 0.04, size.height * 0.09);
-    path.cubicTo(size.width * 0.04, size.height * 0.09, size.width * 0.69,
-        size.height * 0.09, size.width * 0.69, size.height * 0.09);
-    path.close(); // Close the path for proper rendering
+    final minX = 3.0, maxX = 493.0;
+    final minY = 3.0, maxY = 452.0;
+    final pathW = maxX - minX;
+    final pathH = maxY - minY;
+
+    double nx(double x) => (x - minX) / pathW * w;
+    double ny(double y) => (y - minY) / pathH * h;
+
+    final path = Path()
+      ..moveTo(nx(341.5), ny(57))
+      ..cubicTo(nx(352.546), ny(57), nx(361.5), ny(48.0457), nx(361.5), ny(37))
+      ..lineTo(nx(361.5), ny(23))
+      ..cubicTo(nx(361.5), ny(11.9543), nx(370.454), ny(3), nx(381.5), ny(3))
+      ..lineTo(nx(473), ny(3))
+      ..cubicTo(nx(484.046), ny(3), nx(493), ny(11.9543), nx(493), ny(23))
+      ..lineTo(nx(493), ny(375.5))
+      ..cubicTo(nx(493), ny(386.546), nx(484.046), ny(395.5), nx(473), ny(395.5))
+      ..lineTo(nx(427), ny(395.5))
+      ..lineTo(nx(381.5), ny(395.5))
+      ..cubicTo(nx(370.454), ny(395.5), nx(361.5), ny(404.454), nx(361.5), ny(415.5))
+      ..lineTo(nx(361.5), ny(432))
+      ..cubicTo(nx(361.5), ny(443.046), nx(352.546), ny(452), nx(341.5), ny(452))
+      ..lineTo(nx(23), ny(452))
+      ..cubicTo(nx(11.9543), ny(452), nx(3), ny(443.046), nx(3), ny(432))
+      ..lineTo(nx(3), ny(247.979))
+      ..lineTo(nx(3), ny(145.969))
+      ..lineTo(nx(3), ny(77))
+      ..cubicTo(nx(3), ny(65.9543), nx(11.9543), ny(57), nx(23), ny(57))
+      ..lineTo(nx(341.5), ny(57))
+      ..close();
+
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false; // Static background doesn't need repainting
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
