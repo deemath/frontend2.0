@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 
-class BackgroundContainer extends CustomPainter {
+class PostShape extends CustomPainter {
+  final Color backgroundColor;
+
+  PostShape({this.backgroundColor = const Color(0xff423E4E)});
+
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-    paint.color = const Color(0xFF423E4E);
+    // Configure paint with the background color provided
+    Paint paint = Paint()
+      ..color = backgroundColor
+      ..style = PaintingStyle.fill;
+    // paint.color = const Color(0xFF423E4E);
 
     final w = size.width;
     final h = size.height;

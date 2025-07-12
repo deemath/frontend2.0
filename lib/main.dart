@@ -34,7 +34,7 @@ import 'core/providers/auth_provider.dart';
 import 'presentation/screens/fanbase/fanbase.dart';
 import 'presentation/screens/profile/normal_user.dart';
 // import 'package:frontend/presentation/screens/search/search_feed_screen.dart';
-import 'presentation/widgets/despost/demo.dart';
+// import 'presentation/screens/demopost/demo.dart';
 import 'presentation/screens/search/search_feed_screen.dart';
 import 'presentation/widgets/song_post/feed.dart';
 import 'presentation/screens/show_all_posts_screen.dart';
@@ -135,8 +135,8 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => NormalUserProfilePage());
           case '/search':
             return MaterialPageRoute(builder: (_) => SearchFeedScreen());
-          case '/demodespost':
-            return MaterialPageRoute(builder: (_) => DemoScreen2());
+          // case '/demodespost':
+          //   return MaterialPageRoute(builder: (_) => HomeScreen2());
           case '/feed':
             return MaterialPageRoute(builder: (_) => FeedPage());
           case '/showpost':
