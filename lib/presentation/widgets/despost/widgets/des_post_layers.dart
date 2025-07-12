@@ -50,38 +50,48 @@ class PostArtWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(9.0),
-      padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.2),
         borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: Colors.white12),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final double totalHeight = constraints.maxWidth; // assume square
-          final double imageHeight = totalHeight * 0.25;
+          final double totalSize = constraints.maxWidth;
+          final double imageSize = totalSize * 0.25;
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Row (Image + Title + Partial Description)
+              // Top Row
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Left: Image
-                  SizedBox(
-                    width: constraints.maxWidth * 0.5,
-                    height: imageHeight,
+                  // Album Art
+                  Container(
+                    width: imageSize,
+                    height: imageSize,
+                    // decoration: BoxDecoration(
+                    //   // borderRadius: BorderRadius.circular(12.0),
+                    //   // boxShadow: [
+                    //   //   BoxShadow(
+                    //   //     color: Colors.black.withOpacity(0.3),
+                    //   //     blurRadius: 6,
+                    //   //     offset: const Offset(0, 3),
+                    //   //   ),
+                    //   // ],
+                    // ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12.0),
                       child: albumImage != null && albumImage!.startsWith('http')
                           ? Image.network(
                               albumImage!,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  'assets/images/song.png',
-                                  fit: BoxFit.cover,
-                                );
-                              },
+                              errorBuilder: (_, __, ___) => Image.asset(
+                                'assets/images/song.png',
+                                fit: BoxFit.cover,
+                              ),
                             )
                           : Image.asset(
                               'assets/images/song.png',
@@ -89,33 +99,32 @@ class PostArtWidget extends StatelessWidget {
                             ),
                     ),
                   ),
-                  const SizedBox(width: 8.0),
-                  // Right: Title and first lines of description
+                  const SizedBox(width: 12.0),
+                  // Title and snippet
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AutoSizeText(
-                          title ?? 'Unknown Track',
+                          title ?? 'Unknown Title',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
-                          minFontSize: 10,
+                          // minFontSize: 12,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         AutoSizeText(
                           description ?? '',
                           style: const TextStyle(
                             color: Colors.white70,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
                           ),
-                          maxLines: 2,
-                          minFontSize: 8,
+                          maxLines: 5,
+                          // minFontSize: 10,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
@@ -123,19 +132,18 @@ class PostArtWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              // Bottom Row: Remaining description
+              const SizedBox(height: 10),
+              // Extended description
               AutoSizeText(
                 description ?? 'No description available.',
                 style: const TextStyle(
                   color: Colors.white70,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w300,
+                  fontSize: 16,
+                  height: 1.3,
                 ),
-                minFontSize: 8,
-                maxLines: 4,
+                maxLines: 10,
+                // minFontSize: 10,
                 overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.left,
               ),
             ],
           );
@@ -144,6 +152,7 @@ class PostArtWidget extends StatelessWidget {
     );
   }
 }
+
 
 // ========== FooterWidget ==========
 class FooterWidget extends StatelessWidget {
@@ -192,31 +201,32 @@ class UserDetailWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return 
-    // Container(
-    //   // flex: 359,
-    //   child: 
+    Container(
+      // flex: 359,
+      child: 
       Container(
         margin: const EdgeInsets.only(left: 0, bottom: 4.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // User Image - taking maximum height possible
-            AspectRatio(
-              // size: 5.0,
-              aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(16.0),
-                  image: userImage != null
-                      ? DecorationImage(
-                          image: userImage!.startsWith('http')
-                              ? NetworkImage(userImage!) as ImageProvider
-                              : AssetImage(userImage!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
+            SizedBox(
+              height: 40, // or any fixed height you want
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(16.0),
+                    image: userImage != null
+                        ? DecorationImage(
+                            image: userImage!.startsWith('http')
+                                ? NetworkImage(userImage!) as ImageProvider
+                                : AssetImage(userImage!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
                 ),
               ),
             ),
@@ -245,7 +255,7 @@ class UserDetailWidget extends StatelessWidget {
             // ),
           ],
         ),
-      // ),
+      ),
     );
   }
 }
@@ -259,9 +269,9 @@ class SongControlWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return 
-    // Expanded(
-    //   // flex: 131,
-    //   child: 
+    Expanded(
+      // flex: 131,
+      child: 
       Container(
         margin: const EdgeInsets.all(4.0),
         child: const Center(
@@ -273,7 +283,7 @@ class SongControlWidget extends StatelessWidget {
             ),
           ),
         ),
-      // ),
+      ),
     );
   }
 }
@@ -292,9 +302,9 @@ class TrackDetailWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return 
-    // Expanded(
-    //   flex: 359,
-    //   child: 
+    Expanded(
+      flex: 359,
+      child: 
       Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
         child: Column(
@@ -332,7 +342,7 @@ class TrackDetailWidget extends StatelessWidget {
             ),
           ],
         ),
-      // ),
+      ),
     );
   }
 }
@@ -344,9 +354,9 @@ class InteractionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return 
-    // Expanded(
-    //   flex: 131,
-    //   child: 
+    Expanded(
+      flex: 131,
+      child: 
       Container(
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
@@ -363,7 +373,7 @@ class InteractionWidget extends StatelessWidget {
             ),
           ),
         ),
-      // ),
+      ),
     );
   }
 }

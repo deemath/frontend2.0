@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen2> {
 
     //Debugging
     print("Destination: HomeScreen2");
+
     
     return Scaffold(
       body: Column(

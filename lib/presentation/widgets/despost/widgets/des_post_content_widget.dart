@@ -46,7 +46,14 @@ class Post extends StatelessWidget {
             userImage: userImage,
             trackId: trackId,
           ),
-          PostArtWidget(albumImage: albumImage, title: descriptionTitle, description: description),
+          Expanded(
+            flex: 4,
+            child: PostArtWidget(
+              albumImage: albumImage,
+              title: descriptionTitle,
+              description: description,
+            ),
+          ),
           FooterWidget(
             songName: songName,
             artists: artists,
@@ -56,23 +63,3 @@ class Post extends StatelessWidget {
     );
   }
 }
-
-// class DemoContentWidget extends StatelessWidget {
-//   const DemoContentWidget({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       child: const Column(
-//         children: [
-//           // Row 1: 2 columns
-//           HeaderWidget(),
-//           // Row 2: 1 column (full width) - Square shape
-//           PostArtWidget(),
-//           // Row 3: 2 columns
-//           FooterWidget(),
-//         ],
-//       ),
-//     );
-//   }
-// }
