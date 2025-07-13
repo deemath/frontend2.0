@@ -20,34 +20,50 @@ class ExampleScreen extends StatelessWidget {
 */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'presentation/screens/shell_screen.dart';
-
 import 'presentation/screens/auth/login_screen.dart';
-
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
-// import 'data/services/auth_service.dart';
+import 'data/services/auth_service.dart';
 import 'core/constants/app_constants.dart';
-
-import 'core/providers/theme_provider.dart'; // Theme provider
-import 'core/providers/auth_provider.dart'; // Auth provider for global access
-import 'presentation/screens/fanbase/fanbase.dart';
+import 'core/providers/theme_provider.dart';
+import 'core/providers/auth_provider.dart';
+// import 'presentation/screens/fanbase/fanbase.dart';
 import 'presentation/screens/profile/normal_user.dart';
 // import 'package:frontend/presentation/screens/search/search_feed_screen.dart';
-import 'presentation/widgets/despost/demo.dart';
+// import 'presentation/screens/demopost/demo.dart';
 import 'presentation/screens/search/search_feed_screen.dart';
 import 'presentation/widgets/song_post/feed.dart';
 import 'presentation/screens/show_all_posts_screen.dart';
 import 'presentation/screens/fanbase/fanbase_details.dart';
+import 'presentation/screens/splash_screen.dart'; // Import the SplashScreen
+import 'presentation/screens/shell_screen2.dart';
 
-void main() {
+void main() async {
+  // Ensure Flutter bindings are initialized before accessing plugins
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Create providers
+  final authProvider = AuthProvider();
+  final themeProvider = ThemeProvider();
+
+  // Create auth service
+  final authService = AuthService(authProvider);
+
+  // Initialize services (but don't wait for completion - splash screen will handle this)
+  authService.initialize().catchError((e) {
+    debugPrint('Error initializing auth service: $e');
+  });
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider.value(value: themeProvider),
+        ChangeNotifierProvider.value(value: authProvider),
+        Provider.value(value: authService),
       ],
       child: const MyApp(),
     ),
@@ -62,12 +78,17 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
 
+    // Use SplashScreen as the initial entry point for the app
     return MaterialApp(
       title: 'Noot',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
+      home: SplashScreen(
+        nextScreen: const ShellScreen(), // Show this when authenticated
+        authScreen: const LoginScreen(), // Show this when not authenticated
+      ),
       onGenerateRoute: (settings) {
         // Route protection logic
         final isAuthenticated = authProvider.isAuthenticated;
@@ -103,20 +124,16 @@ class MyApp extends StatelessWidget {
           //   return MaterialPageRoute(builder: (_) => const SignupScreen());
           case '/create':
             return MaterialPageRoute(
-              builder: (_) => CreatePostPage(
-                spotifyService: SpotifyService(
-                  accessToken: AppConstants.spotifyAccessToken,
-                ),
-              ),
+              builder: (_) => CreatePostPage(),
             );
           case '/fanbases':
-            return MaterialPageRoute(builder: (_) => FanbasePage());
+            return MaterialPageRoute(builder: (_) => const ShellScreen2());
           case '/profile':
             return MaterialPageRoute(builder: (_) => NormalUserProfilePage());
           case '/search':
             return MaterialPageRoute(builder: (_) => SearchFeedScreen());
-          case '/demodespost':
-            return MaterialPageRoute(builder: (_) => DemoScreen2());
+          // case '/demodespost':
+          //   return MaterialPageRoute(builder: (_) => HomeScreen2());
           case '/feed':
             return MaterialPageRoute(builder: (_) => FeedPage());
           case '/showpost':
@@ -130,7 +147,7 @@ class MyApp extends StatelessWidget {
             );
         }
       },
-      initialRoute: authProvider.isAuthenticated ? '/home' : '/login',
+      // Remove initialRoute as we're using home with SplashScreen instead
     );
   }
 }

@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 
-class BackgroundContainer extends CustomPainter {
+class PostShape extends CustomPainter {
+  final Color backgroundColor;
+
+  PostShape({this.backgroundColor = const Color(0xff423E4E)});
+
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint();
+    // Configure paint with the background color provided
+    Paint paint = Paint()
+      ..color = backgroundColor
+      ..style = PaintingStyle.fill;
     Path path = Path();
 
     // Path number 1
-
-    paint.color = const Color(0xff423E4E);
     path = Path();
     path.lineTo(size.width * 0.69, size.height * 0.09);
     path.cubicTo(size.width * 0.71, size.height * 0.09, size.width * 0.73,
@@ -44,11 +49,14 @@ class BackgroundContainer extends CustomPainter {
     path.cubicTo(size.width * 0.04, size.height * 0.09, size.width * 0.69,
         size.height * 0.09, size.width * 0.69, size.height * 0.09);
     path.close(); // Close the path for proper rendering
+
+    // Draw the path with the background color from feed_widget.dart
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false; // Static background doesn't need repainting
+  bool shouldRepaint(covariant PostShape oldDelegate) {
+    // Repaint if the background color changes
+    return backgroundColor != oldDelegate.backgroundColor;
   }
 }
