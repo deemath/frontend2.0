@@ -3,9 +3,8 @@ class AppConstants {
   static const String baseUrl = 'http://localhost:3000';
 
   // Base URL for Spotify API
-  static const String spotifyBaseUrl = 'https://api.spotify.com/v1';
 
   // Spotify Access Token
   static const String spotifyAccessToken =
-      'BQDX_5v6Abn64-KGwh8fEiusZNn4aLtduFPjIYqz9vUlvdUjoQ4HNZ49L4PFF6GVroOrnC3pzCypYkJFhLEBBxfvtl-hZX96HB0A3kRk62c0MU7Wjg-UErFqobb1tH14t_TVcaU58iqGsKzUxFlEoW4NkMJZhB3T1ODSw8lDOvRv_dEIKWr-axOng1NAWDsUEnI7NGMcLAyIoAN-4pBBMIDjNeCOvgga8d8jd0mnNMf5Z5tQYeYQ2jfKLE26xyY_7w';
+      'BQBEc5YFcCYeQkFF9uiVhEtwu6VCvON7qNw8kDjXXj2WtPWRBqN34cSaMEfI-E2dPGyCaqHrSzeNOUaqvM_CoMXZFqRGe0z-mjpFkZt16tKnBoixL6oQnBIb8sn5oMbIcF5M9QfQaTO8Q7Ht14s7nDtUw1fMwXOGEsZD_--SaN4JOVJjdyWGQHxMPMOrjvu-063nNY54NPrBwvmN9SDRESwFdSjYMZ0CMyGtwgGG2FEi2D5O7NKo36qxSSSslbSfAA';
 }

@@ -6,9 +6,10 @@ class AlbumArtPostsTab extends StatelessWidget {
   final int posts;
   final int followers;
   final int following;
-  final List<String> albumArts;
+  final List<String> albumImages;
   final String description;
   final bool showGrid;
+  final String? profileImage;
 
   const AlbumArtPostsTab({
     Key? key,
@@ -16,9 +17,10 @@ class AlbumArtPostsTab extends StatelessWidget {
     required this.posts,
     required this.followers,
     required this.following,
-    required this.albumArts,
+    required this.albumImages,
     required this.description,
     this.showGrid = true,
+    this.profileImage,
   }) : super(key: key);
 
   @override
@@ -32,9 +34,13 @@ class AlbumArtPostsTab extends StatelessWidget {
                   const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Row(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 44,
-                    backgroundImage: AssetImage('assets/images/hehe.png'),
+                    backgroundImage:
+                        profileImage != null && profileImage!.isNotEmpty
+                            ? NetworkImage(profileImage!)
+                            : const AssetImage('assets/images/hehe.png')
+                                as ImageProvider,
                   ),
                   Expanded(
                     child: Row(
@@ -58,8 +64,8 @@ class AlbumArtPostsTab extends StatelessWidget {
                   children: [
                     Text(
                       username,
-                      style:
-                          const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -73,23 +79,34 @@ class AlbumArtPostsTab extends StatelessWidget {
           ],
           if (showGrid) ...[
             const SizedBox(height: 16),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: albumArts.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 2,
-                crossAxisSpacing: 2,
-                childAspectRatio: 1,
-              ),
-              itemBuilder: (context, index) {
-                return Image.network(
-                  albumArts[index],
-                  fit: BoxFit.cover,
-                );
-              },
-            ),
+            albumImages.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: Center(
+                      child: Text(
+                        'No album arts to display.',
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                    ),
+                  )
+                : GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: albumImages.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 2,
+                      crossAxisSpacing: 2,
+                      childAspectRatio: 1,
+                    ),
+                    itemBuilder: (context, index) {
+                      return Image.network(
+                        albumImages[index],
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
           ],
         ],
       ),
