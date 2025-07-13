@@ -2,25 +2,67 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 // ================= SongControlWidget =================
-class SongControlWidget extends StatelessWidget {
+class SongControlWidget extends StatefulWidget {
   final String? trackId;
+  final bool isPlaying;
+  final bool isCurrentTrack;
+  final VoidCallback? onPlayPause;
 
-  const SongControlWidget({super.key, this.trackId});
+  const SongControlWidget({
+    super.key, 
+    this.trackId,
+    this.isPlaying = false,
+    this.isCurrentTrack = false,
+    this.onPlayPause,
+  });
 
+  @override
+  State<SongControlWidget> createState() => _SongControlWidgetState();
+}
+
+class _SongControlWidgetState extends State<SongControlWidget> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      flex: 131,
+      flex: 100,
       child: Container(
         margin: const EdgeInsets.all(4.0),
-        child: const Center(
-          child: Text(
-            'Song Control',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Spotify icon on the left
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Image.network(
+                'https://cdn-icons-png.flaticon.com/512/174/174872.png',
+                width: 24,
+                height: 24,
+                color: Colors.white,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.music_note,
+                    color: Colors.white,
+                    size: 24,
+                  );
+                },
+              ),
             ),
-          ),
+            // Play/Pause button on the right
+            if (widget.onPlayPause != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: GestureDetector(
+                  onTap: widget.onPlayPause,
+                  child: Icon(
+                    widget.isCurrentTrack && widget.isPlaying 
+                        ? Icons.pause 
+                        : Icons.play_arrow,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -28,59 +70,114 @@ class SongControlWidget extends StatelessWidget {
 }
 
 // ================= TrackDetailWidget =================
-class TrackDetailWidget extends StatelessWidget {
+class TrackDetailWidget extends StatefulWidget {
   final String? songName;
   final String? artists;
+  final String? caption;
 
   const TrackDetailWidget({
     super.key,
     this.songName,
     this.artists,
+    this.caption,
   });
+
+  @override
+  State<TrackDetailWidget> createState() => _TrackDetailWidgetState();
+}
+
+class _TrackDetailWidgetState extends State<TrackDetailWidget> {
+  bool _showFullCaption = false;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      flex: 359,
+      flex: 300,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Song name - larger and bolder
-            AutoSizeText(
-              songName ?? 'Unknown Track',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-              minFontSize: 8,
-              maxFontSize: 12,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.left,
+            // Song name and artist on one line
+            Row(
+              children: [
+                Expanded(
+                  child: AutoSizeText(
+                    '${widget.songName ?? 'Unknown Track'} - ${widget.artists ?? 'Unknown Artist'}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    minFontSize: 8,
+                    maxFontSize: 12,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 2), // Reduced spacing
-            // Artists - smaller text
-            AutoSizeText(
-              artists ?? 'Unknown Artist',
+            // Caption with see more functionality
+            if (widget.caption != null && widget.caption!.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              _buildCaptionText(),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCaptionText() {
+    const int maxChars = 50; // Limit for showing "see more"
+    final caption = widget.caption!;
+    
+    if (caption.length <= maxChars || _showFullCaption) {
+      return Text(
+        caption,
+        style: const TextStyle(
+          color: Colors.white70,
+          fontSize: 10,
+          fontWeight: FontWeight.w300,
+        ),
+        textAlign: TextAlign.left,
+      );
+    } else {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              '${caption.substring(0, maxChars)}...',
               style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 10,
                 fontWeight: FontWeight.w300,
               ),
-              minFontSize: 4,
-              maxFontSize: 10,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.left,
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _showFullCaption = true;
+              });
+            },
+            child: const Text(
+              'see more',
+              style: TextStyle(
+                color: Colors.purple,
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
   }
 }
 
@@ -100,7 +197,7 @@ class UserDetailWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      flex: 359,
+      flex: 300,
       child: Container(
         margin: const EdgeInsets.only(left: 0, bottom: 4.0),
         child: Row(
@@ -156,27 +253,112 @@ class UserDetailWidget extends StatelessWidget {
 
 // ================= InteractionWidget =================
 class InteractionWidget extends StatelessWidget {
-  const InteractionWidget({super.key});
+  final VoidCallback? onLike;
+  final VoidCallback? onComment;
+  final VoidCallback? onShare;
+  final bool isLiked;
+  final int likesCount;
+  final int commentsCount;
+
+  const InteractionWidget({
+    super.key,
+    this.onLike,
+    this.onComment,
+    this.onShare,
+    this.isLiked = false,
+    this.likesCount = 0,
+    this.commentsCount = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      flex: 131,
+      flex: 140,
       child: Container(
         margin: const EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: Colors.black.withOpacity(0.3)),
-        ),
-        child: const Center(
-          child: Text(
-            'Interactions',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Like button
+            GestureDetector(
+              onTap: onLike,
+              child: SizedBox(
+                height: 32,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                                      Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? Colors.purple : Colors.white,
+                    size: 18,
+                  ),
+                    if (likesCount > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Text(
+                          '$likesCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
-          ),
+            const SizedBox(width: 12),
+            // Comment button
+            GestureDetector(
+              onTap: onComment,
+              child: SizedBox(
+                height: 32,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.comment_outlined,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    if (commentsCount > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Text(
+                          '$commentsCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Share button
+            GestureDetector(
+              onTap: onShare,
+              child: SizedBox(
+                height: 32,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.share,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -238,24 +420,46 @@ class PostArtWidget extends StatelessWidget {
 class FooterWidget extends StatelessWidget {
   final String? songName;
   final String? artists;
+  final String? caption;
+  final VoidCallback? onLike;
+  final VoidCallback? onComment;
+  final VoidCallback? onShare;
+  final bool isLiked;
+  final int likesCount;
+  final int commentsCount;
 
   const FooterWidget({
     super.key,
     this.songName,
     this.artists,
+    this.caption,
+    this.onLike,
+    this.onComment,
+    this.onShare,
+    this.isLiked = false,
+    this.likesCount = 0,
+    this.commentsCount = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      flex: 131,
+      flex: 140,
       child: Row(
         children: [
           TrackDetailWidget(
             songName: songName,
             artists: artists,
+            caption: caption,
           ),
-          const InteractionWidget(),
+          InteractionWidget(
+            onLike: onLike,
+            onComment: onComment,
+            onShare: onShare,
+            isLiked: isLiked,
+            likesCount: likesCount,
+            commentsCount: commentsCount,
+          ),
         ],
       ),
     );
@@ -267,18 +471,24 @@ class HeaderWidget extends StatelessWidget {
   final String? username;
   final String? userImage;
   final String? trackId;
+  final bool isPlaying;
+  final bool isCurrentTrack;
+  final VoidCallback? onPlayPause;
 
   const HeaderWidget({
     super.key,
     this.username,
     this.userImage,
     this.trackId,
+    this.isPlaying = false,
+    this.isCurrentTrack = false,
+    this.onPlayPause,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      flex: 131,
+      flex: 120,
       child: Row(
         children: [
           UserDetailWidget(
@@ -287,6 +497,9 @@ class HeaderWidget extends StatelessWidget {
           ),
           SongControlWidget(
             trackId: trackId,
+            isPlaying: isPlaying,
+            isCurrentTrack: isCurrentTrack,
+            onPlayPause: onPlayPause,
           ),
         ],
       ),
@@ -327,9 +540,13 @@ class Post extends StatelessWidget {
 
   final VoidCallback? onLike;
   final VoidCallback? onComment;
-  final VoidCallback? onPlay;
+  final VoidCallback? onShare;
+  final VoidCallback? onPlayPause;
   final bool isLiked;
   final bool isPlaying;
+  final bool isCurrentTrack;
+  final int likesCount;
+  final int commentsCount;
 
   const Post({
     super.key,
@@ -342,9 +559,13 @@ class Post extends StatelessWidget {
     this.userImage,
     this.onLike,
     this.onComment,
-    this.onPlay,
+    this.onShare,
+    this.onPlayPause,
     this.isLiked = false,
     this.isPlaying = false,
+    this.isCurrentTrack = false,
+    this.likesCount = 0,
+    this.commentsCount = 0,
   });
 
   @override
@@ -356,11 +577,21 @@ class Post extends StatelessWidget {
             username: username,
             userImage: userImage,
             trackId: trackId,
+            isPlaying: isPlaying,
+            isCurrentTrack: isCurrentTrack,
+            onPlayPause: onPlayPause,
           ),
           PostArtWidget(albumImage: albumImage),
           FooterWidget(
             songName: songName,
             artists: artists,
+            caption: caption,
+            onLike: onLike,
+            onComment: onComment,
+            onShare: onShare,
+            isLiked: isLiked,
+            likesCount: likesCount,
+            commentsCount: commentsCount,
           ),
         ],
       ),
