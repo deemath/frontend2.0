@@ -83,10 +83,9 @@ class _FeedWidgetState extends State<FeedWidget> {
 
           if (extractedColor != null) {
             setState(() {
-              _extractedColors[albumImageUrl] =
-                  _isDarkEnough(extractedColor)
-                      ? extractedColor
-                      : _darkenColor(extractedColor);
+              _extractedColors[albumImageUrl] = _isDarkEnough(extractedColor)
+                  ? extractedColor
+                  : _darkenColor(extractedColor);
             });
           } else {
             setState(() {
@@ -138,44 +137,34 @@ class _FeedWidgetState extends State<FeedWidget> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 500, 
-          ),
-          child: AspectRatio(
-            aspectRatio: aspectRatio,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Background layer
-                CustomPaint(
-                  painter: PostShape(backgroundColor: backgroundColor),
-                ),
-
-                // Foreground content layer
-                Post(
-                  trackId: post['trackId'],
-                  songName: post['songName'],
-                  artists: post['artists'],
-                  albumImage: post['albumImage'],
-                  caption: post['caption'],
-                  username: post['username'] ?? 'Unknown User',
-                  userImage: 'assets/images/profile_picture.jpg',
-                  descriptionTitle: post['title'],
-                  description: post['description'],
-                  onLike: () => print('Liked post: ${post['_id']}'),
-                  onComment: () => print('Comment: ${post['_id']}'),
-                  onPlay: () => print('Play: ${post['_id']}'),
-                  isLiked: false,
-                  isPlaying: false,
-                ),
-              ],
+      child: AspectRatio(
+        aspectRatio: aspectRatio,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CustomPaint(
+              painter: PostShape(backgroundColor: backgroundColor),
+              child: const SizedBox.expand(),
             ),
-          ),
+            Post(
+              trackId: post['trackId'],
+              songName: post['songName'],
+              artists: post['artists'],
+              albumImage: post['albumImage'],
+              caption: post['caption'],
+              username: post['username'] ?? 'Unknown User',
+              userImage: 'assets/images/profile_picture.jpg',
+              descriptionTitle: post['title'],
+              description: post['description'],
+              onLike: () => print('Liked post: ${post['_id']}'),
+              onComment: () => print('Comment: ${post['_id']}'),
+              onPlay: () => print('Play: ${post['_id']}'),
+              isLiked: false,
+              isPlaying: false,
+            ),
+          ],
         ),
       ),
     );
   }
-
 }
