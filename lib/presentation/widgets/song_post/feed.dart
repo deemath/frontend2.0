@@ -2,54 +2,37 @@ import 'package:flutter/material.dart';
 import './feed_bg_container.dart';
 import './feed_post.dart';
 import '../../../data/services/song_post_service.dart';
+import '../../../data/models/post_model.dart' as data_model;
 
 class FeedPage extends StatefulWidget {
-  const FeedPage({super.key});
+  final List<data_model.Post>? posts;
+  final bool isLoading;
+  final String? error;
+  final VoidCallback? onRefresh;
+  final Function(data_model.Post)? onLike;
+  final Function(data_model.Post)? onComment;
+  final Function(data_model.Post)? onPlay;
+  final String? currentlyPlayingTrackId;
+  final bool isPlaying;
+
+  const FeedPage({
+    super.key,
+    this.posts,
+    this.isLoading = false,
+    this.error,
+    this.onRefresh,
+    this.onLike,
+    this.onComment,
+    this.onPlay,
+    this.currentlyPlayingTrackId,
+    this.isPlaying = false,
+  });
 
   @override
   State<FeedPage> createState() => _FeedPageState();
 }
 
 class _FeedPageState extends State<FeedPage> {
-  final SongPostService _songPostService = SongPostService();
-  List<Map<String, dynamic>> _posts = [];
-  bool _isLoading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPosts();
-  }
-
-  Future<void> _loadPosts() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
-
-      final result = await _songPostService.getAllPosts();
-
-      if (result['success']) {
-        setState(() {
-          _posts = List<Map<String, dynamic>>.from(result['data']);
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _error = result['message'];
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _error = 'Error loading posts: $e';
-        _isLoading = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +61,7 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Widget _buildContent() {
-    if (_isLoading) {
+    if (widget.isLoading) {
       return const Center(
         child: CircularProgressIndicator(
           color: Color(0xFF8E08EF),
@@ -86,19 +69,19 @@ class _FeedPageState extends State<FeedPage> {
       );
     }
 
-    if (_error != null) {
+    if (widget.error != null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Error: $_error',
+              'Error: ${widget.error}',
               style: const TextStyle(color: Colors.red),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _loadPosts,
+              onPressed: widget.onRefresh,
               child: const Text('Retry'),
             ),
           ],
@@ -106,7 +89,7 @@ class _FeedPageState extends State<FeedPage> {
       );
     }
 
-    if (_posts.isEmpty) {
+    if (widget.posts == null || widget.posts!.isEmpty) {
       return const Center(
         child: Text(
           'No posts yet',
@@ -118,24 +101,38 @@ class _FeedPageState extends State<FeedPage> {
       );
     }
 
-    // REMOVE THIS LATER
-    // For now, show the first post. Later you can implement pagination or scrolling
+    // Show the first post for now. Later you can implement pagination or scrolling
+    final post = widget.posts!.first;
     return FeedPostWidget(
-      post: _posts.first,
+      post: {
+        'trackId': post.trackId,
+        'songName': post.songName,
+        'artists': post.artists,
+        'albumImage': post.albumImage,
+        'caption': post.caption,
+        'username': post.username,
+        'userAvatar': 'assets/images/hehe.png', // Default avatar
+        'trackName': post.songName,
+        'artistName': post.artists,
+        '_id': post.id,
+      },
       onLike: () {
-        // TODO: Implement like functionality
-        print('Liked post: ${_posts.first['_id']}');
+        if (widget.onLike != null) {
+          widget.onLike!(post);
+        }
       },
       onComment: () {
-        // TODO: Implement comment functionality
-        print('Comment on post: ${_posts.first['_id']}');
+        if (widget.onComment != null) {
+          widget.onComment!(post);
+        }
       },
       onPlay: () {
-        // TODO: Implement play functionality
-        print('Play song: ${_posts.first['trackId']}');
+        if (widget.onPlay != null) {
+          widget.onPlay!(post);
+        }
       },
-      isLiked: false, // TODO: Get from user's liked posts
-      isPlaying: false, // TODO: Get from current playing state
+      isLiked: post.likedByMe,
+      isPlaying: widget.currentlyPlayingTrackId == post.trackId && widget.isPlaying,
     );
   }
 }

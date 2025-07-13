@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/services/song_post_service.dart';
@@ -41,9 +41,9 @@ class _ShowAllPostsScreenState extends State<ShowAllPostsScreen> {
     final userDataString = prefs.getString('user_data');
     final userData = userDataString != null
         ? jsonDecode(userDataString)
-        : {'_id': '685fb750cc084ba7e0ef8533'};
+        : {'id': '685fb750cc084ba7e0ef8533'}; // Fallback for testing
     setState(() {
-      userId = userData['_id'];
+      userId = userData['id']; // Use 'id' instead of '_id'
     });
     await _loadPosts();
   }
@@ -284,8 +284,8 @@ class _ShowAllPostsScreenState extends State<ShowAllPostsScreen> {
       final userDataString = prefs.getString('user_data');
       final userData = userDataString != null
           ? jsonDecode(userDataString)
-          : {'_id': '685fb750cc084ba7e0ef8533'};
-      currentUserId = userData['_id'];
+          : {'id': '685fb750cc084ba7e0ef8533'}; // Fallback for testing
+      currentUserId = userData['id']; // Use 'id' instead of '_id'
     }
     if (currentUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -448,3 +448,4 @@ class _ShowAllPostsScreenState extends State<ShowAllPostsScreen> {
     }
   }
 } 
+*/
