@@ -3,6 +3,7 @@ class AppConstants {
   static const String baseUrl = 'http://localhost:3000';
 
   // Base URL for Spotify API
+  static const String spotifyBaseUrl = 'https://api.spotify.com/v1';
 
   // Spotify Access Token
   static const String spotifyAccessToken =
