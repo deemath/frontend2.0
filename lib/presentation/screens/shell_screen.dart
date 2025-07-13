@@ -58,7 +58,7 @@ class _ShellScreenState extends State<ShellScreen> {
                 // Use SingleChildScrollView to avoid layout issues when animating height
                 physics: NeverScrollableScrollPhysics(),
                 child: MusicPlayerBar(
-                  authToken: authProvider.token ?? '',
+                  // authToken: authProvider.token ?? '',
                   // Keep the widget alive and polling regardless of visibility
                   isHidden: !_showMusicPlayer,
                   // Update visibility state when session status changes

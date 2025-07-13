@@ -21,9 +21,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Initialize the auth service with the provider
-    _authService = AuthService(
-        authProvider: Provider.of<AuthProvider>(context, listen: false));
+    // Get the AuthService from the provider
+    _authService = Provider.of<AuthService>(context, listen: false);
   }
 
   void handleLogin() async {

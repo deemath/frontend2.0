@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/home/header_bar.dart';
 import '/presentation/widgets/common/bottom_bar.dart';
+import '../widgets/home/feed_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? accessToken;
@@ -28,10 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Simplified content for initial shell implementation
     // Original content commented out for future reference
     Widget content = const Center(
-      child: Text(
-        'Home Screen',
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-      ),
+      child: FeedWidget(),
     );
 
     // When in shell mode, only render the content without navigation elements
