@@ -1,11 +1,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-// import '../../widgets/profile/profile_stat_column.dart';
 import 'tabs/album_art_posts_tab.dart';
 import 'tabs/description_posts_tab.dart';
 import 'tabs/tagged_posts_tab.dart';
+import 'settings/edit_profile.dart';
+import '../../../data/services/profile_service.dart';
+import '../../../data/models/profile_model.dart';
 
 class NormalUserProfilePage extends StatefulWidget {
+  static const routeName = '/profile/normal';
+
   const NormalUserProfilePage({Key? key}) : super(key: key);
 
   @override
@@ -14,54 +18,47 @@ class NormalUserProfilePage extends StatefulWidget {
 
 class _NormalUserProfilePageState extends State<NormalUserProfilePage>
     with SingleTickerProviderStateMixin {
-  final String profileImage =
-      'https://i.scdn.co/image/ab6761610000e5eb02e3c8b0e6e6e6e6e6e6e6e6';
-  final String username = 'spotify_user';
-  final int posts = 12;
-  final int followers = 1200;
-  final int following = 180;
-
-  final List<String> albumArts = [
-    'https://i.scdn.co/image/ab67616d0000b27313b3e37318a0c247b550bccd',
-    'https://i.scdn.co/image/ab67616d0000b2734e0362c225863f6ae2432651',
-    'https://i.scdn.co/image/ab67616d0000b273dcef905cb144d4867119850b',
-    'https://i.scdn.co/image/ab67616d0000b27383141000ee8ce3b893a0b425',
-    'https://i.scdn.co/image/ab67616d0000b273ccdddd46119a4ff53eaf1f5d',
-    'https://i.scdn.co/image/ab67616d0000b273726d48d93d02e1271774f023',
-    'https://i.scdn.co/image/ab67616d0000b27364fa1bda999f4fbd2b7c4bb7',
-    'https://i.scdn.co/image/ab67616d0000b273062c6573009fdebd43de443b',
-    'https://i.scdn.co/image/ab67616d0000b273a0cb974834e04f46b63b99a8',
-    'https://i.scdn.co/image/ab67616d0000b2736ff8bc258e3ebc835ffe14ca',
-    'https://i.scdn.co/image/ab67616d0000b273712701c5e263efc8726b1464',
-    'https://i.scdn.co/image/ab67616d0000b273f02c451189a709b9a952aaec',
-    'https://i.scdn.co/image/ab67616d0000b2737fcead687e99583072cc217b',
-  ];
-
-  final List<String> randomDescriptions = [
-    "Music is my escape 🎶",
-    "Living life one song at a time.",
-    "Album art collector & playlist curator.",
-    "Lost in the rhythm.",
-    "Streaming good vibes only.",
-    "Turn up the volume!",
-    "Soundtrack of my life.",
-    "Discovering new beats daily.",
-    "Let the music speak.",
-    "Chasing melodies.",
-    "In a world of my own with music.",
-  ];
-
   late TabController _tabController;
 
-  String getRandomDescription() {
-    final random = Random();
-    return randomDescriptions[random.nextInt(randomDescriptions.length)];
-  }
+  // Replace with actual userId from auth/session
+  final String userId = '685fb750cc084ba7e0ef8533';
+
+  ProfileModel? profile;
+  List<dynamic> posts = [];
+  // This will hold the list of albumImage URLs from the user's posts
+  List<String> albumImages = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    setState(() {
+      isLoading = true;
+    });
+    final profileService = ProfileService();
+    final profileResult = await profileService.getUserProfile(userId);
+    final postsResult = await profileService.getUserPosts(userId);
+    // Get albumImage URLs from backend posts
+    final albumImagesResult = await profileService.getUserAlbumImages(userId);
+
+    if (profileResult['success'] == true && profileResult['data'] != null) {
+      setState(() {
+        profile = ProfileModel.fromJson(profileResult['data']);
+        posts = postsResult;
+        albumImages = albumImagesResult;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      // Optionally show error
+    }
   }
 
   @override
@@ -72,10 +69,25 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    final description = getRandomDescription();
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (profile == null) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+            child: Text('Failed to load profile',
+                style: TextStyle(color: Colors.white))),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(username),
+        title: Text(profile!.username),
         centerTitle: true,
         backgroundColor: Colors.black,
       ),
@@ -83,13 +95,38 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
         children: [
           // Profile details (header, stats, description)
           AlbumArtPostsTab(
-            username: username,
-            posts: posts,
-            followers: followers,
-            following: following,
-            albumArts: albumArts,
-            description: description,
-            showGrid: false, // Only show profile details, not grid
+            username: profile!.username,
+            posts: profile!.posts,
+            followers: profile!.followers,
+            following: profile!.following,
+            // Pass albumImages (from albumImage fields in posts)
+            albumImages: albumImages,
+            description: profile!.bio,
+            showGrid: false,
+            profileImage: profile!.profileImage,
+          ),
+          // --- Add Edit Profile Button ---
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: SizedBox(
+              width: 160,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const EditProfilePage()),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.white),
+                ),
+                child: const Text(
+                  'Edit Profile',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
           ),
           // TabBar under profile details
           Container(
@@ -110,13 +147,15 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
               controller: _tabController,
               children: [
                 AlbumArtPostsTab(
-                  username: username,
-                  posts: posts,
-                  followers: followers,
-                  following: following,
-                  albumArts: albumArts,
-                  description: description,
-                  showGrid: true, // Only show grid
+                  username: profile!.username,
+                  posts: profile!.posts,
+                  followers: profile!.followers,
+                  following: profile!.following,
+                  // Pass albumImages (from albumImage fields in posts)
+                  albumImages: albumImages,
+                  description: profile!.bio,
+                  showGrid: true,
+                  profileImage: profile!.profileImage,
                 ),
                 const DescriptionPostsTab(),
                 const TaggedPostsTab(),
