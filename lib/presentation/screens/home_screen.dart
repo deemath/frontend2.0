@@ -118,7 +118,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (currentUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User ID not found. Please log in again.')),
+        SnackBar(
+          content: Text('User ID not found. Please log in again.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
       return;
     }
@@ -145,7 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Failed to like post')),
+        SnackBar(
+          content: Text(result['message'] ?? 'Failed to like post'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
     }
   }
@@ -174,7 +180,12 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.of(context).pop();
               _handleComment(post); // reopen to refresh
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result['message'] ?? 'Failed to add comment')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(result['message'] ?? 'Failed to add comment'),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+              );
             }
           },
           postId: post.id,

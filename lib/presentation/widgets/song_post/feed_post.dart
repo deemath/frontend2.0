@@ -8,15 +8,17 @@ class SongControlWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Always use white for Spotify and play/pause icons
+    final textColor = Colors.white;
     return Expanded(
       flex: 131,
       child: Container(
         margin: const EdgeInsets.all(4.0),
-        child: const Center(
+        child: Center(
           child: Text(
             'Song',
             style: TextStyle(
-              color: Colors.white,
+              color: textColor,
               fontSize: 16,
             ),
           ),
@@ -35,15 +37,17 @@ class TrackDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Always use white for song/artist
+    final textColor = Colors.white;
     return Expanded(
       flex: 359,
       child: Container(
         margin: const EdgeInsets.all(4.0),
-        child: const Center(
+        child: Center(
           child: Text(
             'Track Details',
             style: TextStyle(
-              color: Colors.white,
+              color: textColor,
               fontSize: 16,
             ),
           ),
@@ -61,7 +65,8 @@ class UserDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).colorScheme.onPrimary;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
     // demo data
     final data = details ?? {
       'username': 'ishaanKhatter',
@@ -90,7 +95,7 @@ class UserDetailWidget extends StatelessWidget {
                 child: Text(
                   data['username'],
                   style: TextStyle(
-                    color: Colors.black,
+                    color: textColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 18,
                     letterSpacing: 0.2,
@@ -128,6 +133,11 @@ class InteractionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Always use white for play/pause icon, but keep like/comment theme-aware
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = Colors.white;
+    final likedColor = isDark ? Colors.red : Colors.deepOrange;
+    final textColor = isDark ? Colors.white : Colors.black;
     return Expanded(
       flex: 131,
       child: Container(
@@ -143,14 +153,14 @@ class InteractionWidget extends StatelessWidget {
                 children: [
                   Icon(
                     isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: isLiked ? Colors.red : Colors.white,
+                    color: isLiked ? likedColor : iconColor,
                     size: 20,
                   ),
                   if (likesCount > 0)
                     Text(
                       '$likesCount',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: textColor,
                         fontSize: 12,
                       ),
                     ),
@@ -163,16 +173,16 @@ class InteractionWidget extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.comment_outlined,
-                    color: Colors.white,
+                    color: iconColor,
                     size: 20,
                   ),
                   if (commentsCount > 0)
                     Text(
                       '$commentsCount',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: textColor,
                         fontSize: 12,
                       ),
                     ),
@@ -184,7 +194,7 @@ class InteractionWidget extends StatelessWidget {
               onTap: onPlay,
               child: Icon(
                 isPlaying ? Icons.pause : Icons.play_arrow,
-                color: Colors.white,
+                color: iconColor,
                 size: 20,
               ),
             ),
@@ -343,7 +353,10 @@ class FeedPostWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? Colors.black : Colors.white;
     return Container(
+      color: backgroundColor,
       child: Column(
         children: [
           // Header with user details
@@ -372,8 +385,8 @@ class FeedPostWidget extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               post['username'] ?? 'Unknown User',
-                              style: const TextStyle(
-                                color: Colors.black,
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 18,
                                 letterSpacing: 0.2,
@@ -394,7 +407,7 @@ class FeedPostWidget extends StatelessWidget {
                       margin: const EdgeInsets.all(4.0),
                       child: Icon(
                         isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.white,
+                        color: isDark ? Colors.white : Colors.black,
                         size: 24,
                       ),
                     ),
