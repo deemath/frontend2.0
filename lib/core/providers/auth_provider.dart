@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class User {
   final String id;
@@ -43,6 +45,7 @@ class AuthProvider with ChangeNotifier {
 
   void setUser(Map<String, dynamic> userData) {
     _user = User.fromJson(userData);
+    _saveUserDataToSharedPreferences(userData);
     notifyListeners();
   }
 
@@ -57,10 +60,48 @@ class AuthProvider with ChangeNotifier {
     setToken(token);
   }
 
-  void logout() {
+  void logout() async {
     _user = null;
     _token = null;
     _isAuthenticated = false;
+    await _clearUserDataFromSharedPreferences();
     notifyListeners();
+  }
+
+  // Save user data to SharedPreferences
+  Future<void> _saveUserDataToSharedPreferences(Map<String, dynamic> userData) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_data', jsonEncode(userData));
+    } catch (e) {
+      debugPrint('Error saving user data to SharedPreferences: $e');
+    }
+  }
+
+  // Clear user data from SharedPreferences
+  Future<void> _clearUserDataFromSharedPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('user_data');
+    } catch (e) {
+      debugPrint('Error clearing user data from SharedPreferences: $e');
+    }
+  }
+
+  // Load user data from SharedPreferences (for app restart)
+  Future<void> loadUserDataFromSharedPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userDataString = prefs.getString('user_data');
+      
+      if (userDataString != null) {
+        final userData = jsonDecode(userDataString);
+        _user = User.fromJson(userData);
+        _isAuthenticated = true;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error loading user data from SharedPreferences: $e');
+    }
   }
 }

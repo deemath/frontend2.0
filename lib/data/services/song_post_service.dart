@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../../core/providers/auth_provider.dart';
 
 class SongPostService {
   // Update this to your actual backend URL
@@ -18,21 +20,23 @@ class SongPostService {
       final prefs = await SharedPreferences.getInstance();
       final userDataString = prefs.getString('user_data');
       
-      // Commented out user login checking for testing
-      // if (userDataString == null) {
-      //   return {
-      //     'success': false,
-      //     'message': 'User not logged in',
-      //   };
-      // }
+      // Check if user is logged in
+      if (userDataString == null) {
+        return {
+          'success': false,
+          'message': 'User not logged in. Please log in to create a post.',
+        };
+      }
       
-      // final userData = jsonDecode(userDataString);
+      final userData = jsonDecode(userDataString);
       
-      // For testing, use dummy user data
-      final userData = {
-        '_id': '685fb750cc084ba7e0ef8533',
-        'username': 'owl'
-      };
+      // Validate that we have the required user data
+      if (userData['id'] == null || userData['name'] == null) {
+        return {
+          'success': false,
+          'message': 'Invalid user data. Please log in again.',
+        };
+      }
       
       final response = await http.post(
         Uri.parse(baseUrl),
@@ -45,8 +49,8 @@ class SongPostService {
           'artists': artists,
           'albumImage': albumImage,
           'caption': caption,
-          'userId': userData['_id'],
-          'username': userData['username'],
+          'userId': userData['id'], // Use 'id' from user data
+          'username': userData['name'], // Use 'name' from user data
         }),
       );
 
@@ -74,6 +78,8 @@ class SongPostService {
 
   Future<Map<String, dynamic>> getAllPosts() async {
     try {
+      print('Fetching all posts from: $baseUrl');
+      
       final response = await http.get(
         Uri.parse(baseUrl),
         headers: {
@@ -81,20 +87,37 @@ class SongPostService {
         },
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return {
-          'success': true,
-          'data': data,
-          'message': 'Posts retrieved successfully',
-        };
+        
+        // Ensure data is a list
+        if (data is List) {
+          print('Successfully fetched ${data.length} posts from all users');
+          return {
+            'success': true,
+            'data': data,
+            'message': 'Posts retrieved successfully',
+          };
+        } else {
+          print('Unexpected data format: $data');
+          return {
+            'success': false,
+            'message': 'Invalid data format received from server',
+          };
+        }
       } else {
+        print('Failed to fetch posts. Status: ${response.statusCode}');
+        final errorData = jsonDecode(response.body);
         return {
           'success': false,
-          'message': 'Failed to retrieve posts',
+          'message': errorData['error'] ?? errorData['message'] ?? 'Failed to retrieve posts',
         };
       }
     } catch (e) {
+      print('Error fetching all posts: $e');
       return {
         'success': false,
         'message': 'Network error: $e',

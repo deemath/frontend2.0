@@ -2,50 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 import '../song_post/post.dart';
 import '../song_post/post_shape.dart';
+import '../../../data/models/post_model.dart' as data_model;
 
 /// A feed widget that displays song posts
 class FeedWidget extends StatefulWidget {
-  const FeedWidget({Key? key}) : super(key: key);
+  final List<data_model.Post>? posts;
+  final bool isLoading;
+  final String? error;
+  final VoidCallback? onRefresh;
+  final Function(data_model.Post)? onLike;
+  final Function(data_model.Post)? onComment;
+  final Function(data_model.Post)? onPlay;
+  final Function(data_model.Post)? onShare;
+  final String? currentlyPlayingTrackId;
+  final bool isPlaying;
+
+  const FeedWidget({
+    Key? key,
+    this.posts,
+    this.isLoading = false,
+    this.error,
+    this.onRefresh,
+    this.onLike,
+    this.onComment,
+    this.onPlay,
+    this.onShare,
+    this.currentlyPlayingTrackId,
+    this.isPlaying = false,
+  }) : super(key: key);
 
   @override
   State<FeedWidget> createState() => _FeedWidgetState();
 }
 
 class _FeedWidgetState extends State<FeedWidget> {
-  // Hardcoded feed posts data
-  final List<Map<String, dynamic>> feedPosts = [
-    {
-      "_id": "686b967060b0a052ded69195",
-      "trackId": "12VqMTtUAuHwsWRSGYTZRE",
-      "songName": "ATLAS",
-      "artists": "Pretty Patterns",
-      "albumImage":
-          "https://i.scdn.co/image/ab67616d0000b273371ea9340b6b2157e8adc10f",
-      "caption": "guliguli",
-      "username": "owl",
-    },
-    {
-      "_id": "686b966920b0a052ded69192",
-      "trackId": "6K6wDKxAKY3yRoWnf7O2fT",
-      "songName": "BLUESTAR",
-      "artists": "Pretty Patterns",
-      "albumImage":
-          "https://i.scdn.co/image/ab67616d0000b27358b2eb8669e1197a203afb3f",
-      "caption": "hehe",
-      "username": "owl",
-    },
-    {
-      "_id": "686b966060b0a052ded69190",
-      "trackId": "406IpEtZPvbxApWTGM3twY",
-      "songName": "HOT",
-      "artists": "LE SSERAFIM",
-      "albumImage":
-          "https://i.scdn.co/image/ab67616d0000b27386efcf81bf1382daa2d2afe6",
-      "caption": "huh",
-      "username": "owl",
-    }
-  ];
-
   // Map to store extracted colors for each album image
   final Map<String, Color> _extractedColors = {};
   final Color _defaultColor = Color.fromARGB(255, 17, 37, 37);
@@ -56,10 +46,22 @@ class _FeedWidgetState extends State<FeedWidget> {
     _extractColorsFromAlbumImages();
   }
 
+  @override
+  void didUpdateWidget(FeedWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.posts != widget.posts) {
+      _extractColorsFromAlbumImages();
+    }
+  }
+
   // Method to extract dark colors from album images
   Future<void> _extractColorsFromAlbumImages() async {
-    for (final post in feedPosts) {
-      final albumImageUrl = post['albumImage'] as String;
+    if (widget.posts == null) return;
+    
+    for (final post in widget.posts!) {
+      final albumImageUrl = post.albumImage;
+      if (albumImageUrl == null || albumImageUrl.isEmpty) continue;
+      
       if (!_extractedColors.containsKey(albumImageUrl)) {
         try {
           final PaletteGenerator paletteGenerator =
@@ -132,34 +134,76 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // const Padding(
-        //   padding: EdgeInsets.all(16.0),
-        //   child: Text(
-        //     'Feed',
-        //     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-        //   ),
-        // ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: feedPosts.length,
-            itemBuilder: (context, index) {
-              final post = feedPosts[index];
-              return _buildPostItem(post);
-            },
-          ),
+    print('FeedWidget build - isLoading: ${widget.isLoading}, posts count: ${widget.posts?.length ?? 0}');
+    
+    if (widget.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFF8E08EF),
         ),
-      ],
+      );
+    }
+
+    if (widget.error != null) {
+      print('FeedWidget error: ${widget.error}');
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white, size: 48),
+            const SizedBox(height: 16),
+            Text(widget.error!, style: const TextStyle(color: Colors.white)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: widget.onRefresh,
+              child: const Text('Try Again'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (widget.posts == null || widget.posts!.isEmpty) {
+      print('FeedWidget: No posts to display');
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.music_note, color: Colors.white, size: 48),
+            SizedBox(height: 16),
+            Text('No posts yet', style: TextStyle(color: Colors.white, fontSize: 18)),
+            Text('Be the first to share your favorite music!', 
+                 style: TextStyle(color: Colors.white70)),
+          ],
+        ),
+      );
+    }
+
+    print('FeedWidget: Displaying ${widget.posts!.length} posts from all users');
+    return RefreshIndicator(
+      onRefresh: () async {
+        print('FeedWidget: Pull to refresh triggered');
+        if (widget.onRefresh != null) {
+          widget.onRefresh!();
+        }
+      },
+      child: ListView.builder(
+        itemCount: widget.posts!.length,
+        itemBuilder: (context, index) {
+          final post = widget.posts![index];
+          print('FeedWidget: Building post ${index + 1}/${widget.posts!.length} from user: ${post.username}');
+          return _buildPostItem(post);
+        },
+      ),
     );
   }
 
-  Widget _buildPostItem(Map<String, dynamic> post) {
+  Widget _buildPostItem(data_model.Post post) {
     // Define the aspect ratio for consistency
     const postAspectRatio = 490 / 595;
 
     // Get the extracted color for this post or use default if not available yet
-    final albumImageUrl = post['albumImage'] as String;
+    final albumImageUrl = post.albumImage ?? '';
     final backgroundColor = _extractedColors[albumImageUrl] ?? _defaultColor;
 
     return Container(
@@ -177,31 +221,39 @@ class _FeedWidgetState extends State<FeedWidget> {
             ),
             // Layer for post widget
             Post(
-              trackId: post['trackId'],
-              songName: post['songName'],
-              artists: post['artists'],
-              albumImage: post['albumImage'],
-              caption: post['caption'],
-              username: post['username'] ?? 'Unknown User',
-              userImage:
-                  'assets/images/profile_picture.jpg', // Default profile image
+              trackId: post.trackId,
+              songName: post.songName,
+              artists: post.artists,
+              albumImage: post.albumImage,
+              caption: post.caption,
+              username: post.username,
+              userImage: 'assets/images/profile_picture.jpg', // Default profile image
               onLike: () {
-                // Placeholder for like action
-                print('Liked post: ${post['_id']}');
+                if (widget.onLike != null) {
+                  widget.onLike!(post);
+                }
               },
               onComment: () {
-                // Placeholder for comment action
-                print('Comment on post: ${post['_id']}');
+                if (widget.onComment != null) {
+                  widget.onComment!(post);
+                }
               },
-              onPlay: () {
-                // Placeholder for play action
-                print('Play post: ${post['_id']}');
+              onPlayPause: () {
+                if (widget.onPlay != null) {
+                  widget.onPlay!(post);
+                }
               },
-              isLiked: false,
-              isPlaying: false,
+              onShare: () {
+                if (widget.onShare != null) {
+                  widget.onShare!(post);
+                }
+              },
+              isLiked: post.likedByMe,
+              isPlaying: widget.isPlaying,
+              isCurrentTrack: widget.currentlyPlayingTrackId == post.trackId,
+              likesCount: post.likes,
+              commentsCount: post.comments.length,
             ),
-            // Have a AutoSizeText widget for post['username'] and post['caption']
-            // Have a bottom margin before next widget
           ],
         ),
       ),
