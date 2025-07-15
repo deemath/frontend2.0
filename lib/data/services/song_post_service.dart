@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/providers/auth_provider.dart';
 
 class SongPostService {
-  // Update this to your actual backend URL
+  
   static const String baseUrl = 'http://localhost:3000/song-posts';
   
   Future<Map<String, dynamic>> createPost({

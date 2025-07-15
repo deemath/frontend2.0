@@ -38,7 +38,10 @@ class FeedWidget extends StatefulWidget {
 class _FeedWidgetState extends State<FeedWidget> {
   // Map to store extracted colors for each album image
   final Map<String, Color> _extractedColors = {};
-  final Color _defaultColor = Color.fromARGB(255, 17, 37, 37);
+  Color get _defaultColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? const Color.fromARGB(255, 17, 37, 37) : const Color(0xFFF5F5F5);
+  }
 
   @override
   void initState() {
@@ -152,7 +155,14 @@ class _FeedWidgetState extends State<FeedWidget> {
           children: [
             const Icon(Icons.error_outline, color: Colors.white, size: 48),
             const SizedBox(height: 16),
-            Text(widget.error!, style: const TextStyle(color: Colors.white)),
+            Text(
+              widget.error!,
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
+              ),
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: widget.onRefresh,
@@ -171,9 +181,8 @@ class _FeedWidgetState extends State<FeedWidget> {
           children: [
             Icon(Icons.music_note, color: Colors.white, size: 48),
             SizedBox(height: 16),
-            Text('No posts yet', style: TextStyle(color: Colors.white, fontSize: 18)),
-            Text('Be the first to share your favorite music!', 
-                 style: TextStyle(color: Colors.white70)),
+            Text('No posts yet', style: TextStyle(fontSize: 18)),
+            Text('Be the first to share your favorite music!'),
           ],
         ),
       );

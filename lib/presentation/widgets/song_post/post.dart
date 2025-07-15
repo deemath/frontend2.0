@@ -23,6 +23,8 @@ class SongControlWidget extends StatefulWidget {
 class _SongControlWidgetState extends State<SongControlWidget> {
   @override
   Widget build(BuildContext context) {
+    // Always use white for Spotify and play/pause icons
+    final iconColor = Colors.white;
     return Expanded(
       flex: 100,
       child: Container(
@@ -37,11 +39,11 @@ class _SongControlWidgetState extends State<SongControlWidget> {
                 'https://cdn-icons-png.flaticon.com/512/174/174872.png',
                 width: 24,
                 height: 24,
-                color: Colors.white,
+                color: iconColor,
                 errorBuilder: (context, error, stackTrace) {
-                  return const Icon(
+                  return Icon(
                     Icons.music_note,
-                    color: Colors.white,
+                    color: iconColor,
                     size: 24,
                   );
                 },
@@ -57,7 +59,7 @@ class _SongControlWidgetState extends State<SongControlWidget> {
                     widget.isCurrentTrack && widget.isPlaying 
                         ? Icons.pause 
                         : Icons.play_arrow,
-                    color: Colors.white,
+                    color: iconColor,
                     size: 24,
                   ),
                 ),
@@ -91,6 +93,9 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // Always use white for song/artist, white70 for caption
+    final textColor = Colors.white;
+    final captionColor = Colors.white70;
     return Expanded(
       flex: 300,
       child: Container(
@@ -105,8 +110,8 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
                 Expanded(
                   child: AutoSizeText(
                     '${widget.songName ?? 'Unknown Track'} - ${widget.artists ?? 'Unknown Artist'}',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: textColor,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -122,7 +127,7 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
             // Caption with see more functionality
             if (widget.caption != null && widget.caption!.isNotEmpty) ...[
               const SizedBox(height: 4),
-              _buildCaptionText(),
+              _buildCaptionText(captionColor),
             ],
           ],
         ),
@@ -130,15 +135,15 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
     );
   }
 
-  Widget _buildCaptionText() {
+  Widget _buildCaptionText(Color captionColor) {
     const int maxChars = 50; // Limit for showing "see more"
     final caption = widget.caption!;
     
     if (caption.length <= maxChars || _showFullCaption) {
       return Text(
         caption,
-        style: const TextStyle(
-          color: Colors.white70,
+        style: TextStyle(
+          color: captionColor,
           fontSize: 10,
           fontWeight: FontWeight.w300,
         ),
@@ -151,8 +156,8 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
           Expanded(
             child: Text(
               '${caption.substring(0, maxChars)}...',
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: captionColor,
                 fontSize: 10,
                 fontWeight: FontWeight.w300,
               ),
@@ -196,6 +201,8 @@ class UserDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
     return Expanded(
       flex: 300,
       child: Container(
@@ -230,9 +237,7 @@ class UserDetailWidget extends StatelessWidget {
                 child: AutoSizeText(
                   username ?? 'Unknown User',
                   style: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
+                    color: textColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 18,
                     letterSpacing: 0.2,
@@ -272,6 +277,10 @@ class InteractionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDark ? Colors.white : Colors.black;
+    final likedColor = isDark ? Colors.purple : Colors.deepPurple;
+    final textColor = isDark ? Colors.white : Colors.black;
     return Expanded(
       flex: 140,
       child: Container(
@@ -289,18 +298,18 @@ class InteractionWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                                      Icon(
-                    isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: isLiked ? Colors.purple : Colors.white,
-                    size: 18,
-                  ),
+                    Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: isLiked ? likedColor : iconColor,
+                      size: 18,
+                    ),
                     if (likesCount > 0)
                       Padding(
                         padding: const EdgeInsets.only(top: 1),
                         child: Text(
                           '$likesCount',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: textColor,
                             fontSize: 9,
                           ),
                         ),
@@ -319,9 +328,9 @@ class InteractionWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.comment_outlined,
-                      color: Colors.white,
+                      color: iconColor,
                       size: 18,
                     ),
                     if (commentsCount > 0)
@@ -329,8 +338,8 @@ class InteractionWidget extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 1),
                         child: Text(
                           '$commentsCount',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: textColor,
                             fontSize: 9,
                           ),
                         ),
@@ -349,9 +358,9 @@ class InteractionWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.share,
-                      color: Colors.white,
+                      color: iconColor,
                       size: 18,
                     ),
                   ],

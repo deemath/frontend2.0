@@ -41,6 +41,7 @@ import 'presentation/widgets/song_post/feed.dart';
 import 'presentation/screens/fanbase/fanbase_details.dart';
 import 'presentation/screens/splash_screen.dart'; // Import the SplashScreen
 import 'presentation/screens/shell_screen2.dart';
+import 'presentation/screens/request/request.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized before accessing plugins
@@ -136,6 +137,8 @@ class MyApp extends StatelessWidget {
           //   return MaterialPageRoute(builder: (_) => HomeScreen2());
           case '/feed':
             return MaterialPageRoute(builder: (_) => FeedPage());
+          case '/request':
+            return MaterialPageRoute(builder: (_) => RequestScreen());
           default:
             return MaterialPageRoute(
               builder: (_) => Scaffold(

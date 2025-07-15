@@ -35,8 +35,12 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> {
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scaffoldBg = isDark ? Colors.black : Colors.white;
+    final errorColor = isDark ? Colors.red[200] : Colors.red;
+    final emptyTextColor = isDark ? Colors.white : Colors.grey[800];
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: scaffoldBg,
       body: Container(
         margin: const EdgeInsets.all(16.0),
         child: Stack(
@@ -52,7 +56,7 @@ class _FeedPageState extends State<FeedPage> {
             // Container layer on top of background
             AspectRatio(
               aspectRatio: 490 / 595, // Same aspect ratio for overlay
-              child: _buildContent(),
+              child: _buildContent(isDark, errorColor, emptyTextColor),
             ),
           ],
         ),
@@ -60,7 +64,7 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(bool isDark, Color? errorColor, Color? emptyTextColor) {
     if (widget.isLoading) {
       return const Center(
         child: CircularProgressIndicator(
@@ -76,7 +80,7 @@ class _FeedPageState extends State<FeedPage> {
           children: [
             Text(
               'Error: ${widget.error}',
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(color: errorColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -90,12 +94,12 @@ class _FeedPageState extends State<FeedPage> {
     }
 
     if (widget.posts == null || widget.posts!.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No posts yet',
           style: TextStyle(
             fontSize: 18,
-            color: Colors.grey,
+            color: emptyTextColor,
           ),
         ),
       );
