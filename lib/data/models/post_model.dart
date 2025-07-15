@@ -1,5 +1,3 @@
-import 'package:frontend/data/models/post_model.dart';  
-
 class Comment {
   final String id;
   final String userId;

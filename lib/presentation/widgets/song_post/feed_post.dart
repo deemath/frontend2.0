@@ -8,15 +8,17 @@ class SongControlWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Always use white for Spotify and play/pause icons
+    final textColor = Colors.white;
     return Expanded(
       flex: 131,
       child: Container(
         margin: const EdgeInsets.all(4.0),
-        child: const Center(
+        child: Center(
           child: Text(
-            'Song Control',
+            'Song',
             style: TextStyle(
-              color: Colors.white,
+              color: textColor,
               fontSize: 16,
             ),
           ),
@@ -28,19 +30,24 @@ class SongControlWidget extends StatelessWidget {
 
 // ================= TrackDetailWidget =================
 class TrackDetailWidget extends StatelessWidget {
-  const TrackDetailWidget({super.key});
+  final String? songName;
+  final String? artists;
+
+  const TrackDetailWidget({super.key, this.songName, this.artists});
 
   @override
   Widget build(BuildContext context) {
+    // Always use white for song/artist
+    final textColor = Colors.white;
     return Expanded(
       flex: 359,
       child: Container(
         margin: const EdgeInsets.all(4.0),
-        child: const Center(
+        child: Center(
           child: Text(
             'Track Details',
             style: TextStyle(
-              color: Colors.white,
+              color: textColor,
               fontSize: 16,
             ),
           ),
@@ -58,7 +65,8 @@ class UserDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).colorScheme.onPrimary;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
     // demo data
     final data = details ?? {
       'username': 'ishaanKhatter',
@@ -87,7 +95,7 @@ class UserDetailWidget extends StatelessWidget {
                 child: Text(
                   data['username'],
                   style: TextStyle(
-                    color: Colors.black,
+                    color: textColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 18,
                     letterSpacing: 0.2,
@@ -104,27 +112,93 @@ class UserDetailWidget extends StatelessWidget {
 
 // ================= InteractionWidget =================
 class InteractionWidget extends StatelessWidget {
-  const InteractionWidget({super.key});
+  final VoidCallback? onLike;
+  final VoidCallback? onComment;
+  final VoidCallback? onPlay;
+  final bool isLiked;
+  final bool isPlaying;
+  final int likesCount;
+  final int commentsCount;
+
+  const InteractionWidget({
+    super.key,
+    this.onLike,
+    this.onComment,
+    this.onPlay,
+    this.isLiked = false,
+    this.isPlaying = false,
+    this.likesCount = 0,
+    this.commentsCount = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Always use white for play/pause icon, but keep like/comment theme-aware
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = Colors.white;
+    final likedColor = isDark ? Colors.red : Colors.deepOrange;
+    final textColor = isDark ? Colors.white : Colors.black;
     return Expanded(
       flex: 131,
       child: Container(
         margin: const EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: Colors.black.withOpacity(0.3)),
-        ),
-        child: const Center(
-          child: Text(
-            'Interactions',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // Like button
+            GestureDetector(
+              onTap: onLike,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? likedColor : iconColor,
+                    size: 20,
+                  ),
+                  if (likesCount > 0)
+                    Text(
+                      '$likesCount',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
+            // Comment button
+            GestureDetector(
+              onTap: onComment,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.comment_outlined,
+                    color: iconColor,
+                    size: 20,
+                  ),
+                  if (commentsCount > 0)
+                    Text(
+                      '$commentsCount',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            // Play button
+            GestureDetector(
+              onTap: onPlay,
+              child: Icon(
+                isPlaying ? Icons.pause : Icons.play_arrow,
+                color: iconColor,
+                size: 20,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -167,16 +241,48 @@ class PostArtWidget extends StatelessWidget {
 
 // ================= FooterWidget =================
 class FooterWidget extends StatelessWidget {
-  const FooterWidget({super.key});
+  final String? songName;
+  final String? artists;
+  final VoidCallback? onLike;
+  final VoidCallback? onComment;
+  final VoidCallback? onPlay;
+  final bool isLiked;
+  final bool isPlaying;
+  final int likesCount;
+  final int commentsCount;
+
+  const FooterWidget({
+    super.key,
+    this.songName,
+    this.artists,
+    this.onLike,
+    this.onComment,
+    this.onPlay,
+    this.isLiked = false,
+    this.isPlaying = false,
+    this.likesCount = 0,
+    this.commentsCount = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Expanded(
+    return Expanded(
       flex: 73,
       child: Row(
         children: [
-          TrackDetailWidget(),
-          InteractionWidget(),
+          TrackDetailWidget(
+            songName: songName,
+            artists: artists,
+          ),
+          InteractionWidget(
+            onLike: onLike,
+            onComment: onComment,
+            onPlay: onPlay,
+            isLiked: isLiked,
+            isPlaying: isPlaying,
+            likesCount: likesCount,
+            commentsCount: commentsCount,
+          ),
         ],
       ),
     );
@@ -247,7 +353,10 @@ class FeedPostWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? Colors.black : Colors.white;
     return Container(
+      color: backgroundColor,
       child: Column(
         children: [
           // Header with user details
@@ -276,8 +385,8 @@ class FeedPostWidget extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               post['username'] ?? 'Unknown User',
-                              style: const TextStyle(
-                                color: Colors.black,
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 18,
                                 letterSpacing: 0.2,
@@ -298,7 +407,7 @@ class FeedPostWidget extends StatelessWidget {
                       margin: const EdgeInsets.all(4.0),
                       child: Icon(
                         isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.white,
+                        color: isDark ? Colors.white : Colors.black,
                         size: 24,
                       ),
                     ),
@@ -310,76 +419,16 @@ class FeedPostWidget extends StatelessWidget {
           // Post art
           PostArtWidget(),
           // Footer with track details and interactions
-          Expanded(
-            flex: 73,
-            child: Row(
-              children: [
-                // Track details
-                Expanded(
-                  flex: 359,
-                  child: Container(
-                    margin: const EdgeInsets.all(4.0),
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          post['trackName'] ?? 'Unknown Track',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          post['artistName'] ?? 'Unknown Artist',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Interactions
-                Expanded(
-                  flex: 131,
-                  child: Container(
-                    margin: const EdgeInsets.all(4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Like button
-                        GestureDetector(
-                          onTap: onLike,
-                          child: Icon(
-                            isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: isLiked ? Colors.red : Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                        // Comment button
-                        GestureDetector(
-                          onTap: onComment,
-                          child: const Icon(
-                            Icons.comment_outlined,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          FooterWidget(
+            songName: post['trackName'] ?? 'Unknown Track',
+            artists: post['artistName'] ?? 'Unknown Artist',
+            onLike: onLike,
+            onComment: onComment,
+            onPlay: onPlay,
+            isLiked: isLiked,
+            isPlaying: isPlaying,
+            likesCount: post['likes'] ?? 0,
+            commentsCount: post['comments']?.length ?? 0,
           ),
         ],
       ),

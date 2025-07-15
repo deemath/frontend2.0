@@ -31,15 +31,17 @@ import 'data/services/auth_service.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/providers/auth_provider.dart';
-import 'presentation/screens/fanbase/fanbase.dart';
+// import 'presentation/screens/fanbase/fanbase.dart';
 import 'presentation/screens/profile/normal_user.dart';
 // import 'package:frontend/presentation/screens/search/search_feed_screen.dart';
-import 'presentation/widgets/despost/demo.dart';
+// import 'presentation/screens/demopost/demo.dart';
 import 'presentation/screens/search/search_feed_screen.dart';
 import 'presentation/widgets/song_post/feed.dart';
-import 'presentation/screens/show_all_posts_screen.dart';
+//import 'presentation/screens/show_all_posts_screen.dart';
 import 'presentation/screens/fanbase/fanbase_details.dart';
 import 'presentation/screens/splash_screen.dart'; // Import the SplashScreen
+import 'presentation/screens/shell_screen2.dart';
+import 'presentation/screens/request/request.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized before accessing plugins
@@ -123,25 +125,20 @@ class MyApp extends StatelessWidget {
           //   return MaterialPageRoute(builder: (_) => const SignupScreen());
           case '/create':
             return MaterialPageRoute(
-              builder: (_) => CreatePostPage(
-                spotifyService: SpotifyService(
-                  accessToken: AppConstants.spotifyAccessToken,
-                ),
-              ),
+              builder: (_) => CreatePostPage(),
             );
           case '/fanbases':
-            return MaterialPageRoute(builder: (_) => FanbasePage());
+            return MaterialPageRoute(builder: (_) => const ShellScreen2());
           case '/profile':
             return MaterialPageRoute(builder: (_) => NormalUserProfilePage());
           case '/search':
             return MaterialPageRoute(builder: (_) => SearchFeedScreen());
-          case '/demodespost':
-            return MaterialPageRoute(builder: (_) => DemoScreen2());
+          // case '/demodespost':
+          //   return MaterialPageRoute(builder: (_) => HomeScreen2());
           case '/feed':
             return MaterialPageRoute(builder: (_) => FeedPage());
-          case '/showpost':
-            return MaterialPageRoute(
-                builder: (_) => const ShowAllPostsScreen());
+          case '/request':
+            return MaterialPageRoute(builder: (_) => RequestScreen());
           default:
             return MaterialPageRoute(
               builder: (_) => Scaffold(
