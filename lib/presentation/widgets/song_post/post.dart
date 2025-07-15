@@ -108,18 +108,36 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
             Row(
               children: [
                 Expanded(
-                  child: AutoSizeText(
-                    '${widget.songName ?? 'Unknown Track'} - ${widget.artists ?? 'Unknown Artist'}',
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    minFontSize: 8,
-                    maxFontSize: 12,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.left,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AutoSizeText(
+                        widget.songName ?? 'Unknown Track',
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        minFontSize: 8,
+                        maxFontSize: 14,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.left,
+                      ),
+                      AutoSizeText(
+                        widget.artists ?? 'Unknown Artist',
+                        style: TextStyle(
+                          color: textColor.withOpacity(0.8),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        minFontSize: 8,
+                        maxFontSize: 13,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.left,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -262,8 +280,6 @@ class InteractionWidget extends StatelessWidget {
   final VoidCallback? onComment;
   final VoidCallback? onShare;
   final bool isLiked;
-  final int likesCount;
-  final int commentsCount;
 
   const InteractionWidget({
     super.key,
@@ -271,8 +287,6 @@ class InteractionWidget extends StatelessWidget {
     this.onComment,
     this.onShare,
     this.isLiked = false,
-    this.likesCount = 0,
-    this.commentsCount = 0,
   });
 
   @override
@@ -303,17 +317,6 @@ class InteractionWidget extends StatelessWidget {
                       color: isLiked ? likedColor : iconColor,
                       size: 18,
                     ),
-                    if (likesCount > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 1),
-                        child: Text(
-                          '$likesCount',
-                          style: TextStyle(
-                            color: textColor,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -333,17 +336,6 @@ class InteractionWidget extends StatelessWidget {
                       color: iconColor,
                       size: 18,
                     ),
-                    if (commentsCount > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 1),
-                        child: Text(
-                          '$commentsCount',
-                          style: TextStyle(
-                            color: textColor,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -392,7 +384,7 @@ class PostArtWidget extends StatelessWidget {
           margin: const EdgeInsets.only(
             left: 9.0,
             right: 9.0,
-            top: 9.0,
+            top: 15.0,
             bottom: 9.0,
           ),
           child: ClipRRect(
@@ -434,8 +426,6 @@ class FooterWidget extends StatelessWidget {
   final VoidCallback? onComment;
   final VoidCallback? onShare;
   final bool isLiked;
-  final int likesCount;
-  final int commentsCount;
 
   const FooterWidget({
     super.key,
@@ -446,8 +436,6 @@ class FooterWidget extends StatelessWidget {
     this.onComment,
     this.onShare,
     this.isLiked = false,
-    this.likesCount = 0,
-    this.commentsCount = 0,
   });
 
   @override
@@ -466,8 +454,6 @@ class FooterWidget extends StatelessWidget {
             onComment: onComment,
             onShare: onShare,
             isLiked: isLiked,
-            likesCount: likesCount,
-            commentsCount: commentsCount,
           ),
         ],
       ),
@@ -554,8 +540,6 @@ class Post extends StatelessWidget {
   final bool isLiked;
   final bool isPlaying;
   final bool isCurrentTrack;
-  final int likesCount;
-  final int commentsCount;
 
   const Post({
     super.key,
@@ -573,8 +557,6 @@ class Post extends StatelessWidget {
     this.isLiked = false,
     this.isPlaying = false,
     this.isCurrentTrack = false,
-    this.likesCount = 0,
-    this.commentsCount = 0,
   });
 
   @override
@@ -594,13 +576,11 @@ class Post extends StatelessWidget {
           FooterWidget(
             songName: songName,
             artists: artists,
-            caption: caption,
+            //caption: caption,
             onLike: onLike,
             onComment: onComment,
             onShare: onShare,
             isLiked: isLiked,
-            likesCount: likesCount,
-            commentsCount: commentsCount,
           ),
         ],
       ),

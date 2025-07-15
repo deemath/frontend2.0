@@ -260,8 +260,6 @@ class _FeedWidgetState extends State<FeedWidget> {
               isLiked: post.likedByMe,
               isPlaying: widget.isPlaying,
               isCurrentTrack: widget.currentlyPlayingTrackId == post.trackId,
-              likesCount: post.likes,
-              commentsCount: post.comments.length,
             ),
           ],
         ),
