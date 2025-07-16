@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:provider/provider.dart';
+import '../../../../core/providers/auth_provider.dart';
 import '../../../../data/models/edit_profile_model.dart';
 import '../../../../data/services/edit_profile_service.dart';
 
@@ -18,17 +20,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String profileImage = '';
   bool isSaving = false;
   bool isLoading = true;
-
-  // Replace with actual userId from auth/session
-  final String userId = '685fb750cc084ba7e0ef8533';
+  String? userId; // Change to nullable, will set in initState
 
   @override
   void initState() {
     super.initState();
+    // Get current user from AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    userId = authProvider.user?.id;
     _fetchProfile();
   }
 
   Future<void> _fetchProfile() async {
+    if (userId == null) return; // Don't fetch if not logged in
     final url = '${EditProfileService.baseUrl}/$userId';
     try {
       final response = await http.get(
@@ -81,7 +85,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
 
     final service = EditProfileService();
-    final result = await service.updateProfile(userId, editProfile);
+    final result = await service.updateProfile(userId!, editProfile);
 
     setState(() {
       isSaving = false;
