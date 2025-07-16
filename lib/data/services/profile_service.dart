@@ -80,4 +80,34 @@ class ProfileService {
       return [];
     }
   }
+
+  // Update user profile info
+  Future<Map<String, dynamic>> updateProfile(
+      String userId, Map<String, dynamic> updateData) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/$userId'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updateData),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': data['success'] ?? false,
+          'message': data['message'] ?? '',
+          'profile': data['profile'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to update profile',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
 }

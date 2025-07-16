@@ -72,3 +72,26 @@ class ProfileModel {
     };
   }
 }
+
+class EditProfileModel {
+  final String username;
+  final String bio;
+  final String profileImage;
+  final String email;
+
+  EditProfileModel({
+    required this.username,
+    required this.bio,
+    required this.profileImage,
+    required this.email,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'username': username,
+      'bio': bio,
+      'profileImage': profileImage,
+      'email': email,
+    };
+  }
+}
