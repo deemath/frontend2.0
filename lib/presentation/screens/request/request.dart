@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../data/services/request_service.dart';
+import '../../../data/services/profile_service.dart';
+import 'package:provider/provider.dart';
+import '../../../core/providers/auth_provider.dart';
 
 class RequestScreen extends StatefulWidget {
   const RequestScreen({Key? key}) : super(key: key);
@@ -9,121 +12,148 @@ class RequestScreen extends StatefulWidget {
 }
 
 class _RequestScreenState extends State<RequestScreen> {
-  late Future<List<Map<String, dynamic>>> _usersFuture;
+  late Future<List<Map<String, dynamic>>> _requestsFuture;
 
   @override
   void initState() {
     super.initState();
-    _usersFuture = RequestService.getAllUsers();
+    _requestsFuture = RequestService.getPendingRequests();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('All Users')),
+      appBar: AppBar(title: const Text('Pending Requests')),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _usersFuture,
+        future: _requestsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error:  ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No users found.'));
+            return const Center(child: Text('No pending requests found.'));
           }
-          final users = snapshot.data!;
+          final requests = snapshot.data!;
           return ListView.builder(
-            itemCount: users.length,
+            itemCount: requests.length,
             itemBuilder: (context, index) {
-              final user = users[index];
+              final request = requests[index];
+              final senderId = request['requestSendUserId'];
+              // Use the username from the request object
+              final username = request['username'] ?? 'Unknown';
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Avatar
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundImage: user['profileImage'] != null
-                          ? NetworkImage(user['profileImage'])
-                          : null,
-                      backgroundColor: Colors.grey[300],
-                      child: user['profileImage'] == null
-                          ? Text(
-                              user['username']?[0]?.toUpperCase() ?? '?',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 12),
-                    // Username and subtitle
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                child: FutureBuilder<Map<String, dynamic>>(
+                  future: ProfileService().getUserProfile(senderId),
+                  builder: (context, profileSnapshot) {
+                    if (profileSnapshot.connectionState == ConnectionState.waiting) {
+                      return Row(
+                        children: const [
+                          SizedBox(width: 25, height: 25, child: CircularProgressIndicator()),
+                          SizedBox(width: 12),
+                          Text('Loading...'),
+                        ],
+                      );
+                    } else if (profileSnapshot.hasError || profileSnapshot.data == null || profileSnapshot.data!['success'] != true) {
+                      return Row(
                         children: [
-                          Text(
-                            user['username'] ?? 'Unknown',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          const SizedBox(height: 2),
-                          Row(
+                          CircleAvatar(radius: 25, backgroundColor: Colors.grey[300], child: Icon(Icons.person)),
+                          const SizedBox(width: 12),
+                          const Text('Unknown User'),
+                        ],
+                      );
+                    }
+                    final profile = profileSnapshot.data!['data'];
+                    final profileImage = profile['profileImage'] ?? '';
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundColor: Colors.grey[300],
+                          child: Icon(Icons.person), 
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Text(
+                                username,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              const SizedBox(height: 2),
                               const Text(
                                 'requested to follow you.',
                                 style: TextStyle(fontSize: 13),
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '6m', // Replace with actual time if available
-                                style: TextStyle(
-                                    color: Colors.grey[600], fontSize: 12),
-                              ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    // Buttons
-                    Wrap(
-                      spacing: 8,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            // TODO: Implement confirm action
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 2),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          child: const Text('Confirm'),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            // TODO: Implement delete action
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[300],
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 2),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                        Wrap(
+                          spacing: 8,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                                final String? currentUserId = authProvider.user?.id;
+                                if (currentUserId == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('User not logged in.')),
+                                  );
+                                  return;
+                                }
+                                final success = await RequestService.confirmRequest(
+                                  request['requestSendUserId'],
+                                  currentUserId,
+                                );
+                                if (success) {
+                                  setState(() {
+                                    _requestsFuture = RequestService.getPendingRequests();
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Request confirmed!')),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Failed to confirm request.')),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.purple,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              child: const Text('Confirm'),
                             ),
-                            textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          child: const Text('Delete'),
+                            ElevatedButton(
+                              onPressed: () {
+                                // TODO: Implement delete action
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[300],
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              child: const Text('Delete'),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               );
             },
