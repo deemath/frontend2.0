@@ -22,6 +22,26 @@ class ProfileModel {
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
+    int followersCount;
+    int followingCount;
+
+    // Handle followers as int or List
+    if (json['followers'] is int) {
+      followersCount = json['followers'];
+    } else if (json['followers'] is List) {
+      followersCount = (json['followers'] as List).length;
+    } else {
+      followersCount = 0;
+    }
+
+    if (json['following'] is int) {
+      followingCount = json['following'];
+    } else if (json['following'] is List) {
+      followingCount = (json['following'] as List).length;
+    } else {
+      followingCount = 0;
+    }
+
     return ProfileModel(
       id: json['_id'] ?? '',
       userId: json['userId'] ?? '',
@@ -29,8 +49,8 @@ class ProfileModel {
       profileImage: json['profileImage'] ?? '',
       bio: json['bio'] ?? '',
       posts: json['posts'] ?? 0,
-      followers: json['followers'] ?? 0,
-      following: json['following'] ?? 0,
+      followers: followersCount,
+      following: followingCount,
       albumImages: (json['albumImages'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
