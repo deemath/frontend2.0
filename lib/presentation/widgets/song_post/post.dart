@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 // ================= SongControlWidget =================
 class SongControlWidget extends StatefulWidget {
@@ -9,7 +11,7 @@ class SongControlWidget extends StatefulWidget {
   final VoidCallback? onPlayPause;
 
   const SongControlWidget({
-    super.key, 
+    super.key,
     this.trackId,
     this.isPlaying = false,
     this.isCurrentTrack = false,
@@ -23,47 +25,77 @@ class SongControlWidget extends StatefulWidget {
 class _SongControlWidgetState extends State<SongControlWidget> {
   @override
   Widget build(BuildContext context) {
-    // Always use white for Spotify and play/pause icons
-    final iconColor = Colors.white;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pillColor = isDark ? Colors.black : Colors.white;
+    final iconColor = isDark ? Colors.white : Colors.black;
+    final spotifyAsset = isDark
+        ? 'assets/icons/icons-spotify-dark.svg'
+        : 'assets/icons/icons-spotify-light.svg';
+
     return Expanded(
-      flex: 100,
+      flex: 110,
       child: Container(
-        margin: const EdgeInsets.all(4.0),
+        margin: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Spotify icon on the left
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Image.network(
-                'https://cdn-icons-png.flaticon.com/512/174/174872.png',
-                width: 24,
-                height: 24,
-                color: iconColor,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(
-                    Icons.music_note,
-                    color: iconColor,
-                    size: 24,
-                  );
-                },
-              ),
-            ),
-            // Play/Pause button on the right
-            if (widget.onPlayPause != null)
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: GestureDetector(
-                  onTap: widget.onPlayPause,
-                  child: Icon(
-                    widget.isCurrentTrack && widget.isPlaying 
-                        ? Icons.pause 
-                        : Icons.play_arrow,
-                    color: iconColor,
-                    size: 24,
-                  ),
+            Expanded(
+              child: Container(
+                // ADD A WAY TO MAINTAIN HEIGHT WITH RESPECTIVE TO PARENT WIDGET
+                decoration: BoxDecoration(
+                  color: pillColor,
+                  borderRadius: BorderRadius.circular(14.0), // pill shape
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: Row(
+                  children: [
+                    // Spotify icon SVG
+                    // Image.network(
+                    //   'https://cdn-icons-png.flaticon.com/512/174/174872.png',
+                    //   width: 24,
+                    //   height: 24,
+                    //   color: iconColor,
+                    //   errorBuilder: (context, error, stackTrace) {
+                    //     return Icon(
+                    //       Icons.music_note,
+                    //       color: iconColor,
+                    //       size: 24,
+                    //     );
+                    //   },
+                    // ),
+                    SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: SvgPicture.asset(
+                        spotifyAsset,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (widget.onPlayPause != null)
+                      GestureDetector(
+                        onTap: widget.onPlayPause,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: pillColor,
+                            borderRadius: BorderRadius.circular(32.0),
+                          ),
+                          // padding: const EdgeInsets.symmetric(
+                          //     horizontal: 8, vertical: 4),
+                          child: Icon(
+                            widget.isCurrentTrack && widget.isPlaying
+                                ? LucideIcons.pause
+                                : LucideIcons.play,
+                            color: iconColor,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
+            ),
           ],
         ),
       ),
@@ -125,7 +157,11 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
                         textAlign: TextAlign.left,
                       ),
                       AutoSizeText(
-                        widget.artists ?? 'Unknown Artist',
+                        widget.artists != null
+                            ? (widget.artists!.length > 20
+                                ? '${widget.artists!.substring(0, 20)}...'
+                                : widget.artists!)
+                            : 'Unknown Artist',
                         style: TextStyle(
                           color: textColor.withOpacity(0.8),
                           fontSize: 11,
@@ -156,7 +192,7 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
   Widget _buildCaptionText(Color captionColor) {
     const int maxChars = 50; // Limit for showing "see more"
     final caption = widget.caption!;
-    
+
     if (caption.length <= maxChars || _showFullCaption) {
       return Text(
         caption,
@@ -307,58 +343,64 @@ class InteractionWidget extends StatelessWidget {
             GestureDetector(
               onTap: onLike,
               child: SizedBox(
-                height: 32,
+                // height: 32,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Icon(
+                    //   LucideIcons.heart,
+                    //   color: isLiked ? likedColor : iconColor,
+                    //   size: 22,
+                    // ),
                     Icon(
                       isLiked ? Icons.favorite : Icons.favorite_border,
                       color: isLiked ? likedColor : iconColor,
-                      size: 18,
+                      size: 24,
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             // Comment button
             GestureDetector(
               onTap: onComment,
               child: SizedBox(
-                height: 32,
+                // height: 32,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.comment_outlined,
+                      LucideIcons.messageCircle,
                       color: iconColor,
-                      size: 18,
+                      size: 22,
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             // Share button
             GestureDetector(
               onTap: onShare,
               child: SizedBox(
-                height: 32,
+                // height: 48,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.share,
+                      LucideIcons.share2,
                       color: iconColor,
-                      size: 18,
+                      size: 22,
                     ),
                   ],
                 ),
               ),
             ),
+            const SizedBox(width: 14),
           ],
         ),
       ),
