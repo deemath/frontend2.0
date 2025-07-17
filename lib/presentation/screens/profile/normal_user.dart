@@ -1,11 +1,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'tabs/album_art_posts_tab.dart';
 import 'tabs/description_posts_tab.dart';
 import 'tabs/tagged_posts_tab.dart';
 import 'settings/edit_profile.dart';
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
+import '../../../core/providers/auth_provider.dart';
 
 class NormalUserProfilePage extends StatefulWidget {
   static const routeName = '/profile/normal';
@@ -20,12 +24,9 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Replace with actual userId from auth/session
-  final String userId = '685fb750cc084ba7e0ef8533';
-
+  String? userId;
   ProfileModel? profile;
   List<dynamic> posts = [];
-  // This will hold the list of albumImage URLs from the user's posts
   List<String> albumImages = [];
   bool isLoading = true;
 
@@ -33,18 +34,41 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initUserIdAndFetch());
+  }
+
+  Future<void> _initUserIdAndFetch() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    String? id = authProvider.user?.id;
+    if (id == null) {
+      // Try loading from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final userDataString = prefs.getString('user_data');
+      if (userDataString != null) {
+        final userData = jsonDecode(userDataString);
+        id = userData['id'] as String?;
+      }
+    }
+    setState(() {
+      userId = id;
+    });
     _fetchProfileData();
   }
 
   Future<void> _fetchProfileData() async {
+    if (userId == null) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
     setState(() {
       isLoading = true;
     });
     final profileService = ProfileService();
-    final profileResult = await profileService.getUserProfile(userId);
-    final postsResult = await profileService.getUserPosts(userId);
-    // Get albumImage URLs from backend posts
-    final albumImagesResult = await profileService.getUserAlbumImages(userId);
+    final profileResult = await profileService.getUserProfile(userId!);
+    final postsResult = await profileService.getUserPosts(userId!);
+    final albumImagesResult = await profileService.getUserAlbumImages(userId!);
 
     if (profileResult['success'] == true && profileResult['data'] != null) {
       setState(() {
@@ -57,7 +81,6 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
       setState(() {
         isLoading = false;
       });
-      // Optionally show error
     }
   }
 
@@ -73,6 +96,18 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
       return const Scaffold(
         backgroundColor: Colors.black,
         body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (userId == null) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Text(
+            'User not found. Please log in again.',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
       );
     }
 
@@ -99,7 +134,6 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
             posts: profile!.posts,
             followers: profile!.followers,
             following: profile!.following,
-            // Pass albumImages (from albumImage fields in posts)
             albumImages: albumImages,
             description: profile!.bio,
             showGrid: false,
@@ -151,7 +185,6 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
                   posts: profile!.posts,
                   followers: profile!.followers,
                   following: profile!.following,
-                  // Pass albumImages (from albumImage fields in posts)
                   albumImages: albumImages,
                   description: profile!.bio,
                   showGrid: true,
