@@ -37,7 +37,9 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         final response = await _authService.login(email, password);
 
-        if (response['success']) {
+        // print('Login response: $response');
+
+        if (response['status'] == 200) {
           // Print success message to console
           print('Login successful: ${response['message']}');
 
@@ -45,27 +47,26 @@ class _LoginScreenState extends State<LoginScreen> {
           final authProvider =
               Provider.of<AuthProvider>(context, listen: false);
           if (authProvider.isAuthenticated && authProvider.user != null) {
-            print('User authenticated: ${authProvider.user!.name}');
             // Navigate to home screen
             Navigator.pushReplacementNamed(context, '/home');
           } else {
             print('Authentication failed: User not stored in AuthProvider');
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text('Error occurred in authentication process')),
-            );
+            throw Exception('Error occurred in authentication process');
           }
         } else {
           // Show error message
           print('Login failed: ${response['message']}');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(response['message'])),
-          );
+          throw Exception('${response['message']}');
         }
       } catch (e) {
         print('Login error: $e');
+        String errorMsg = e.toString();
+        // If error contains "Login failed: Failed to login user :"
+        if (errorMsg.contains('Invalid credentials - User not found')) {
+          errorMsg = "Invalid credentials - User not found";
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('An error occurred during login')),
+          SnackBar(content: Text(errorMsg)),
         );
       } finally {
         setState(() {

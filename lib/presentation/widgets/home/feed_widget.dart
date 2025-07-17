@@ -73,8 +73,8 @@ class _FeedWidgetState extends State<FeedWidget> {
           final PaletteGenerator paletteGenerator =
               await PaletteGenerator.fromImageProvider(
             NetworkImage(albumImageUrl),
-            size: Size(100, 100), // Smaller size for faster processing
-            maximumColorCount: 10, // Extract up to 10 colors
+            size: Size(50, 50), // Smaller size for faster processing
+            maximumColorCount: 5, // Extract up to 10 colors
           );
 
           // Try to get the dark muted color first, then fall back to other options
@@ -270,7 +270,7 @@ class _FeedWidgetState extends State<FeedWidget> {
               ],
             ),
           ),
-          const SizedBox(height: 4R),
+          const SizedBox(height: 4),
           Container(
             margin: const EdgeInsets.only(top: 8.0),
             child: Row(
