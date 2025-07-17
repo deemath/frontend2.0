@@ -8,6 +8,7 @@ import 'tabs/description_posts_tab.dart';
 import 'tabs/tagged_posts_tab.dart';
 import 'settings/edit_profile.dart';
 import 'settings/create_profile.dart';
+import './settings/options.dart';
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
 import '../../../core/providers/auth_provider.dart';
@@ -177,9 +178,23 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
 
     return Scaffold(
       appBar: AppBar(
+        // Remove leading, add actions for right top
         title: Text(profile?.username ?? 'Profile'),
         centerTitle: true,
         backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const OptionsPage(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
