@@ -29,7 +29,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final SongPostService _songPostService = SongPostService();
-  
+
   List<data_model.Post> _posts = [];
   bool _isLoading = true;
   String? _error;
@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ? jsonDecode(userDataString)
         : {'id': '685fb750cc084ba7e0ef8533'}; // Fallback for testing
     setState(() {
-      userId = userData['id']; 
+      userId = userData['id'];
     });
     await _loadPosts();
   }
@@ -72,23 +72,25 @@ class _HomeScreenState extends State<HomeScreen> {
       print('Loading posts for user: $userId');
       final result = await _songPostService.getAllPosts();
       print('Posts loading result: $result');
-      
+
       if (result['success']) {
         final List<dynamic> postsData = result['data'];
         print('Received ${postsData.length} posts from all users');
-        
+
         final posts = postsData.map((json) {
           final post = data_model.Post.fromJson(json);
-          post.likedByMe = (json['likedBy'] as List<dynamic>?)?.contains(userId) ?? false;
-          print('Post from user: ${post.username}, liked by me: ${post.likedByMe}');
+          post.likedByMe =
+              (json['likedBy'] as List<dynamic>?)?.contains(userId) ?? false;
+          print(
+              'Post from user: ${post.username}, liked by me: ${post.likedByMe}');
           return post;
         }).toList();
-        
+
         setState(() {
           _posts = posts;
           _isLoading = false;
         });
-        
+
         print('Successfully loaded ${posts.length} posts from all users');
       } else {
         print('Failed to load posts: ${result['message']}');
@@ -171,11 +173,16 @@ class _HomeScreenState extends State<HomeScreen> {
           onAddComment: (text) async {
             final prefs = await SharedPreferences.getInstance();
             final userDataString = prefs.getString('user_data');
-            final userData = userDataString != null ? jsonDecode(userDataString) : {'id': '685fb750cc084ba7e0ef8533', 'name': 'owl'};
-            final result = await _songPostService.addComment(post.id, userData['id'], userData['name'], text);
+            final userData = userDataString != null
+                ? jsonDecode(userDataString)
+                : {'id': '685fb750cc084ba7e0ef8533', 'name': 'owl'};
+            final result = await _songPostService.addComment(
+                post.id, userData['id'], userData['name'], text);
             if (result['success']) {
               setState(() {
-                post.comments = (result['data']['comments'] as List<dynamic>).map((c) => data_model.Comment.fromJson(c)).toList();
+                post.comments = (result['data']['comments'] as List<dynamic>)
+                    .map((c) => data_model.Comment.fromJson(c))
+                    .toList();
               });
               Navigator.of(context).pop();
               _handleComment(post); // reopen to refresh
@@ -231,12 +238,14 @@ class _HomeScreenState extends State<HomeScreen> {
         '/spotify/player/post/play',
         data: {'track_id': post.trackId},
       );
-      if (response.statusCode == 200 || response.statusCode == 202 || response.statusCode == 204) {
+      if (response.statusCode == 200 ||
+          response.statusCode == 202 ||
+          response.statusCode == 204) {
         setState(() {
           _currentlyPlayingTrackId = post.trackId;
           _isPlaying = true;
         });
-      } 
+      }
     } catch (e) {
       String errorMsg = 'Failed to play track';
       if (e is DioError && e.response != null && e.response?.data != null) {
@@ -266,7 +275,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleShare(data_model.Post post) {
-    final shareText = 'Check out this song: ${post.songName} by ${post.artists}';
+    final shareText =
+        'Check out this song: ${post.songName} by ${post.artists}';
     Share.share(shareText, subject: 'Music from Noot');
   }
 

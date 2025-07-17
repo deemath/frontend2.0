@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../../../core/providers/auth_provider.dart';
+import '../../../../data/models/profile_model.dart';
+import '../../../../data/services/profile_service.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({Key? key}) : super(key: key);
@@ -8,17 +14,45 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  final TextEditingController _nameController =
-      TextEditingController(text: "Spotify User");
-  final TextEditingController _usernameController =
-      TextEditingController(text: "spotify_user");
-  final TextEditingController _bioController =
-      TextEditingController(text: "Music is my escape 🎶");
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   String profileImage =
       'https://i.scdn.co/image/ab6761610000e5eb02e3c8b0e6e6e6e6e6e6e6e6';
 
+  final ProfileService _service = ProfileService();
+
+  bool _loading = true;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchProfile();
+    });
+  }
+
+  Future<void> _fetchProfile() async {
+    final userId = Provider.of<AuthProvider>(context, listen: false).user?.id;
+    if (userId == null) {
+      setState(() => _loading = false);
+      return;
+    }
+    final result = await _service.getUserProfile(userId);
+    if (result['success'] == false) {
+      setState(() => _loading = false);
+      return;
+    }
+    final data = result['data'];
+    _usernameController.text = data['username'] ?? '';
+    _bioController.text = data['bio'] ?? '';
+    _emailController.text = data['email'] ?? '';
+    profileImage = data['profileImage'] ?? profileImage;
+    setState(() => _loading = false);
+  }
+
   void _pickImage() async {
-    // Mock image picker: just toggle between two images for demo
     setState(() {
       profileImage = profileImage.endsWith('e6e6e6e6e6e6e6e6')
           ? 'https://i.scdn.co/image/ab6761610000e5ebc4e8e8e8e8e8e8e8e8e8e8e8'
@@ -26,21 +60,45 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
+  Future<void> _saveProfile() async {
+    setState(() => _saving = true);
+    final userId = Provider.of<AuthProvider>(context, listen: false).user?.id;
+    if (userId == null) {
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not logged in')),
+      );
+      return;
+    }
+    final editProfile = EditProfileModel(
+      username: _usernameController.text,
+      bio: _bioController.text,
+      profileImage: profileImage,
+      email: _emailController.text,
+    );
+    final result = await _service.updateProfile(userId, editProfile.toJson());
+    setState(() => _saving = false);
+    if (result['success'] == true) {
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(result['message'] ?? 'Failed to update profile')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading || _saving) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
         backgroundColor: Colors.black,
-        actions: [
-          TextButton(
-            onPressed: () {
-              // Save logic here
-              Navigator.pop(context);
-            },
-            child: const Text('Save', style: TextStyle(color: Colors.white)),
-          ),
-        ],
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
@@ -65,21 +123,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
             ),
             const SizedBox(height: 24),
-            TextField(
-              controller: _nameController,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Name',
-                labelStyle: const TextStyle(color: Colors.grey),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey.shade700),
-                ),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
             TextField(
               controller: _usernameController,
               style: const TextStyle(color: Colors.white),
@@ -110,6 +153,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _emailController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                labelStyle: const TextStyle(color: Colors.grey),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey.shade700),
+                ),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
+            ),
             const SizedBox(height: 32),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -123,10 +181,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       style: TextStyle(color: Colors.white)),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    // Save logic here
-                    Navigator.pop(context);
-                  },
+                  onPressed: _saveProfile,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                   ),
