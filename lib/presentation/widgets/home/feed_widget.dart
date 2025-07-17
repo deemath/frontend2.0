@@ -17,6 +17,7 @@ class FeedWidget extends StatefulWidget {
   final Function(data_model.Post)? onShare;
   final String? currentlyPlayingTrackId;
   final bool isPlaying;
+  final void Function(String userId)? onUserTap;
 
   const FeedWidget({
     Key? key,
@@ -30,6 +31,7 @@ class FeedWidget extends StatefulWidget {
     this.onShare,
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
+    this.onUserTap,
   }) : super(key: key);
 
   @override
@@ -266,6 +268,12 @@ class _FeedWidgetState extends State<FeedWidget> {
                   isPlaying: widget.isPlaying,
                   isCurrentTrack:
                       widget.currentlyPlayingTrackId == post.trackId,
+                  // Add this line:
+                  onUsernameTap: () {
+                    if (widget.onUserTap != null && post.userId != null) {
+                      widget.onUserTap!(post.userId);
+                    }
+                  },
                 ),
               ],
             ),
