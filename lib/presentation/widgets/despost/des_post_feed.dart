@@ -120,15 +120,21 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      itemCount: feedPosts.length,
-      itemBuilder: (context, index) {
-        final post = feedPosts[index];
-        return _buildPostItem(post);
-      },
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          itemCount: feedPosts.length,
+          itemBuilder: (context, index) {
+            final post = feedPosts[index];
+            return _buildPostItem(post);
+          },
+        ),
+      ),
     );
   }
+
 
   Widget _buildPostItem(Map<String, dynamic> post) {
     const aspectRatio = 496 / 455;

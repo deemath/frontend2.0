@@ -35,7 +35,7 @@ class HeaderWidget extends StatelessWidget {
 }
 
 // ========== PostArtWidget ==========
-class PostArtWidget extends StatelessWidget {
+class PostArtWidget extends StatefulWidget {
   final String? albumImage;
   final String? title;
   final String? description;
@@ -48,23 +48,38 @@ class PostArtWidget extends StatelessWidget {
   });
 
   @override
+  State<PostArtWidget> createState() => _PostArtWidgetState();
+}
+
+class _PostArtWidgetState extends State<PostArtWidget> {
+  bool _showFull = false;
+
+  @override
   Widget build(BuildContext context) {
+    final description = widget.description ?? '';
+    const fixedFontSize = 14.0;
+    const descriptionStyle = TextStyle(
+      color: Colors.white70,
+      fontSize: fixedFontSize,
+      height: 1.4,
+    );
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: Colors.white12),
-      ),
+      margin: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
+      // decoration: BoxDecoration(
+      //   color: Colors.grey[900],
+      //   borderRadius: BorderRadius.circular(16),
+      // ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final double totalSize = constraints.maxWidth;
-          final double imageSize = totalSize * 0.25;
+          final double totalWidth = constraints.maxWidth;
+          final double imageSize = totalWidth * 0.35;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Row
+              // Top Row: Image + Title + Description
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -72,21 +87,13 @@ class PostArtWidget extends StatelessWidget {
                   Container(
                     width: imageSize,
                     height: imageSize,
-                    // decoration: BoxDecoration(
-                    //   // borderRadius: BorderRadius.circular(12.0),
-                    //   // boxShadow: [
-                    //   //   BoxShadow(
-                    //   //     color: Colors.black.withOpacity(0.3),
-                    //   //     blurRadius: 6,
-                    //   //     offset: const Offset(0, 3),
-                    //   //   ),
-                    //   // ],
-                    // ),
+                    margin: const EdgeInsets.only(right: 12),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12.0),
-                      child: albumImage != null && albumImage!.startsWith('http')
+                      borderRadius: BorderRadius.circular(8),
+                      child: widget.albumImage != null &&
+                              widget.albumImage!.startsWith('http')
                           ? Image.network(
-                              albumImage!,
+                              widget.albumImage!,
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Image.asset(
                                 'assets/images/song.png',
@@ -99,51 +106,81 @@ class PostArtWidget extends StatelessWidget {
                             ),
                     ),
                   ),
-                  const SizedBox(width: 12.0),
-                  // Title and snippet
+
+                  // Title + Dynamic Description
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Title
                         AutoSizeText(
-                          title ?? 'Unknown Title',
+                          widget.title ?? 'Unknown Title',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
-                          // minFontSize: 12,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 6),
-                        AutoSizeText(
-                          description ?? '',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                          maxLines: 5,
-                          // minFontSize: 10,
-                          overflow: TextOverflow.ellipsis,
+
+                        // Description with Read More
+                        LayoutBuilder(
+                          builder: (context, subConstraints) {
+                            // Measure full description height
+                            final span = TextSpan(
+                              text: description,
+                              style: descriptionStyle,
+                            );
+                            final tp = TextPainter(
+                              text: span,
+                              textDirection: TextDirection.ltr,
+                              maxLines: _showFull ? null : 6,
+                              ellipsis: '...',
+                            )..layout(maxWidth: subConstraints.maxWidth);
+
+                            final isOverflowing = tp.didExceedMaxLines;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  description,
+                                  style: descriptionStyle,
+                                  overflow: _showFull
+                                      ? TextOverflow.visible
+                                      : TextOverflow.ellipsis,
+                                  maxLines: _showFull ? null : 6,
+                                ),
+                                if (isOverflowing && !_showFull)
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _showFull = true;
+                                      });
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        'Read More',
+                                        style: TextStyle(
+                                          color: Colors.purple,
+                                          fontSize: fixedFontSize,
+                                          fontWeight: FontWeight.w500,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
                         ),
                       ],
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 10),
-              // Extended description
-              AutoSizeText(
-                description ?? 'No description available.',
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
-                  height: 1.3,
-                ),
-                maxLines: 10,
-                // minFontSize: 10,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           );
@@ -152,7 +189,6 @@ class PostArtWidget extends StatelessWidget {
     );
   }
 }
-
 
 // ========== FooterWidget ==========
 class FooterWidget extends StatelessWidget {
@@ -200,11 +236,9 @@ class UserDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return 
-    Container(
+    return Container(
       // flex: 359,
-      child: 
-      Container(
+      child: Container(
         margin: const EdgeInsets.only(left: 0, bottom: 4.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -233,25 +267,25 @@ class UserDetailWidget extends StatelessWidget {
             const SizedBox(width: 12),
             // Username in AutoSizeText
             // Expanded(
-            //   child: 
-              Align(
-                alignment: Alignment.centerLeft,
-                child: AutoSizeText(
-                  username ?? 'Unknown User',
-                  style: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
-                    letterSpacing: 0.2,
-                  ),
-                  minFontSize: 14,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.left,
+            //   child:
+            Align(
+              alignment: Alignment.centerLeft,
+              child: AutoSizeText(
+                username ?? 'Unknown User',
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                  letterSpacing: 0.2,
                 ),
+                minFontSize: 14,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.left,
               ),
+            ),
             // ),
           ],
         ),
@@ -261,28 +295,62 @@ class UserDetailWidget extends StatelessWidget {
 }
 
 // ========== SongControlWidget ==========
-class SongControlWidget extends StatelessWidget {
+class SongControlWidget extends StatefulWidget {
   final String? trackId;
+  final bool isPlaying;
+  final bool isCurrentTrack;
+  final VoidCallback? onPlayPause;
 
-  const SongControlWidget({super.key, this.trackId});
+  const SongControlWidget({
+    super.key,
+    this.trackId,
+    this.isPlaying = false,
+    this.isCurrentTrack = false,
+    this.onPlayPause,
+  });
 
   @override
+  State<SongControlWidget> createState() => _SongControlWidgetState();
+}
+
+class _SongControlWidgetState extends State<SongControlWidget> {
+  @override
   Widget build(BuildContext context) {
-    return 
-    Expanded(
-      // flex: 131,
-      child: 
-      Container(
-        margin: const EdgeInsets.all(4.0),
-        child: const Center(
-          child: Text(
-            'Song Control',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-            ),
+    const iconColor = Colors.white;
+
+    return Container(
+      margin: const EdgeInsets.all(4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Spotify icon
+          Image.network(
+            'https://cdn-icons-png.flaticon.com/512/174/174872.png',
+            width: 24,
+            height: 24,
+            color: iconColor,
+            errorBuilder: (context, error, stackTrace) {
+              return const Icon(
+                Icons.music_note,
+                color: iconColor,
+                size: 24,
+              );
+            },
           ),
-        ),
+
+          // Play/Pause icon
+          if (widget.onPlayPause != null)
+            GestureDetector(
+              onTap: widget.onPlayPause,
+              child: Icon(
+                widget.isCurrentTrack && widget.isPlaying
+                    ? Icons.pause
+                    : Icons.play_arrow,
+                color: iconColor,
+                size: 24,
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -301,44 +369,36 @@ class TrackDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return 
-    Expanded(
-      flex: 359,
-      child: 
-      Container(
+    const textColor = Colors.white;
+
+    return Expanded(
+      flex: 300,
+      child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Song name - larger and bolder
-            AutoSizeText(
-              songName ?? 'Unknown Track',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-              minFontSize: 8,
-              maxFontSize: 12,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.left,
-            ),
-            const SizedBox(height: 2), // Reduced spacing
-            // Artists - smaller text
-            AutoSizeText(
-              artists ?? 'Unknown Artist',
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 10,
-                fontWeight: FontWeight.w300,
-              ),
-              minFontSize: 4,
-              maxFontSize: 10,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.left,
+            Row(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start, // match caption layout
+              children: [
+                Expanded(
+                  child: AutoSizeText(
+                    '${songName ?? 'Unknown Track'} - ${artists ?? 'Unknown Artist'}',
+                    style: const TextStyle(
+                      color: textColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    minFontSize: 8,
+                    maxFontSize: 12,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -349,29 +409,116 @@ class TrackDetailWidget extends StatelessWidget {
 
 // ========== InteractionWidget ==========
 class InteractionWidget extends StatelessWidget {
-  const InteractionWidget({super.key});
+  final VoidCallback? onLike;
+  final VoidCallback? onComment;
+  final VoidCallback? onShare;
+  final bool isLiked;
+  final int likesCount;
+  final int commentsCount;
+
+  const InteractionWidget({
+    super.key,
+    this.onLike,
+    this.onComment,
+    this.onShare,
+    this.isLiked = false,
+    this.likesCount = 0,
+    this.commentsCount = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return 
-    Expanded(
-      flex: 131,
-      child: 
-      Container(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDark ? Colors.white : Colors.black;
+    final likedColor = isDark ? Colors.purple : Colors.deepPurple;
+    final textColor = isDark ? Colors.white : Colors.black;
+    return Expanded(
+      flex: 140,
+      child: Container(
         margin: const EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: Colors.black.withOpacity(0.3)),
-        ),
-        child: const Center(
-          child: Text(
-            'Interactions',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Like button
+            GestureDetector(
+              onTap: onLike,
+              child: SizedBox(
+                height: 32,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: isLiked ? likedColor : iconColor,
+                      size: 18,
+                    ),
+                    if (likesCount > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Text(
+                          '$likesCount',
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
-          ),
+            const SizedBox(width: 12),
+            // Comment button
+            GestureDetector(
+              onTap: onComment,
+              child: SizedBox(
+                height: 32,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.comment_outlined,
+                      color: iconColor,
+                      size: 18,
+                    ),
+                    if (commentsCount > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Text(
+                          '$commentsCount',
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Share button
+            GestureDetector(
+              onTap: onShare,
+              child: SizedBox(
+                height: 32,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.share,
+                      color: iconColor,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
