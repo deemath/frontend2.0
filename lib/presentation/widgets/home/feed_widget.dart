@@ -16,6 +16,7 @@ class FeedWidget extends StatefulWidget {
   final Function(data_model.Post)? onShare;
   final String? currentlyPlayingTrackId;
   final bool isPlaying;
+  final void Function(String userId)? onUserTap;
 
   const FeedWidget({
     Key? key,
@@ -29,6 +30,7 @@ class FeedWidget extends StatefulWidget {
     this.onShare,
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
+    this.onUserTap,
   }) : super(key: key);
 
   @override
@@ -40,7 +42,9 @@ class _FeedWidgetState extends State<FeedWidget> {
   final Map<String, Color> _extractedColors = {};
   Color get _defaultColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? const Color.fromARGB(255, 17, 37, 37) : const Color(0xFFF5F5F5);
+    return isDark
+        ? const Color.fromARGB(255, 17, 37, 37)
+        : const Color(0xFFF5F5F5);
   }
 
   @override
@@ -60,11 +64,11 @@ class _FeedWidgetState extends State<FeedWidget> {
   // Method to extract dark colors from album images
   Future<void> _extractColorsFromAlbumImages() async {
     if (widget.posts == null) return;
-    
+
     for (final post in widget.posts!) {
       final albumImageUrl = post.albumImage;
       if (albumImageUrl == null || albumImageUrl.isEmpty) continue;
-      
+
       if (!_extractedColors.containsKey(albumImageUrl)) {
         try {
           final PaletteGenerator paletteGenerator =
@@ -137,8 +141,9 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print('FeedWidget build - isLoading: ${widget.isLoading}, posts count: ${widget.posts?.length ?? 0}');
-    
+    print(
+        'FeedWidget build - isLoading: ${widget.isLoading}, posts count: ${widget.posts?.length ?? 0}');
+
     if (widget.isLoading) {
       return const Center(
         child: CircularProgressIndicator(
@@ -188,7 +193,8 @@ class _FeedWidgetState extends State<FeedWidget> {
       );
     }
 
-    print('FeedWidget: Displaying ${widget.posts!.length} posts from all users');
+    print(
+        'FeedWidget: Displaying ${widget.posts!.length} posts from all users');
     return RefreshIndicator(
       onRefresh: () async {
         print('FeedWidget: Pull to refresh triggered');
@@ -200,7 +206,8 @@ class _FeedWidgetState extends State<FeedWidget> {
         itemCount: widget.posts!.length,
         itemBuilder: (context, index) {
           final post = widget.posts![index];
-          print('FeedWidget: Building post ${index + 1}/${widget.posts!.length} from user: ${post.username}');
+          print(
+              'FeedWidget: Building post ${index + 1}/${widget.posts!.length} from user: ${post.username}');
           return _buildPostItem(post);
         },
       ),
@@ -236,7 +243,7 @@ class _FeedWidgetState extends State<FeedWidget> {
               albumImage: post.albumImage,
               caption: post.caption,
               username: post.username,
-              userImage: 'assets/images/profile_picture.jpg', // Default profile image
+              userImage: 'assets/images/profile_picture.jpg',
               onLike: () {
                 if (widget.onLike != null) {
                   widget.onLike!(post);
@@ -260,6 +267,12 @@ class _FeedWidgetState extends State<FeedWidget> {
               isLiked: post.likedByMe,
               isPlaying: widget.isPlaying,
               isCurrentTrack: widget.currentlyPlayingTrackId == post.trackId,
+              // Add this line:
+              onUsernameTap: () {
+                if (widget.onUserTap != null && post.userId != null) {
+                  widget.onUserTap!(post.userId);
+                }
+              },
             ),
           ],
         ),
