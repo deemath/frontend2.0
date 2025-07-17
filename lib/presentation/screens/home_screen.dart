@@ -69,18 +69,18 @@ class _HomeScreenState extends State<HomeScreen> {
         _error = null;
       });
 
-      print('Loading posts for user: $userId');
+      //print('Loading posts for user: $userId');
       final result = await _songPostService.getAllPosts();
-      print('Posts loading result: $result');
+      //print('Posts loading result: $result');
       
       if (result['success']) {
         final List<dynamic> postsData = result['data'];
-        print('Received ${postsData.length} posts from all users');
+        //print('Received ${postsData.length} posts from all users');
         
         final posts = postsData.map((json) {
           final post = data_model.Post.fromJson(json);
           post.likedByMe = (json['likedBy'] as List<dynamic>?)?.contains(userId) ?? false;
-          print('Post from user: ${post.username}, liked by me: ${post.likedByMe}');
+          //print('Post from user: ${post.username}, liked by me: ${post.likedByMe}');
           return post;
         }).toList();
         
@@ -89,9 +89,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoading = false;
         });
         
-        print('Successfully loaded ${posts.length} posts from all users');
+        //print('Successfully loaded ${posts.length} posts from all users');
       } else {
-        print('Failed to load posts: ${result['message']}');
+       // print('Failed to load posts: ${result['message']}');
         setState(() {
           _error = result['message'];
           _isLoading = false;
