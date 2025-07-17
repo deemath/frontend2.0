@@ -49,8 +49,7 @@ class SongPostService {
           'artists': artists,
           'albumImage': albumImage,
           'caption': caption,
-          'userId': userData['id'], // Use 'id' from user data
-          'username': userData['name'], // Use 'name' from user data
+          'userId': userData['id'], 
         }),
       );
 
@@ -168,7 +167,7 @@ class SongPostService {
     final response = await http.post(
       Uri.parse('$baseUrl/$postId/comment'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'userId': userId, 'username': username, 'text': text}),
+      body: jsonEncode({'userId': userId, 'text': text}),
     );
     return jsonDecode(response.body);
   }
