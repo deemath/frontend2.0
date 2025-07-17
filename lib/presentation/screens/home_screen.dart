@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _error = null;
       });
 
-      print('Loading posts for user: $userId');
+      //print('Loading posts for user: $userId');
       final result = await _songPostService.getAllPosts();
       print('Posts loading result: $result');
 
@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         print('Successfully loaded ${posts.length} posts from all users');
       } else {
-        print('Failed to load posts: ${result['message']}');
+       // print('Failed to load posts: ${result['message']}');
         setState(() {
           _error = result['message'];
           _isLoading = false;
