@@ -11,6 +11,7 @@ import '../../data/services/auth_service.dart';
 import 'package:dio/dio.dart';
 import '../widgets/song_post/comment.dart';
 import 'package:share_plus/share_plus.dart';
+import './profile/user_profiles.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? accessToken;
@@ -309,6 +310,15 @@ class _HomeScreenState extends State<HomeScreen> {
       onShare: _handleShare,
       currentlyPlayingTrackId: _currentlyPlayingTrackId,
       isPlaying: _isPlaying,
+      // --- Add this callback ---
+      onUserTap: (String userId) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserProfilePage(userId: userId),
+          ),
+        );
+      },
     );
 
     // When in shell mode, only render the content without navigation elements

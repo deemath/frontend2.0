@@ -9,7 +9,7 @@ class SongControlWidget extends StatefulWidget {
   final VoidCallback? onPlayPause;
 
   const SongControlWidget({
-    super.key, 
+    super.key,
     this.trackId,
     this.isPlaying = false,
     this.isCurrentTrack = false,
@@ -56,8 +56,8 @@ class _SongControlWidgetState extends State<SongControlWidget> {
                 child: GestureDetector(
                   onTap: widget.onPlayPause,
                   child: Icon(
-                    widget.isCurrentTrack && widget.isPlaying 
-                        ? Icons.pause 
+                    widget.isCurrentTrack && widget.isPlaying
+                        ? Icons.pause
                         : Icons.play_arrow,
                     color: iconColor,
                     size: 24,
@@ -156,7 +156,7 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
   Widget _buildCaptionText(Color captionColor) {
     const int maxChars = 50; // Limit for showing "see more"
     final caption = widget.caption!;
-    
+
     if (caption.length <= maxChars || _showFullCaption) {
       return Text(
         caption,
@@ -209,12 +209,14 @@ class UserDetailWidget extends StatelessWidget {
   final Map<String, dynamic>? details;
   final String? username;
   final String? userImage;
+  final VoidCallback? onUsernameTap; // <-- Add this
 
   const UserDetailWidget({
     super.key,
     this.details,
     this.username,
     this.userImage,
+    this.onUsernameTap, // <-- Add this
   });
 
   @override
@@ -252,18 +254,21 @@ class UserDetailWidget extends StatelessWidget {
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: AutoSizeText(
-                  username ?? 'Unknown User',
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
-                    letterSpacing: 0.2,
+                child: GestureDetector(
+                  onTap: onUsernameTap, // <-- Make username clickable
+                  child: AutoSizeText(
+                    username ?? 'Unknown User',
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      letterSpacing: 0.2,
+                    ),
+                    minFontSize: 14,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.left,
                   ),
-                  minFontSize: 14,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.left,
                 ),
               ),
             ),
@@ -469,6 +474,7 @@ class HeaderWidget extends StatelessWidget {
   final bool isPlaying;
   final bool isCurrentTrack;
   final VoidCallback? onPlayPause;
+  final VoidCallback? onUsernameTap; // <-- Add this
 
   const HeaderWidget({
     super.key,
@@ -478,6 +484,7 @@ class HeaderWidget extends StatelessWidget {
     this.isPlaying = false,
     this.isCurrentTrack = false,
     this.onPlayPause,
+    this.onUsernameTap, // <-- Add this
   });
 
   @override
@@ -489,6 +496,7 @@ class HeaderWidget extends StatelessWidget {
           UserDetailWidget(
             username: username,
             userImage: userImage,
+            onUsernameTap: onUsernameTap, // <-- Pass callback
           ),
           SongControlWidget(
             trackId: trackId,
@@ -537,6 +545,7 @@ class Post extends StatelessWidget {
   final VoidCallback? onComment;
   final VoidCallback? onShare;
   final VoidCallback? onPlayPause;
+  final VoidCallback? onUsernameTap;
   final bool isLiked;
   final bool isPlaying;
   final bool isCurrentTrack;
@@ -554,6 +563,7 @@ class Post extends StatelessWidget {
     this.onComment,
     this.onShare,
     this.onPlayPause,
+    this.onUsernameTap,
     this.isLiked = false,
     this.isPlaying = false,
     this.isCurrentTrack = false,
@@ -571,6 +581,7 @@ class Post extends StatelessWidget {
             isPlaying: isPlaying,
             isCurrentTrack: isCurrentTrack,
             onPlayPause: onPlayPause,
+            onUsernameTap: onUsernameTap, // <-- Pass callback
           ),
           PostArtWidget(albumImage: albumImage),
           FooterWidget(
