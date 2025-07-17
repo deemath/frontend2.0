@@ -14,12 +14,39 @@ class ProfileService {
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        // If the backend returns a profile object, use it
+        if (data is Map<String, dynamic> && data.containsKey('username')) {
+          return {
+            'success': true,
+            'data': data,
+            'message': 'Profile retrieved successfully',
+          };
+        }
+        // If the backend returns a "Profile not found" message
+        if (data is Map<String, dynamic> &&
+            data['message'] == 'Profile not found') {
+          return {
+            'success': false,
+            'message': 'Profile not found',
+            'error': data['error'] ?? '',
+          };
+        }
+        // Otherwise, treat as failed
         return {
-          'success': true,
-          'data': data,
-          'message': 'Profile retrieved successfully',
+          'success': false,
+          'message': 'Failed to retrieve profile',
         };
       } else {
+        // Try to parse error message from backend
+        final data = jsonDecode(response.body);
+        if (data is Map<String, dynamic> &&
+            data['message'] == 'Profile not found') {
+          return {
+            'success': false,
+            'message': 'Profile not found',
+            'error': data['error'] ?? '',
+          };
+        }
         return {
           'success': false,
           'message': 'Failed to retrieve profile',
@@ -101,6 +128,38 @@ class ProfileService {
         return {
           'success': false,
           'message': 'Failed to update profile',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Create user profile
+  Future<Map<String, dynamic>> createProfile(
+      Map<String, dynamic> profileData) async {
+    try {
+      final response = await http.post(
+        Uri.parse(baseUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(profileData),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': true,
+          'message': data['message'] ?? 'Profile created successfully',
+          'profile': data['profile'],
+        };
+      } else {
+        final data = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Failed to create profile',
+          'error': data['error'] ?? '',
         };
       }
     } catch (e) {

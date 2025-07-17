@@ -116,8 +116,8 @@ class _UserProfilePageState extends State<UserProfilePage>
           AlbumArtPostsTab(
             username: profile!.username,
             posts: profile!.posts,
-            followers: profile!.followers,
-            following: profile!.following,
+            followers: profile!.followers.length,
+            following: profile!.following.length,
             albumImages: albumImages,
             description: profile!.bio,
             showGrid: false,
@@ -176,8 +176,8 @@ class _UserProfilePageState extends State<UserProfilePage>
                 AlbumArtPostsTab(
                   username: profile!.username,
                   posts: profile!.posts,
-                  followers: profile!.followers,
-                  following: profile!.following,
+                  followers: profile!.followers.length,
+                  following: profile!.following.length,
                   albumImages: albumImages,
                   description: profile!.bio,
                   showGrid: true,
