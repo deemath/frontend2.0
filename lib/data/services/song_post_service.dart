@@ -77,7 +77,7 @@ class SongPostService {
 
   Future<Map<String, dynamic>> getAllPosts() async {
     try {
-      print('Fetching all posts from: $baseUrl');
+      //print('Fetching all posts from: $baseUrl');
       
       final response = await http.get(
         Uri.parse(baseUrl),
@@ -86,15 +86,15 @@ class SongPostService {
         },
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      //print('Response status: ${response.statusCode}');
+      //print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         
         // Ensure data is a list
         if (data is List) {
-          print('Successfully fetched ${data.length} posts from all users');
+          //print('Successfully fetched ${data.length} posts from all users');
           return {
             'success': true,
             'data': data,

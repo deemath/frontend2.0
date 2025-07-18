@@ -137,7 +137,7 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print('FeedWidget build - isLoading: ${widget.isLoading}, posts count: ${widget.posts?.length ?? 0}');
+    //print('FeedWidget build - isLoading: ${widget.isLoading}, posts count: ${widget.posts?.length ?? 0}');
     
     if (widget.isLoading) {
       return const Center(
@@ -188,10 +188,10 @@ class _FeedWidgetState extends State<FeedWidget> {
       );
     }
 
-    print('FeedWidget: Displaying ${widget.posts!.length} posts from all users');
+    //print('FeedWidget: Displaying ${widget.posts!.length} posts from all users');
     return RefreshIndicator(
       onRefresh: () async {
-        print('FeedWidget: Pull to refresh triggered');
+        //print('FeedWidget: Pull to refresh triggered');
         if (widget.onRefresh != null) {
           widget.onRefresh!();
         }
@@ -200,7 +200,7 @@ class _FeedWidgetState extends State<FeedWidget> {
         itemCount: widget.posts!.length,
         itemBuilder: (context, index) {
           final post = widget.posts![index];
-          print('FeedWidget: Building post ${index + 1}/${widget.posts!.length} from user: ${post.username}');
+          //print('FeedWidget: Building post ${index + 1}/${widget.posts!.length} from user: ${post.username}');
           return _buildPostItem(post);
         },
       ),
