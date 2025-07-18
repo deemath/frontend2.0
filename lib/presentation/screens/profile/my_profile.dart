@@ -7,8 +7,10 @@ import 'tabs/album_art_posts_tab.dart';
 import 'tabs/description_posts_tab.dart';
 import 'tabs/tagged_posts_tab.dart';
 import 'settings/edit_profile.dart';
+
 import 'settings/create_profile.dart';
 import './settings/options.dart';
+
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
 import '../../../core/providers/auth_provider.dart';
@@ -31,7 +33,9 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
   List<dynamic> posts = [];
   List<String> albumImages = [];
   bool isLoading = true;
+
   bool profileNotFound = false;
+
 
   @override
   void initState() {
@@ -78,6 +82,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
         profile = ProfileModel.fromJson(profileResult['data']);
         posts = postsResult;
         albumImages = albumImagesResult;
+
         profileNotFound = false;
         isLoading = false;
       });
@@ -85,12 +90,15 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
       setState(() {
         profile = null;
         profileNotFound = true;
+
         isLoading = false;
       });
     } else {
       setState(() {
+
         profile = null;
         profileNotFound = false;
+
         isLoading = false;
       });
     }
@@ -122,6 +130,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
         ),
       );
     }
+
 
     if (profile == null && profileNotFound) {
       return Scaffold(
@@ -167,6 +176,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
       );
     }
 
+
     if (profile == null) {
       return const Scaffold(
         backgroundColor: Colors.black,
@@ -178,6 +188,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
 
     return Scaffold(
       appBar: AppBar(
+
         // Remove leading, add actions for right top
         title: Text(profile?.username ?? 'Profile'),
         centerTitle: true,
@@ -195,11 +206,13 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
             },
           ),
         ],
+
       ),
       body: Column(
         children: [
           // Profile details (header, stats, description)
           AlbumArtPostsTab(
+
             username: profile?.username ?? '',
             posts: profile?.posts ?? 0,
             followers: profile?.followers.length ?? 0,
@@ -208,6 +221,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
             description: profile?.bio ?? '',
             showGrid: false,
             profileImage: profile?.profileImage ?? '',
+
           ),
           // --- Add Edit Profile Button ---
           Padding(
@@ -247,6 +261,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
           ),
           // TabBarView for posts
           Expanded(
+
             child: profile != null
                 ? TabBarView(
                     controller: _tabController,
@@ -271,6 +286,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
+
           ),
         ],
       ),
