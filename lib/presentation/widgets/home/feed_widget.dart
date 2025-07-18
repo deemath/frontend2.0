@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import '../song_post/post.dart';
 import '../song_post/post_shape.dart';
 import '../../../data/models/post_model.dart' as data_model;
@@ -74,8 +75,8 @@ class _FeedWidgetState extends State<FeedWidget> {
           final PaletteGenerator paletteGenerator =
               await PaletteGenerator.fromImageProvider(
             NetworkImage(albumImageUrl),
-            size: Size(100, 100), // Smaller size for faster processing
-            maximumColorCount: 10, // Extract up to 10 colors
+            size: Size(50, 50), // Smaller size for faster processing
+            maximumColorCount: 5, // Extract up to 10 colors
           );
 
           // Try to get the dark muted color first, then fall back to other options
@@ -141,8 +142,7 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print(
-        'FeedWidget build - isLoading: ${widget.isLoading}, posts count: ${widget.posts?.length ?? 0}');
+    // print('FeedWidget build - isLoading: ${widget.isLoading}, posts count: ${widget.posts?.length ?? 0}');
 
     if (widget.isLoading) {
       return const Center(
@@ -179,7 +179,7 @@ class _FeedWidgetState extends State<FeedWidget> {
     }
 
     if (widget.posts == null || widget.posts!.isEmpty) {
-      print('FeedWidget: No posts to display');
+      // print('FeedWidget: No posts to display');
       return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -193,8 +193,7 @@ class _FeedWidgetState extends State<FeedWidget> {
       );
     }
 
-    print(
-        'FeedWidget: Displaying ${widget.posts!.length} posts from all users');
+    // print('FeedWidget: Displaying ${widget.posts!.length} posts from all users');
     return RefreshIndicator(
       onRefresh: () async {
         print('FeedWidget: Pull to refresh triggered');
@@ -206,8 +205,7 @@ class _FeedWidgetState extends State<FeedWidget> {
         itemCount: widget.posts!.length,
         itemBuilder: (context, index) {
           final post = widget.posts![index];
-          print(
-              'FeedWidget: Building post ${index + 1}/${widget.posts!.length} from user: ${post.username}');
+          // print('FeedWidget: Building post ${index + 1}/${widget.posts!.length} from user: ${post.username}');
           return _buildPostItem(post);
         },
       ),
@@ -224,58 +222,95 @@ class _FeedWidgetState extends State<FeedWidget> {
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      // Use AspectRatio to ensure proper sizing
-      child: AspectRatio(
-        aspectRatio: postAspectRatio,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Layer for post_shape widget
-            CustomPaint(
-              painter: PostShape(backgroundColor: backgroundColor),
-              child: Container(),
+      child: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: postAspectRatio,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Layer for post_shape widget
+                CustomPaint(
+                  painter: PostShape(backgroundColor: backgroundColor),
+                  child: Container(),
+                ),
+                // Layer for post widget
+                Post(
+                  trackId: post.trackId,
+                  songName: post.songName,
+                  artists: post.artists,
+                  albumImage: post.albumImage,
+                  caption: post.caption,
+                  username: post.username,
+                  userImage:
+                      'assets/images/profile_picture.jpg', // Default profile image
+                  onLike: () {
+                    if (widget.onLike != null) {
+                      widget.onLike!(post);
+                    }
+                  },
+                  onComment: () {
+                    if (widget.onComment != null) {
+                      widget.onComment!(post);
+                    }
+                  },
+                  onPlayPause: () {
+                    if (widget.onPlay != null) {
+                      widget.onPlay!(post);
+                    }
+                  },
+                  onShare: () {
+                    if (widget.onShare != null) {
+                      widget.onShare!(post);
+                    }
+                  },
+                  isLiked: post.likedByMe,
+                  isPlaying: widget.isPlaying,
+                  isCurrentTrack:
+                      widget.currentlyPlayingTrackId == post.trackId,
+                  // Add this line:
+                  onUsernameTap: () {
+                    if (widget.onUserTap != null && post.userId != null) {
+                      widget.onUserTap!(post.userId);
+                    }
+                  },
+                ),
+              ],
             ),
-            // Layer for post widget
-            Post(
-              trackId: post.trackId,
-              songName: post.songName,
-              artists: post.artists,
-              albumImage: post.albumImage,
-              caption: post.caption,
-              username: post.username,
-              userImage: 'assets/images/profile_picture.jpg',
-              onLike: () {
-                if (widget.onLike != null) {
-                  widget.onLike!(post);
-                }
-              },
-              onComment: () {
-                if (widget.onComment != null) {
-                  widget.onComment!(post);
-                }
-              },
-              onPlayPause: () {
-                if (widget.onPlay != null) {
-                  widget.onPlay!(post);
-                }
-              },
-              onShare: () {
-                if (widget.onShare != null) {
-                  widget.onShare!(post);
-                }
-              },
-              isLiked: post.likedByMe,
-              isPlaying: widget.isPlaying,
-              isCurrentTrack: widget.currentlyPlayingTrackId == post.trackId,
-              // Add this line:
-              onUsernameTap: () {
-                if (widget.onUserTap != null && post.userId != null) {
-                  widget.onUserTap!(post.userId);
-                }
-              },
+          ),
+          const SizedBox(height: 4),
+          Container(
+            margin: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AutoSizeText.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: post.username ?? '',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' : ${post.caption ?? ''}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.normal,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    maxLines: 1,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+        ],
       ),
     );
   }
