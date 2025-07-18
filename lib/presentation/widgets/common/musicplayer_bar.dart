@@ -337,6 +337,11 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
     }
   }
 
+  String _truncate(String text, [int maxLength = 40]) {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  }
+
   @override
   Widget build(BuildContext context) {
     // The widget still builds and makes API calls even when hidden,
@@ -360,31 +365,26 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // "Now Playing" text removed
             Text(
-              _trackName,
+              _truncate(_trackName),
               style: TextStyle(
-                // Change color to purple when playing, regular theme color when paused
                 color: _isPlaying
                     ? Colors.purple
                     : Theme.of(context).colorScheme.onPrimary,
                 fontSize: 13,
-                fontWeight: _isPlaying
-                    ? FontWeight.w800
-                    : FontWeight.w600, // More bold text
-                letterSpacing: _isPlaying
-                    ? 0.3
-                    : 0.0, // Slightly increase letter spacing when playing
+                fontWeight: _isPlaying ? FontWeight.w800 : FontWeight.w600,
+                letterSpacing: _isPlaying ? 0.3 : 0.0,
               ),
             ),
             if (_artistName.isNotEmpty)
-              Text(_artistName,
-                  style: TextStyle(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onPrimary
-                          .withOpacity(0.8),
-                      fontSize: 11)),
+              Text(
+                _truncate(_artistName),
+                style: TextStyle(
+                  color:
+                      Theme.of(context).colorScheme.onPrimary.withOpacity(0.8),
+                  fontSize: 11,
+                ),
+              ),
           ],
         ),
         // Only show controls if we have an active session with a track
