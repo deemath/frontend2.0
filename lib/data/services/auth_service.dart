@@ -28,7 +28,7 @@ class AuthService {
   // Login with credentials and handle token storage
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      final response = await _tokenManager.authenticatedDio.post(
+      final response = await _tokenManager.unauthenticatedDio.post(
         '/auth/login',
         data: {
           'email': email,
