@@ -444,7 +444,7 @@ class InteractionWidget extends StatelessWidget {
             GestureDetector(
               onTap: onLike,
               child: SizedBox(
-                height: 32,
+                height: 40,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
