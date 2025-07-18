@@ -7,6 +7,10 @@ import 'tabs/album_art_posts_tab.dart';
 import 'tabs/description_posts_tab.dart';
 import 'tabs/tagged_posts_tab.dart';
 import 'settings/edit_profile.dart';
+
+import 'settings/create_profile.dart';
+import './settings/options.dart';
+
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
 import '../../../core/providers/auth_provider.dart';
@@ -29,6 +33,9 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
   List<dynamic> posts = [];
   List<String> albumImages = [];
   bool isLoading = true;
+
+  bool profileNotFound = false;
+
 
   @override
   void initState() {
@@ -75,10 +82,23 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
         profile = ProfileModel.fromJson(profileResult['data']);
         posts = postsResult;
         albumImages = albumImagesResult;
+
+        profileNotFound = false;
+        isLoading = false;
+      });
+    } else if (profileResult['message'] == 'Profile not found') {
+      setState(() {
+        profile = null;
+        profileNotFound = true;
+
         isLoading = false;
       });
     } else {
       setState(() {
+
+        profile = null;
+        profileNotFound = false;
+
         isLoading = false;
       });
     }
@@ -111,6 +131,52 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
       );
     }
 
+
+    if (profile == null && profileNotFound) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Profile'),
+          centerTitle: true,
+          backgroundColor: Colors.black,
+        ),
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32.0),
+                child: Text(
+                  'No profile found for this user.',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ),
+              SizedBox(
+                width: 160,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const CreateProfilePage()),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.white),
+                  ),
+                  child: const Text(
+                    'Create Profile',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+
     if (profile == null) {
       return const Scaffold(
         backgroundColor: Colors.black,
@@ -122,22 +188,40 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(profile!.username),
+
+        // Remove leading, add actions for right top
+        title: Text(profile?.username ?? 'Profile'),
         centerTitle: true,
         backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const OptionsPage(),
+                ),
+              );
+            },
+          ),
+        ],
+
       ),
       body: Column(
         children: [
           // Profile details (header, stats, description)
           AlbumArtPostsTab(
-            username: profile!.username,
-            posts: profile!.posts,
-            followers: profile!.followers,
-            following: profile!.following,
+
+            username: profile?.username ?? '',
+            posts: profile?.posts ?? 0,
+            followers: profile?.followers.length ?? 0,
+            following: profile?.following.length ?? 0,
             albumImages: albumImages,
-            description: profile!.bio,
+            description: profile?.bio ?? '',
             showGrid: false,
-            profileImage: profile!.profileImage,
+            profileImage: profile?.profileImage ?? '',
+
           ),
           // --- Add Edit Profile Button ---
           Padding(
@@ -177,23 +261,32 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
           ),
           // TabBarView for posts
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                AlbumArtPostsTab(
-                  username: profile!.username,
-                  posts: profile!.posts,
-                  followers: profile!.followers,
-                  following: profile!.following,
-                  albumImages: albumImages,
-                  description: profile!.bio,
-                  showGrid: true,
-                  profileImage: profile!.profileImage,
-                ),
-                const DescriptionPostsTab(),
-                const TaggedPostsTab(),
-              ],
-            ),
+
+            child: profile != null
+                ? TabBarView(
+                    controller: _tabController,
+                    children: [
+                      AlbumArtPostsTab(
+                        username: profile!.username,
+                        posts: profile!.posts,
+                        followers: profile!.followers.length,
+                        following: profile!.following.length,
+                        albumImages: albumImages,
+                        description: profile!.bio,
+                        showGrid: true,
+                        profileImage: profile!.profileImage,
+                      ),
+                      const DescriptionPostsTab(),
+                      const TaggedPostsTab(),
+                    ],
+                  )
+                : const Center(
+                    child: Text(
+                      'No profile data available.',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+
           ),
         ],
       ),
