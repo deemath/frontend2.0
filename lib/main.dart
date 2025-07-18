@@ -32,7 +32,7 @@ import 'core/constants/app_constants.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/providers/auth_provider.dart';
 // import 'presentation/screens/fanbase/fanbase.dart';
-import 'presentation/screens/profile/normal_user.dart';
+import 'presentation/screens/profile/my_profile.dart';
 // import 'package:frontend/presentation/screens/search/search_feed_screen.dart';
 // import 'presentation/screens/demopost/demo.dart';
 import 'presentation/screens/search/search_feed_screen.dart';
