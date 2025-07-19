@@ -615,7 +615,158 @@ class UserDetailWidget extends StatelessWidget {
   }
 }
 
-// ========== PostArtWidget ==========
+// // ========== PostArtWidget ==========
+// class PostArtWidget extends StatefulWidget {
+//   final String? albumImage;
+//   final String? title;
+//   final String? description;
+
+//   const PostArtWidget({
+//     super.key,
+//     this.albumImage,
+//     this.title,
+//     this.description,
+//   });
+
+//   @override
+//   State<PostArtWidget> createState() => _PostArtWidgetState();
+// }
+
+// class _PostArtWidgetState extends State<PostArtWidget> {
+//   bool _showFull = false;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final description = widget.description ?? '';
+//     const fixedFontSize = 14.0;
+//     const minBoxHeight = 220.0;
+//     const maxBoxHeight = 240.0;
+
+//     final descriptionStyle = TextStyle(
+//       color: Colors.white70,
+//       fontSize: fixedFontSize,
+//       height: 1.4,
+//     );
+
+//     return Padding(
+//       padding: const EdgeInsets.all(12),
+//       child: LayoutBuilder(
+//         builder: (context, constraints) {
+//           final double totalWidth = constraints.maxWidth;
+//           final double imageSize = totalWidth * 0.35;
+
+//           return Row(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // Album Image
+//               ClipRRect(
+//                 borderRadius: BorderRadius.circular(8),
+//                 child: Container(
+//                   width: imageSize,
+//                   height: imageSize,
+//                   color: Colors.grey.shade800,
+//                   child: widget.albumImage != null &&
+//                           widget.albumImage!.startsWith('http')
+//                       ? Image.network(
+//                           widget.albumImage!,
+//                           fit: BoxFit.cover,
+//                           errorBuilder: (_, __, ___) => Image.asset(
+//                             'assets/images/song.png',
+//                             fit: BoxFit.cover,
+//                           ),
+//                         )
+//                       : Image.asset(
+//                           'assets/images/song.png',
+//                           fit: BoxFit.cover,
+//                         ),
+//                 ),
+//               ),
+//               const SizedBox(width: 12),
+
+//               // Right-side content
+//               Expanded(
+//                 child: ConstrainedBox(
+//                   constraints: const BoxConstraints(
+//                     minHeight: minBoxHeight,
+//                     maxHeight: maxBoxHeight,
+//                   ),
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       AutoSizeText(
+//                         widget.title ?? 'Unknown Title',
+//                         style: const TextStyle(
+//                           color: Colors.white,
+//                           fontSize: 16,
+//                           fontWeight: FontWeight.bold,
+//                         ),
+//                         maxLines: 1,
+//                         overflow: TextOverflow.ellipsis,
+//                       ),
+//                       const SizedBox(height: 6),
+
+//                       // Description with Read More logic
+//                       LayoutBuilder(
+//                         builder: (context, subConstraints) {
+//                           final span = TextSpan(
+//                             text: description,
+//                             style: descriptionStyle,
+//                           );
+//                           final tp = TextPainter(
+//                             text: span,
+//                             textDirection: TextDirection.ltr,
+//                             maxLines: _showFull ? null : 6,
+//                             ellipsis: '...',
+//                           )..layout(maxWidth: subConstraints.maxWidth);
+
+//                           final isOverflowing = tp.didExceedMaxLines;
+
+//                           return Column(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               Text(
+//                                 description,
+//                                 style: descriptionStyle,
+//                                 overflow: _showFull
+//                                     ? TextOverflow.visible
+//                                     : TextOverflow.ellipsis,
+//                                 maxLines: _showFull ? null : 6,
+//                               ),
+//                               if (isOverflowing && !_showFull)
+//                                 GestureDetector(
+//                                   onTap: () {
+//                                     setState(() {
+//                                       _showFull = true;
+//                                     });
+//                                   },
+//                                   child: const Padding(
+//                                     padding: EdgeInsets.only(top: 4),
+//                                     child: Text(
+//                                       'Read More',
+//                                       style: TextStyle(
+//                                         color: Colors.purple,
+//                                         fontSize: fixedFontSize,
+//                                         fontWeight: FontWeight.w500,
+//                                         decoration: TextDecoration.underline,
+//                                       ),
+//                                     ),
+//                                   ),
+//                                 ),
+//                             ],
+//                           );
+//                         },
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
 class PostArtWidget extends StatefulWidget {
   final String? albumImage;
   final String? title;
@@ -642,7 +793,7 @@ class _PostArtWidgetState extends State<PostArtWidget> {
     const minBoxHeight = 220.0;
     const maxBoxHeight = 240.0;
 
-    final descriptionStyle = TextStyle(
+    final descriptionStyle = const TextStyle(
       color: Colors.white70,
       fontSize: fixedFontSize,
       height: 1.4,
@@ -654,119 +805,151 @@ class _PostArtWidgetState extends State<PostArtWidget> {
         builder: (context, constraints) {
           final double totalWidth = constraints.maxWidth;
           final double imageSize = totalWidth * 0.35;
+          final double textWidth = totalWidth - imageSize - 12;
 
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Album Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  width: imageSize,
-                  height: imageSize,
-                  color: Colors.grey.shade800,
-                  child: widget.albumImage != null &&
-                          widget.albumImage!.startsWith('http')
-                      ? Image.network(
-                          widget.albumImage!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Image.asset(
-                            'assets/images/song.png',
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : Image.asset(
-                          'assets/images/song.png',
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              ),
-              const SizedBox(width: 12),
+          /// Split the description text manually
+          final span = TextSpan(text: description, style: descriptionStyle);
+          final tp = TextPainter(
+            text: span,
+            textDirection: TextDirection.ltr,
+            maxLines: _showFull ? null : 6,
+            ellipsis: '...',
+          )..layout(maxWidth: textWidth);
 
-              // Right-side content
-              Expanded(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: minBoxHeight,
-                    maxHeight: maxBoxHeight,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AutoSizeText(
-                        widget.title ?? 'Unknown Title',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
+          // Estimate how many characters fit beside the image
+          int splitIndex = description.length;
+          for (int i = description.length; i > 0; i--) {
+            final testSpan = TextSpan(
+              text: description.substring(0, i),
+              style: descriptionStyle,
+            );
+            final testTp = TextPainter(
+              text: testSpan,
+              textDirection: TextDirection.ltr,
+              maxLines: 6,
+              ellipsis: '...',
+            )..layout(maxWidth: textWidth);
 
-                      // Description with Read More logic
-                      LayoutBuilder(
-                        builder: (context, subConstraints) {
-                          final span = TextSpan(
-                            text: description,
-                            style: descriptionStyle,
-                          );
-                          final tp = TextPainter(
-                            text: span,
-                            textDirection: TextDirection.ltr,
-                            maxLines: _showFull ? null : 6,
-                            ellipsis: '...',
-                          )..layout(maxWidth: subConstraints.maxWidth);
+            if (!testTp.didExceedMaxLines) {
+              splitIndex = i;
+              break;
+            }
+          }
 
-                          final isOverflowing = tp.didExceedMaxLines;
+          final sideText = description.substring(0, splitIndex).trim();
+          final overflowText = description.substring(splitIndex).trim();
 
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                description,
-                                style: descriptionStyle,
-                                overflow: _showFull
-                                    ? TextOverflow.visible
-                                    : TextOverflow.ellipsis,
-                                maxLines: _showFull ? null : 6,
-                              ),
-                              if (isOverflowing && !_showFull)
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _showFull = true;
-                                    });
-                                  },
-                                  child: const Padding(
-                                    padding: EdgeInsets.only(top: 4),
-                                    child: Text(
-                                      'Read More',
-                                      style: TextStyle(
-                                        color: Colors.purple,
-                                        fontSize: fixedFontSize,
-                                        fontWeight: FontWeight.w500,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                  ),
+          return 
+          // ConstrainedBox(
+          //   constraints: const BoxConstraints(
+          //     minHeight: minBoxHeight,
+          //     maxHeight: maxBoxHeight,
+          //   ),
+          //   child: 
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top row: image + title + side text
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Album image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        width: imageSize,
+                        height: imageSize,
+                        color: Colors.grey.shade800,
+                        child: widget.albumImage != null &&
+                                widget.albumImage!.startsWith('http')
+                            ? Image.network(
+                                widget.albumImage!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Image.asset(
+                                  'assets/images/song.png',
+                                  fit: BoxFit.cover,
                                 ),
-                            ],
-                          );
-                        },
+                              )
+                            : Image.asset(
+                                'assets/images/song.png',
+                                fit: BoxFit.cover,
+                              ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // Right side text
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AutoSizeText(
+                            widget.title ?? 'Unknown Title',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+
+                          Text(
+                            sideText,
+                            style: descriptionStyle,
+                            overflow: _showFull
+                                ? TextOverflow.visible
+                                : TextOverflow.ellipsis,
+                            maxLines: _showFull ? null : 7,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+
+                // Overflow part under the image
+                if (overflowText.isNotEmpty && !_showFull)
+                  const SizedBox(height: 8),
+
+                if (overflowText.isNotEmpty && !_showFull)
+                  Text(
+                    overflowText,
+                    style: descriptionStyle,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                if (!_showFull && (tp.didExceedMaxLines || overflowText.isNotEmpty))
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showFull = true;
+                      });
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text(
+                        'Read More',
+                        style: TextStyle(
+                          color: Colors.purple,
+                          fontSize: fixedFontSize,
+                          fontWeight: FontWeight.w500,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            // ),
           );
         },
       ),
     );
   }
 }
+
 
 // ========== FooterWidget ==========
 class FooterWidget extends StatelessWidget {

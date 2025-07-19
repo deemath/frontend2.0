@@ -167,4 +167,56 @@ class _FeedWidgetState extends State<FeedWidget> {
       ),
     );
   }
+
+//   Widget _buildPostItem(Map<String, dynamic> post) {
+//   final albumImageUrl = post['albumImage'] as String;
+//   final backgroundColor = _extractedColors[albumImageUrl] ?? _defaultColor;
+
+//   return Padding(
+//     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+//     child: LayoutBuilder(
+//       builder: (context, constraints) {
+//         return ConstrainedBox(
+//           constraints: const BoxConstraints(
+//             minHeight: 220,
+//             maxHeight: 455, // allows growth but caps it
+//           ),
+//           child: Container(
+//             clipBehavior: Clip.hardEdge,
+//             decoration: const BoxDecoration(),
+//             child: Stack(
+//               children: [
+//                 // Background painter fills height naturally
+//                 Positioned.fill(
+//                   child: CustomPaint(
+//                     painter: PostShape(backgroundColor: backgroundColor),
+//                   ),
+//                 ),
+//                 Padding(
+//                   padding: const EdgeInsets.all(12.0),
+//                   child: Post(
+//                     trackId: post['trackId'],
+//                     songName: post['songName'],
+//                     artists: post['artists'],
+//                     albumImage: post['albumImage'],
+//                     caption: post['caption'],
+//                     username: post['username'] ?? 'Unknown User',
+//                     userImage: 'assets/images/profile_picture.jpg',
+//                     descriptionTitle: post['title'],
+//                     description: post['description'],
+//                     onLike: () => print('Liked post: ${post['_id']}'),
+//                     onComment: () => print('Comment: ${post['_id']}'),
+//                     isLiked: false,
+//                     isPlaying: false,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     ),
+//   );
+// }
+
 }
