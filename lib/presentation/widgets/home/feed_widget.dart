@@ -236,12 +236,12 @@ class _FeedWidgetState extends State<FeedWidget> {
                 ),
                 // Layer for post widget
                 Post(
-                  trackId: post.trackId,
-                  songName: post.songName,
-                  artists: post.artists,
-                  albumImage: post.albumImage,
-                  caption: post.caption,
-                  username: post.username,
+                  trackId: post.trackId ?? '',
+                  songName: post.songName ?? '',
+                  artists: post.artists ?? '',
+                  albumImage: post.albumImage ?? '',
+                  caption: post.caption ?? '',
+                  username: post.username ?? '',
                   userImage:
                       'assets/images/profile_picture.jpg', // Default profile image
                   onLike: () {
@@ -271,7 +271,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                   // Add this line:
                   onUsernameTap: () {
                     if (widget.onUserTap != null && post.userId != null) {
-                      widget.onUserTap!(post.userId);
+                      widget.onUserTap!(post.userId!); // Use ! to assert non-null
                     }
                   },
                 ),

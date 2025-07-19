@@ -70,13 +70,20 @@ class _HomeScreenState extends State<HomeScreen> {
         _error = null;
       });
 
-      //print('Loading posts for user: $userId');
-      final result = await _songPostService.getAllPosts();
-      print('Posts loading result: $result');
+      if (userId == null) {
+        setState(() {
+          _error = 'User ID not found. Please log in again.';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final result = await _songPostService.getFollowerPosts(userId!);
+      print('Follower posts loading result: $result');
 
       if (result['success']) {
         final List<dynamic> postsData = result['data'];
-        print('Received ${postsData.length} posts from all users');
+        print('Received ${postsData.length} follower posts');
 
         final posts = postsData.map((json) {
           final post = data_model.Post.fromJson(json);
@@ -92,9 +99,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoading = false;
         });
 
-        print('Successfully loaded ${posts.length} posts from all users');
+        print('Successfully loaded ${posts.length} follower posts');
       } else {
-       // print('Failed to load posts: ${result['message']}');
         setState(() {
           _error = result['message'];
           _isLoading = false;
@@ -180,13 +186,13 @@ class _HomeScreenState extends State<HomeScreen> {
             final result = await _songPostService.addComment(
                 post.id, userData['id'], userData['name'], text);
             if (result['success']) {
+              final updatedComments = (result['data']['comments'] as List<dynamic>)
+                  .map((c) => data_model.Comment.fromJson(c))
+                  .toList();
               setState(() {
-                post.comments = (result['data']['comments'] as List<dynamic>)
-                    .map((c) => data_model.Comment.fromJson(c))
-                    .toList();
+                post.comments = updatedComments;
               });
-              Navigator.of(context).pop();
-              _handleComment(post); // reopen to refresh
+              return updatedComments; // <-- return the updated comments
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -194,6 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               );
+              return post.comments; // fallback to current comments
             }
           },
           postId: post.id,
