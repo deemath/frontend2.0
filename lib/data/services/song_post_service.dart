@@ -6,7 +6,7 @@ import '../../core/providers/auth_provider.dart';
 
 class SongPostService {
   
-  static const String baseUrl = 'http://localhost:3000/song-posts';
+  final String baseUrl = 'http://localhost:3000';
   
   Future<Map<String, dynamic>> createPost({
     required String trackId,
@@ -77,7 +77,7 @@ class SongPostService {
 
   Future<Map<String, dynamic>> getAllPosts() async {
     try {
-      print('Fetching all posts from: $baseUrl');
+      //print('Fetching all posts from: $baseUrl');
       
       final response = await http.get(
         Uri.parse(baseUrl),
@@ -86,15 +86,15 @@ class SongPostService {
         },
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      //print('Response status: ${response.statusCode}');
+      //print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         
         // Ensure data is a list
         if (data is List) {
-          print('Successfully fetched ${data.length} posts from all users');
+          //print('Successfully fetched ${data.length} posts from all users');
           return {
             'success': true,
             'data': data,
@@ -127,7 +127,7 @@ class SongPostService {
   Future<Map<String, dynamic>> getPostsByUserId(String userId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/user/$userId'),
+        Uri.parse('$baseUrl/song-posts/user/$userId'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -156,7 +156,7 @@ class SongPostService {
 
   Future<Map<String, dynamic>> likePost(String postId, String userId) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/$postId/like'),
+      Uri.parse('$baseUrl/song-posts/$postId/like'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'userId': userId}),
     );
@@ -165,7 +165,7 @@ class SongPostService {
 
   Future<Map<String, dynamic>> addComment(String postId, String userId, String username, String text) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/$postId/comment'),
+      Uri.parse('$baseUrl/song-posts/$postId/comment'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'userId': userId, 'text': text}),
     );
@@ -174,9 +174,17 @@ class SongPostService {
 
   Future<Map<String, dynamic>> likeComment(String postId, String commentId, String userId) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/$postId/comment/$commentId/like'),
+      Uri.parse('$baseUrl/song-posts/$postId/comment/$commentId/like'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'userId': userId}),
+    );
+    return jsonDecode(response.body);
+  }
+
+  Future<Map<String, dynamic>> getFollowerPosts(String userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/song-posts/followers/$userId'),
+      headers: {'Content-Type': 'application/json'},
     );
     return jsonDecode(response.body);
   }
