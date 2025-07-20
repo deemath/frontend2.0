@@ -25,27 +25,45 @@ class MusicPlayerControls extends StatelessWidget {
     return Row(
       children: [
         IconButton(
-          icon: Icon(LucideIcons.skipBack,
-              color: onPrevious == null
-                  ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
-                  : Theme.of(context).colorScheme.onPrimary,
-              size: 20),
+          icon: Icon(
+            LucideIcons.skipBack,
+            color: playing
+                ? (onPrevious == null
+                    ? Colors.white.withOpacity(0.5)
+                    : Colors.white)
+                : (onPrevious == null
+                    ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
+                    : Theme.of(context).colorScheme.onPrimary),
+            size: 20,
+          ),
           onPressed: onPrevious,
         ),
         IconButton(
-          icon: Icon(playing ? LucideIcons.pause : LucideIcons.play,
-              color: onPlayPause == null
-                  ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
-                  : Theme.of(context).colorScheme.onPrimary,
-              size: 20),
+          icon: Icon(
+            playing ? LucideIcons.pause : LucideIcons.play,
+            color: playing
+                ? (onPlayPause == null
+                    ? Colors.white.withOpacity(0.5)
+                    : Colors.white)
+                : (onPlayPause == null
+                    ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
+                    : Theme.of(context).colorScheme.onPrimary),
+            size: 20,
+          ),
           onPressed: onPlayPause,
         ),
         IconButton(
-          icon: Icon(LucideIcons.skipForward,
-              color: onNext == null
-                  ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
-                  : Theme.of(context).colorScheme.onPrimary,
-              size: 20),
+          icon: Icon(
+            LucideIcons.skipForward,
+            color: playing
+                ? (onNext == null
+                    ? Colors.white.withOpacity(0.5)
+                    : Colors.white)
+                : (onNext == null
+                    ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
+                    : Theme.of(context).colorScheme.onPrimary),
+            size: 20,
+          ),
           onPressed: onNext,
         ),
       ],
@@ -353,62 +371,77 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
             ? [] // No shadow when hidden
             : [
                 BoxShadow(
-                  // color: Theme.of(context).colorScheme.secondary,
                   color: Colors.black,
                   blurRadius: 10.0,
                   offset: Offset(0, -1),
                 ),
               ],
-        color: Theme.of(context).colorScheme.primary,
+        color: !_isPlaying
+            ? Theme.of(context).colorScheme.primary
+            : null, // Only set color if not playing
+        gradient: _isPlaying
+            ? LinearGradient(
+                colors: [
+                  Color(0xFF677de9), // #677de9
+                  Color(0xFFFd535f9), // #d535f9
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
       ),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _truncate(_trackName),
-              style: TextStyle(
-                color: _isPlaying
-                    ? Colors.purple
-                    : Theme.of(context).colorScheme.onPrimary,
-                fontSize: 13,
-                fontWeight: _isPlaying ? FontWeight.w800 : FontWeight.w600,
-                letterSpacing: _isPlaying ? 0.3 : 0.0,
-              ),
-            ),
-            if (_artistName.isNotEmpty)
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Text(
-                _truncate(_artistName),
+                _truncate(_trackName),
                 style: TextStyle(
-                  color:
-                      Theme.of(context).colorScheme.onPrimary.withOpacity(0.8),
-                  fontSize: 11,
+                  color: _isPlaying
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onPrimary,
+                  fontSize: 13,
+                  fontWeight: _isPlaying ? FontWeight.w800 : FontWeight.w600,
+                  letterSpacing: _isPlaying ? 0.3 : 0.0,
                 ),
               ),
-          ],
-        ),
-        // Only show controls if we have an active session with a track
-        if (_trackName != "It's silent in here..." && _hasActiveSession)
-          MusicPlayerControls(
-            playing: _isPlaying,
-            onPrevious: _controlsLocked
-                ? null
-                : () {
-                    _skipToPreviousTrack();
-                  },
-            onPlayPause: _controlsLocked
-                ? null
-                : () {
-                    _togglePlayback();
-                    // Timer is already reset in _togglePlayback method
-                  },
-            onNext: _controlsLocked
-                ? null
-                : () {
-                    _skipToNextTrack();
-                  },
+              if (_artistName.isNotEmpty)
+                Text(
+                  _truncate(_artistName),
+                  style: TextStyle(
+                    color: _isPlaying
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 11,
+                  ),
+                ),
+            ],
           ),
-      ]),
+          // Only show controls if we have an active session with a track
+          if (_trackName != "It's silent in here..." && _hasActiveSession)
+            MusicPlayerControls(
+              playing: _isPlaying,
+              onPrevious: _controlsLocked
+                  ? null
+                  : () {
+                      _skipToPreviousTrack();
+                    },
+              onPlayPause: _controlsLocked
+                  ? null
+                  : () {
+                      _togglePlayback();
+                      // Timer is already reset in _togglePlayback method
+                    },
+              onNext: _controlsLocked
+                  ? null
+                  : () {
+                      _skipToNextTrack();
+                    },
+            ),
+        ],
+      ),
     );
   }
 }
