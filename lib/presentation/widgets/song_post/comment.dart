@@ -25,20 +25,29 @@ class CommentSection extends StatefulWidget {
 
 class _CommentSectionState extends State<CommentSection> {
   final TextEditingController _controller = TextEditingController();
+  late List<Comment> _comments;
 
   @override
+  void initState(){
+    super.initState();
+    _comments = List.from(widget.comments);
+  }
   Widget build(BuildContext context) {
     return Column(
       children: [
         Expanded(
           child: ListView.builder(
-            itemCount: widget.comments.length,
+            itemCount: _comments.length,
             itemBuilder: (context, index) {
-              final comment = widget.comments[index];
+              final comment = _comments[index];
               return ListTile(
-                leading: CircleAvatar(child: Text(comment.username[0])),
+                leading: CircleAvatar(
+                  child: Text(
+                    (comment.username?.isNotEmpty == true ? comment.username![0] : '?'),
+                  ),
+                ),
                 title: Text(
-                  comment.username,
+                  comment.username ?? 'Unknown user',
                   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
@@ -57,9 +66,9 @@ class _CommentSectionState extends State<CommentSection> {
                       ),
                       onPressed: () async {
                         final result = await widget.songPostService.likeComment(widget.postId, comment.id, widget.currentUserId);
-                        if (result['success']) {
+                        if (result['success'] == true) {
                           setState(() {
-                            widget.comments[index] = Comment.fromJson(
+                            _comments[index] = Comment.fromJson(
                               (result['data']['comments'] as List).firstWhere((c) => c['_id'] == comment.id),
                             );
                           });
@@ -90,9 +99,13 @@ class _CommentSectionState extends State<CommentSection> {
               ),
               IconButton(
                 icon: Icon(Icons.send, color: Colors.purple),
-                onPressed: () {
+                onPressed: () async {
                   if (_controller.text.trim().isNotEmpty) {
-                    widget.onAddComment(_controller.text.trim());
+                    final newComments = await widget.onAddComment(_controller.text.trim());
+                    setState (() {
+                      _comments.clear();
+                      _comments.addAll(newComments);
+                    });
                     _controller.clear();
                   }
                 },

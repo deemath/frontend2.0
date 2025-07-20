@@ -1,7 +1,7 @@
 class Comment {
   final String id;
   final String userId;
-  final String username;
+  final String? username;
   final String text;
   final DateTime createdAt;
   int likes;
@@ -10,7 +10,7 @@ class Comment {
   Comment({
     required this.id,
     required this.userId,
-    required this.username,
+    this.username,
     required this.text,
     required this.createdAt,
     required this.likes,
@@ -18,10 +18,10 @@ class Comment {
   });
 
   factory Comment.fromJson(Map<String, dynamic> json) => Comment(
-    id: json['_id'],
-    userId: json['userId'],
+    id: json['_id'] ?? '',
+    userId: json['userId'] ?? '',
     username: json['username'],
-    text: json['text'],
+    text: json['text'] ?? '',
     createdAt: DateTime.parse(json['createdAt']),
     likes: json['likes'] ?? 0,
     likedBy: List<String>.from(json['likedBy'] ?? []),
@@ -45,8 +45,8 @@ class Post {
   final String artists;
   final String? albumImage;
   final String? caption;
-  final String userId;
-  final String username;
+  final String? userId;
+  final String? username;
   int likes;
   int commentsCount;
   List<String> likedBy;
@@ -62,8 +62,8 @@ class Post {
     required this.artists,
     this.albumImage,
     this.caption,
-    required this.userId,
-    required this.username,
+    this.userId,
+    this.username,
     required this.likes,
     required this.commentsCount,
     required this.likedBy,
@@ -81,8 +81,8 @@ class Post {
       artists: json['artists'] ?? '',
       albumImage: json['albumImage'],
       caption: json['caption'],
-      userId: json['userId'] ?? '',
-      username: json['username'] ?? '',
+      userId: json['userId'] as String?,
+      username: json['username'] as String?,
       likes: json['likes'] ?? 0,
       commentsCount: json['comments'] is int ? json['comments'] : (json['comments'] as List).length,
       likedBy: (json['likedBy'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
