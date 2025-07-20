@@ -31,6 +31,8 @@ class _SongControlWidgetState extends State<SongControlWidget> {
     final spotifyAsset = isDark
         ? 'assets/icons/icons-spotify-dark.svg'
         : 'assets/icons/icons-spotify-light.svg';
+    final parentWidth = MediaQuery.of(context).size.width;
+    final parentHeight = MediaQuery.of(context).size.height;
 
     return Expanded(
       flex: 110,
@@ -40,46 +42,54 @@ class _SongControlWidgetState extends State<SongControlWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Container(
-                // ADD A WAY TO MAINTAIN A SPECIFIC HEIGHT (EX: 0.8% OF PARENT HEIGHT) WITH RESPECTIVE TO PARENT WIDGET
-                decoration: BoxDecoration(
-                  color: pillColor,
-                  borderRadius: BorderRadius.circular(14.0), // pill shape
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: SvgPicture.asset(
-                        spotifyAsset,
-                        fit: BoxFit.contain,
-                      ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final parentWidth = constraints.maxWidth;
+                  final parentHeight = constraints.maxHeight;
+                  return Container(
+                    height: (parentHeight * 0.8).clamp(40.0, 120.0),
+                    decoration: BoxDecoration(
+                      color: pillColor,
+                      borderRadius: BorderRadius.circular(14.0), // pill shape
                     ),
-                    const Spacer(),
-                    if (widget.onPlayPause != null)
-                      GestureDetector(
-                        onTap: widget.onPlayPause,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: pillColor,
-                            borderRadius: BorderRadius.circular(32.0),
-                          ),
-                          // padding: const EdgeInsets.symmetric(
-                          //     horizontal: 8, vertical: 4),
-                          child: Icon(
-                            widget.isCurrentTrack && widget.isPlaying
-                                ? LucideIcons.pause
-                                : LucideIcons.play,
-                            color: iconColor,
-                            size: 22,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: parentWidth * 0.06, // 3% of parent width
+                      vertical: parentHeight * 0.08, // 8% of parent height
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: SvgPicture.asset(
+                            spotifyAsset,
+                            fit: BoxFit.contain,
                           ),
                         ),
-                      ),
-                  ],
-                ),
+                        const Spacer(),
+                        if (widget.onPlayPause != null)
+                          GestureDetector(
+                            onTap: widget.onPlayPause,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: pillColor,
+                                borderRadius: BorderRadius.circular(32.0),
+                              ),
+                              // padding: const EdgeInsets.symmetric(
+                              //     horizontal: 8, vertical: 4),
+                              child: Icon(
+                                widget.isCurrentTrack && widget.isPlaying
+                                    ? LucideIcons.pause
+                                    : LucideIcons.play,
+                                color: iconColor,
+                                size: 22,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           ],
