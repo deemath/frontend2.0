@@ -31,8 +31,6 @@ class _SongControlWidgetState extends State<SongControlWidget> {
     final spotifyAsset = isDark
         ? 'assets/icons/icons-spotify-dark.svg'
         : 'assets/icons/icons-spotify-light.svg';
-    final parentWidth = MediaQuery.of(context).size.width;
-    final parentHeight = MediaQuery.of(context).size.height;
 
     return Expanded(
       flex: 110,
@@ -124,63 +122,73 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
     // Always use white for song/artist, white70 for caption
     final textColor = Colors.white;
     final captionColor = Colors.white70;
+
     return Expanded(
       flex: 300,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Song name and artist on one line
-            Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final parentWidth = constraints.maxWidth;
+          final parentHeight = constraints.maxHeight;
+          return Container(
+            margin: EdgeInsets.symmetric(
+              horizontal: parentWidth * 0.06,
+              vertical: parentHeight * 0.04,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AutoSizeText(
-                        widget.songName ?? 'Unknown Track',
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        minFontSize: 8,
-                        maxFontSize: 14,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
+                // Song name and artist on one line
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AutoSizeText(
+                            widget.songName ?? 'Unknown Track',
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            minFontSize: 8,
+                            maxFontSize: 14,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                          ),
+                          AutoSizeText(
+                            widget.artists != null
+                                ? (widget.artists!.length > 20
+                                    ? '${widget.artists!.substring(0, 20)}...'
+                                    : widget.artists!)
+                                : 'Unknown Artist',
+                            style: TextStyle(
+                              color: textColor.withOpacity(0.8),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            minFontSize: 8,
+                            maxFontSize: 13,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                          ),
+                        ],
                       ),
-                      AutoSizeText(
-                        widget.artists != null
-                            ? (widget.artists!.length > 20
-                                ? '${widget.artists!.substring(0, 20)}...'
-                                : widget.artists!)
-                            : 'Unknown Artist',
-                        style: TextStyle(
-                          color: textColor.withOpacity(0.8),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        minFontSize: 8,
-                        maxFontSize: 13,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+                // Caption with see more functionality
+                if (widget.caption != null && widget.caption!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  _buildCaptionText(captionColor),
+                ],
               ],
             ),
-            // Caption with see more functionality
-            if (widget.caption != null && widget.caption!.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              _buildCaptionText(captionColor),
-            ],
-          ],
-        ),
+          );
+        },
       ),
     );
   }
