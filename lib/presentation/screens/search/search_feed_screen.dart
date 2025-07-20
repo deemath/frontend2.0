@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/data/services/search_service.dart';
-import 'package:frontend/presentation/widgets/search/allsearch_results.dart';
+
 import 'package:frontend/presentation/widgets/song_post/post.dart';
 import 'package:frontend/presentation/widgets/search/explore_feed.dart';
 import 'package:frontend/presentation/widgets/search/segmant_divider.dart';
+import 'package:frontend/presentation/widgets/song_post/post_shape.dart';
 
 import 'package:frontend/presentation/widgets/search/searchbar.dart';
 
 import 'package:frontend/presentation/widgets/search/category_selector.dart';
+import 'package:frontend/presentation/widgets/search/user_search_results.dart';
 
 class SearchFeedScreen extends StatefulWidget {
   const SearchFeedScreen({Key? key}) : super(key: key);
@@ -17,6 +19,34 @@ class SearchFeedScreen extends StatefulWidget {
 }
 
 class _SearchFeedScreenState extends State<SearchFeedScreen> {
+  void _onSearchChanged(String value) {
+    setState(() {
+      _query = value;
+      _hasSearched = false;
+    });
+  }
+
+  Future<void> _onSearchSubmitted(String value) async {
+    setState(() {
+      _query = value;
+      _hasSearched = true;
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final results = await _searchService.search(_query);
+      setState(() {
+        _searchResults = results;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _error = 'Search failed. Please try again.';
+      });
+    }
+  }
+
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
   bool _hasSearched = false;
@@ -26,111 +56,44 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
     'All',
     'People',
     'Pages',
-    'Groups',
+    'Song Posts',
     'Posts',
     'Fanbases',
     'Playlists'
   ];
 
   final SearchService _searchService = SearchService();
-  List<Map<String, dynamic>> _searchResults = [];
+  Map<String, dynamic> _searchResults = {};
   bool _isLoading = false;
   String? _error;
 
-  void _onSearchSubmitted(String query) async {
-    if (query.trim().isEmpty) {
-      setState(() {
-        _hasSearched = false;
-        _query = '';
-        _searchResults.clear();
-      });
-      return;
-    }
+  List<String> _exploreImages = [];
 
-    setState(() {
-      _query = query;
-      _hasSearched = true;
-      _isLoading = true;
-      _error = null;
-    });
-
+  // Fetch song posts for explore feed (album images, ascending by date)
+  Future<void> _fetchExploreImages() async {
     try {
-      final results = await _searchService.search(query);
+      final results = await _searchService.search(''); // Empty query to get all
+      final songPosts = (results['songPosts'] ?? []) as List;
+      // If backend supports sorting, you should add sort there. Otherwise, sort here if date is available.
       setState(() {
-        _searchResults = results;
-        _isLoading = false;
+        _exploreImages = songPosts
+            .map<String>(
+                (post) => post['albumImage'] ?? 'assets/images/song.png')
+            .toList();
       });
     } catch (e) {
+      // fallback to empty or default
       setState(() {
-        _isLoading = false;
-        _error = e.toString();
+        _exploreImages = [];
       });
     }
   }
 
-  void _onSearchChanged(String query) {
-    setState(() {
-      _query = query;
-      if (query.trim().isEmpty && _hasSearched) {
-        _hasSearched = false;
-        _searchResults.clear();
-      }
-    });
+  @override
+  void initState() {
+    super.initState();
+    _fetchExploreImages();
   }
-
-  List<Map<String, dynamic>> _getFilteredResults() {
-    if (_selectedSegment == 0) {
-      return _searchResults;
-    }
-
-    final selectedCategory = _segments[_selectedSegment].toLowerCase();
-    
-    return _searchResults.where((result) {
-      final category = result['category']?.toLowerCase();
-      switch (selectedCategory) {
-        case 'people':
-          return category == 'users';
-        case 'fanbases':
-          return category == 'fanbases';
-        case 'posts':
-          return category == 'songposts' || category == 'posts';
-        case 'pages':
-          return category == 'profiles';
-        default:
-          return category == selectedCategory;
-      }
-    }).toList();
-  }
-
-  Widget _buildSearchResults() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_error != null) {
-      return Center(child: Text('Error: $_error'));
-    }
-    if (_searchResults.isEmpty && _hasSearched) {
-      return const Center(child: Text('No results found.'));
-    }
-
-    final filteredResults = _getFilteredResults();
-
-    if (filteredResults.isEmpty && _hasSearched) {
-      return Center(
-          child: Text('No results for "${_segments[_selectedSegment]}".'));
-    }
-
-    return AllSearchResults(
-      results: filteredResults,
-      query: _query,
-    );
-  }
-
-  final List<String> _exploreImages = [
-    'assets/images/hehe.png',
-    'assets/images/hehe.png',
-    'assets/images/hehe.png',
-  ];
 
   final List<String> _categories = [
     'Trending',
@@ -154,7 +117,8 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
             backgroundImage: AssetImage('assets/images/hehe.png'),
           ),
           title: const Text('Temporary Fanbase'),
-          subtitle: const Text('This is a temporary fanbase card shown in search feed.'),
+          subtitle: const Text(
+              'This is a temporary fanbase card shown in search feed.'),
           onTap: () {
             // TODO: Add tap action if needed
           },
@@ -170,7 +134,8 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
             backgroundImage: AssetImage('assets/images/hehe.png'),
           ),
           title: Text('Temporary Post #\$index'),
-          subtitle: const Text('This is a temporary post shown in search feed.'),
+          subtitle:
+              const Text('This is a temporary post shown in search feed.'),
           onTap: () {
             // TODO: Add tap action if needed
           },
@@ -211,104 +176,196 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
             ),
           Expanded(
             child: showResults
-                ? Column(
-                    children: [
-                      SegmentDivider(
-                        segments: _segments,
-                        selectedIndex: _selectedSegment,
-                        onSegmentSelected: (index) {
-                          setState(() {
-                            _selectedSegment = index;
-                          });
-                        },
-                      ),
-                      Expanded(
-                        child: _isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : _error != null
-                                ? Center(child: Text('Error: $_error'))
-                                : ListView(
-                                    children: [
-                                      if (_selectedSegment == 0) ...[
-                                        temporaryFanbaseCard(),
-                                        temporaryPostCard(1),
-                                        temporaryPostCard(2),
-                                        temporaryPostCard(3),
-                                        temporaryPostCard(4),
-                                        temporaryPostCard(5),
-                                        // Temporary song post cards below the 6 cards
-                                        Post(
-                                          username: 'User1',
-                                          songName: 'Song One',
-                                          artists: 'Artist A',
-                                          albumImage: 'assets/images/song.png',
+                ? (_isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _selectedSegment == 1 // People
+                        ? Builder(
+                            builder: (context) {
+                              final users =
+                                  (_searchResults['users'] ?? []) as List;
+                              return UserSearchResults(
+                                users: users,
+                                query: _query,
+                              );
+                            },
+                          )
+                        : _selectedSegment == 3 // Song Posts
+                            ? Builder(
+                                builder: (context) {
+                                  final songPosts =
+                                      (_searchResults['songPosts'] ?? [])
+                                          as List;
+                                  if (songPosts.isEmpty) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(32.0),
+                                      child: Center(
+                                        child: Text(
+                                          _query.isEmpty
+                                              ? 'Start typing to search Song Posts...'
+                                              : 'No song posts found for "$_query"',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[600]),
+                                          textAlign: TextAlign.center,
                                         ),
-                                        Post(
-                                          username: 'User2',
-                                          songName: 'Song Two',
-                                          artists: 'Artist B',
-                                          albumImage: 'assets/images/song.png',
+                                      ),
+                                    );
+                                  }
+                                  // Show song posts as a vertical list
+                                  return ListView.separated(
+                                    itemCount: songPosts.length,
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(height: 16),
+                                    itemBuilder: (context, index) {
+                                      final post = songPosts[index];
+                                      final img = post['albumImage'] ??
+                                          'assets/images/song.png';
+                                      final isNetwork =
+                                          img is String && img.startsWith('http');
+                                      final username =
+                                          post['username'] ?? 'Unknown User';
+                                      final songName =
+                                          post['name'] ?? 'Unknown Song';
+                                      return Container(
+                                        margin: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 0),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black
+                                                  .withOpacity(0.04),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
                                         ),
-                                        Post(
-                                          username: 'User3',
-                                          songName: 'Song Three',
-                                          artists: 'Artist C',
-                                          albumImage: 'assets/images/song.png',
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // Username
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      12, 12, 12, 4),
+                                              child: Text(
+                                                username,
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold,
+                                                    fontSize: 15),
+                                              ),
+                                            ),
+                                            // Song name (minor opacity)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 12),
+                                              child: Text(
+                                                songName,
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.black
+                                                      .withOpacity(0.5),
+                                                  fontWeight:
+                                                      FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            // Album image
+                                            AspectRatio(
+                                              aspectRatio: 1,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                child: isNetwork
+                                                    ? Image.network(
+                                                        img,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder: (context,
+                                                                error,
+                                                                stackTrace) =>
+                                                            const Icon(
+                                                                Icons
+                                                                    .broken_image,
+                                                                size: 80),
+                                                      )
+                                                    : Image.asset(
+                                                        img,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder: (context,
+                                                                error,
+                                                                stackTrace) =>
+                                                            const Icon(
+                                                                Icons
+                                                                    .broken_image,
+                                                                size: 80),
+                                                      ),
+                                              ),
+                                            ),
+                                            // Like, Comment, Share row
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                        Icons.favorite_border,
+                                                        size: 26),
+                                                    onPressed: () {},
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                        Icons
+                                                            .mode_comment_outlined,
+                                                        size: 26),
+                                                    onPressed: () {},
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                        Icons.share_outlined,
+                                                        size: 26),
+                                                    onPressed: () {},
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            // Optional: Caption
+                                            if (post['caption'] != null &&
+                                                post['caption']
+                                                    .toString()
+                                                    .isNotEmpty)
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        12, 0, 12, 12),
+                                                child: Text(
+                                                  post['caption'],
+                                                  style: const TextStyle(
+                                                      fontSize: 13,
+                                                      color: Colors.black87),
+                                                ),
+                                              ),
+                                            const SizedBox(height: 4),
+                                          ],
                                         ),
-                                        Post(
-                                          username: 'User4',
-                                          songName: 'Song Four',
-                                          artists: 'Artist D',
-                                          albumImage: 'assets/images/song.png',
-                                        ),
-                                        Post(
-                                          username: 'User5',
-                                          songName: 'Song Five',
-                                          artists: 'Artist E',
-                                          albumImage: 'assets/images/song.png',
-                                        ),
-                                        Post(
-                                          username: 'User6',
-                                          songName: 'Song Six',
-                                          artists: 'Artist F',
-                                          albumImage: 'assets/images/song.png',
-                                        ),
-                                      ],
-                                      if (_selectedSegment == 1)
-                                        _buildSection(
-                                            'People',
-                                            _searchResults['users'] ?? [],
-                                            'name',
-                                            'email'),
-                                      if (_selectedSegment == 2)
-                                        _buildSection(
-                                            'Fanbases',
-                                            _searchResults['fanbases'] ?? [],
-                                            'name',
-                                            'description'),
-                                      if (_selectedSegment == 3)
-                                        _buildSection(
-                                            'Song Posts',
-                                            _searchResults['songPosts'] ?? [],
-                                            'name',
-                                            'artists'),
-                                      if (_selectedSegment == 4)
-                                        _buildSection(
-                                            'Posts',
-                                            _searchResults['posts'] ?? [],
-                                            'songTitle',
-                                            'artistName'),
-                                      if (_selectedSegment == 5)
-                                        _buildSection(
-                                            'Profiles',
-                                            _searchResults['profiles'] ?? [],
-                                            'username',
-                                            'bio'),
-                                    ],
-                                  ),
-                      ),
-                    ],
-                  )
+                                      );
+                                    },
+                                  );
+                                },
+                              )
+                            : ExploreFeed(imageUrls: _exploreImages))
                 : ExploreFeed(imageUrls: _exploreImages),
           ),
         ],
@@ -316,3 +373,4 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
     );
   }
 }
+// Duplicate block removed. File ends cleanly after the main Scaffold.
