@@ -338,7 +338,8 @@ class InteractionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final iconColor = isDark ? Colors.white : Colors.black;
-    final likedColor = isDark ? Colors.purple : Colors.deepPurple;
+    // final likedColor = isDark ? Colors.purple : Colors.deepPurple;
+    final likedColor = Color(0xFFFd535f9);
     final textColor = isDark ? Colors.white : Colors.black;
     final parentWidth = MediaQuery.of(context).size.width;
 

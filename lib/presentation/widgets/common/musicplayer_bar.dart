@@ -372,7 +372,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
             : [
                 BoxShadow(
                   color: _isPlaying
-                      ? Color(0xFF764ca4)
+                      ? Color(0xFFFd535f9)
                       : Theme.of(context).colorScheme.primary,
                   blurRadius: 5.0,
                   offset: Offset(0, -1),
