@@ -41,7 +41,7 @@ class _SongControlWidgetState extends State<SongControlWidget> {
           children: [
             Expanded(
               child: Container(
-                // ADD A WAY TO MAINTAIN HEIGHT WITH RESPECTIVE TO PARENT WIDGET
+                // ADD A WAY TO MAINTAIN A SPECIFIC HEIGHT (EX: 0.8% OF PARENT HEIGHT) WITH RESPECTIVE TO PARENT WIDGET
                 decoration: BoxDecoration(
                   color: pillColor,
                   borderRadius: BorderRadius.circular(14.0), // pill shape
@@ -50,20 +50,6 @@ class _SongControlWidgetState extends State<SongControlWidget> {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: Row(
                   children: [
-                    // Spotify icon SVG
-                    // Image.network(
-                    //   'https://cdn-icons-png.flaticon.com/512/174/174872.png',
-                    //   width: 24,
-                    //   height: 24,
-                    //   color: iconColor,
-                    //   errorBuilder: (context, error, stackTrace) {
-                    //     return Icon(
-                    //       Icons.music_note,
-                    //       color: iconColor,
-                    //       size: 24,
-                    //     );
-                    //   },
-                    // ),
                     SizedBox(
                       width: 22,
                       height: 22,
@@ -336,6 +322,8 @@ class InteractionWidget extends StatelessWidget {
     final iconColor = isDark ? Colors.white : Colors.black;
     final likedColor = isDark ? Colors.purple : Colors.deepPurple;
     final textColor = isDark ? Colors.white : Colors.black;
+    final parentWidth = MediaQuery.of(context).size.width;
+
     return Expanded(
       flex: 140,
       child: Container(
@@ -348,16 +336,10 @@ class InteractionWidget extends StatelessWidget {
             GestureDetector(
               onTap: onLike,
               child: SizedBox(
-                // height: 32,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Icon(
-                    //   LucideIcons.heart,
-                    //   color: isLiked ? likedColor : iconColor,
-                    //   size: 22,
-                    // ),
                     Icon(
                       isLiked ? Icons.favorite : Icons.favorite_border,
                       color: isLiked ? likedColor : iconColor,
@@ -367,7 +349,7 @@ class InteractionWidget extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: (parentWidth * 0.02).clamp(6.0, 20.0)),
             // Comment button
             GestureDetector(
               onTap: onComment,
@@ -386,7 +368,7 @@ class InteractionWidget extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: (parentWidth * 0.02).clamp(6.0, 20.0)),
             // Share button
             GestureDetector(
               onTap: onShare,
@@ -405,7 +387,7 @@ class InteractionWidget extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: (parentWidth * 0.02).clamp(6.0, 20.0)),
           ],
         ),
       ),
