@@ -40,15 +40,6 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
       final String? albumImage = track['album'];
       final String caption = _captionController.text.trim();
 
-      
-     
-      //print('trackId: $trackId');
-      //print('songName: $songName');
-      //print('artists: $artists');
-      //print('albumImage: $albumImage');
-     // print('caption: $caption');
-     
-
       final result = await _songPostService.createPost(
         trackId: trackId,
         songName: songName,
@@ -57,17 +48,12 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
         caption: caption.isNotEmpty ? caption : null,
       );
 
-      
-      //print('=== DEBUG: API Response ===');
-      //print('Result: $result');
-     
-
-      if (result['success'] == true) {
+      if (result['success']) {
         // Show success message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['message'] ?? 'Post created successfully!'),
+              content: Text(result['message']),
               backgroundColor: Colors.green,
             ),
           );
@@ -79,36 +65,18 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['message'] ?? 'Failed to create post'),
+              content: Text(result['message']),
               backgroundColor: Colors.red,
             ),
           );
         }
       }
     } catch (e) {
-      //print('=== DEBUG: Exception caught ===');
-      //print('Error: $e');
-      //print('Error type: ${e.runtimeType}');
-     
-      
       if (mounted) {
-        String errorMessage = 'Unknown error occurred';
-        
-        if (e.toString().contains('404') || e.toString().contains('Not Found')) {
-          errorMessage = 'API endpoint not found. Please check your server configuration.';
-        } else if (e.toString().contains('Connection refused')) {
-          errorMessage = 'Cannot connect to server. Please check if your backend is running.';
-        } else if (e.toString().contains('TimeoutException')) {
-          errorMessage = 'Request timed out. Please try again.';
-        } else {
-          errorMessage = 'Error: ${e.toString()}';
-        }
-        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(errorMessage),
+            content: Text('Error: $e'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
           ),
         );
       }
@@ -209,7 +177,7 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
             ),
           ),
           const Spacer(),
-      
+          // Updated button section with Preview and Share buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             child: Row(
