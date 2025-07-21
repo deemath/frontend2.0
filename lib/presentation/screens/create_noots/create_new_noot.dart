@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/common/musicplayer_bar.dart';
 import '../../../data/services/song_post_service.dart';
+import 'create_noot_preview.dart';
 
 class CreateNewNootPage extends StatefulWidget {
   final Map<String, dynamic> track;
@@ -39,6 +40,15 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
       final String? albumImage = track['album'];
       final String caption = _captionController.text.trim();
 
+      
+     
+      //print('trackId: $trackId');
+      //print('songName: $songName');
+      //print('artists: $artists');
+      //print('albumImage: $albumImage');
+     // print('caption: $caption');
+     
+
       final result = await _songPostService.createPost(
         trackId: trackId,
         songName: songName,
@@ -47,35 +57,58 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
         caption: caption.isNotEmpty ? caption : null,
       );
 
-      if (result['success']) {
+      
+      //print('=== DEBUG: API Response ===');
+      //print('Result: $result');
+     
+
+      if (result['success'] == true) {
         // Show success message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['message']),
+              content: Text(result['message'] ?? 'Post created successfully!'),
               backgroundColor: Colors.green,
             ),
           );
-          // Navigate back to previous screen
-          Navigator.of(context).pop();
+          // Navigate back to home screen
+          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       } else {
         // Show error message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['message']),
+              content: Text(result['message'] ?? 'Failed to create post'),
               backgroundColor: Colors.red,
             ),
           );
         }
       }
     } catch (e) {
+      //print('=== DEBUG: Exception caught ===');
+      //print('Error: $e');
+      //print('Error type: ${e.runtimeType}');
+     
+      
       if (mounted) {
+        String errorMessage = 'Unknown error occurred';
+        
+        if (e.toString().contains('404') || e.toString().contains('Not Found')) {
+          errorMessage = 'API endpoint not found. Please check your server configuration.';
+        } else if (e.toString().contains('Connection refused')) {
+          errorMessage = 'Cannot connect to server. Please check if your backend is running.';
+        } else if (e.toString().contains('TimeoutException')) {
+          errorMessage = 'Request timed out. Please try again.';
+        } else {
+          errorMessage = 'Error: ${e.toString()}';
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
           ),
         );
       }
@@ -86,6 +119,30 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
         });
       }
     }
+  }
+
+  void _showPreview() {
+    final track = widget.track;
+    final String songName = track['name'] ?? '';
+    final String artists = track['artists'] is List
+        ? track['artists'].join(", ")
+        : track['artists'].toString();
+    final String? albumImage = track['album'];
+    final String caption = _captionController.text.trim();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateNootPreviewPage(
+          track: track,
+          songName: songName,
+          artists: artists,
+          albumImage: albumImage,
+          caption: caption,
+          createPost: _createPost,
+        ),
+      ),
+    );
   }
 
   @override
@@ -152,33 +209,65 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
             ),
           ),
           const Spacer(),
+      
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _createPost,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8E08EF),
-                  foregroundColor: Colors.white,
-                  textStyle: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            child: Row(
+              children: [
+                // Preview Button
+                Expanded(
+                  child: SizedBox(
+                    height: 56,
+                    child: OutlinedButton(
+                      onPressed: _showPreview,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF8E08EF),
+                        side: const BorderSide(
+                          color: Color(0xFF8E08EF),
+                          width: 2,
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold, 
+                          fontSize: 18
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Preview'),
+                    ),
                   ),
                 ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
+                const SizedBox(width: 16),
+                // Share Button
+                Expanded(
+                  child: SizedBox(
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _createPost,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF8E08EF),
+                        foregroundColor: Colors.white,
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      )
-                    : const Text('Share'),
-              ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text('Share'),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

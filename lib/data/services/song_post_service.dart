@@ -39,7 +39,7 @@ class SongPostService {
       }
       
       final response = await http.post(
-        Uri.parse(baseUrl),
+        Uri.parse('$baseUrl/song-posts'),
         headers: {
           'Content-Type': 'application/json',
         },
