@@ -39,7 +39,7 @@ class SongPostService {
       }
       
       final response = await http.post(
-        Uri.parse(baseUrl),
+        Uri.parse('$baseUrl/song-posts'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -187,5 +187,34 @@ class SongPostService {
       headers: {'Content-Type': 'application/json'},
     );
     return jsonDecode(response.body);
+  }
+
+  Future<Map<String, dynamic>> getNotifications(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/song-posts/notifications/$userId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          return {
+            'success': true,
+            'data': data['data'],
+            'message': 'Notifications retrieved successfully',
+          };
+        }
+      }
+      return {
+        'success': false,
+        'message': 'Failed to retrieve notifications',
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
   }
 } 

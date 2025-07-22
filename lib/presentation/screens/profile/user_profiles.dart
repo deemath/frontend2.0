@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:math';
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
 import 'tabs/album_art_posts_tab.dart';
@@ -135,6 +136,7 @@ class _UserProfilePageState extends State<UserProfilePage>
             description: profile!.bio,
             showGrid: false,
             profileImage: profile!.profileImage,
+            postsList: posts,
             onFollowersTap: () async {
               final profileService = ProfileService();
               final followersList = await profileService
@@ -176,7 +178,7 @@ class _UserProfilePageState extends State<UserProfilePage>
                     side: const BorderSide(color: Colors.white),
                   ),
                   child: const Text(
-                    'Follow',
+                    'Following',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -222,6 +224,7 @@ class _UserProfilePageState extends State<UserProfilePage>
                   description: profile!.bio,
                   showGrid: true,
                   profileImage: profile!.profileImage,
+                  postsList: posts,
                 ),
                 const DescriptionPostsTab(),
                 const TaggedPostsTab(),

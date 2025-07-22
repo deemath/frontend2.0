@@ -268,47 +268,49 @@ class _FeedWidgetState extends State<FeedWidget> {
                   isPlaying: widget.isPlaying,
                   isCurrentTrack:
                       widget.currentlyPlayingTrackId == post.trackId,
-                  // Add this line:
                   onUsernameTap: () {
                     if (widget.onUserTap != null && post.userId != null) {
                       widget.onUserTap!(post.userId!); // Use ! to assert non-null
                     }
                   },
+                  // likeCount and commentCount intentionally omitted for home/feed
                 ),
               ],
             ),
           ),
           const SizedBox(height: 4),
-          Container(
-            margin: const EdgeInsets.only(top: 8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: AutoSizeText.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: post.username ?? '',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+          // Only show the caption row if post.caption is not empty
+          if ((post.caption ?? '').trim().isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: AutoSizeText.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: post.username ?? '',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: ' : ${post.caption ?? ''}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.normal,
-                            fontSize: 16,
+                          TextSpan(
+                            text: ' : ${post.caption ?? ''}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                              fontSize: 16,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      maxLines: 1,
                     ),
-                    maxLines: 1,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           const SizedBox(height: 12),
         ],
       ),

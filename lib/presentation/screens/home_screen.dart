@@ -79,11 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       final result = await _songPostService.getFollowerPosts(userId!);
-      print('Follower posts loading result: $result');
+      //print('Follower posts loading result: $result');
 
       if (result['success']) {
         final List<dynamic> postsData = result['data'];
-        print('Received ${postsData.length} follower posts');
+        //print('Received ${postsData.length} follower posts');
 
         final posts = postsData.map((json) {
           final post = data_model.Post.fromJson(json);
@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoading = false;
         });
 
-        print('Successfully loaded ${posts.length} follower posts');
+        //print('Successfully loaded ${posts.length} follower posts');
       } else {
         setState(() {
           _error = result['message'];

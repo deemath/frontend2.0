@@ -43,9 +43,15 @@ class _LoginScreenState extends State<LoginScreen> {
           // Print success message to console
           print('Login successful: ${response['message']}');
 
-          // Check if user is authenticated in auth provider
           final authProvider =
               Provider.of<AuthProvider>(context, listen: false);
+
+          // Update the AuthProvider with the user data and token from the response.
+          if (response['user'] != null && response['token'] != null) {
+            authProvider.login(response['user'], response['token']);
+          }
+
+          // Check if user is authenticated in auth provider
           if (authProvider.isAuthenticated && authProvider.user != null) {
             // Navigate to home screen
             Navigator.pushReplacementNamed(context, '/home');
