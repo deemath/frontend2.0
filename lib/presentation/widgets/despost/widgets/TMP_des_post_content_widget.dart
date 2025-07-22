@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './des_post_layers.dart';
+import './TMP_des_post_layers.dart';
 
 // ========== Post ==========
 class Post extends StatelessWidget {
@@ -46,16 +46,11 @@ class Post extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      // mainAxisSize: MainAxisSize.min,
       children: [
         HeaderWidget(
           username: username,
           userImage: userImage,
           trackId: trackId,
-          // isPlaying: isPlaying,
-          // isCurrentTrack: isCurrentTrack,
-          // onPlayPause: onPlayPause,
-          // onUsernameTap: onUsernameTap, // <-- Pass callback
         ),
         PostArtWidget(
           albumImage: albumImage,
@@ -65,10 +60,6 @@ class Post extends StatelessWidget {
         FooterWidget(
           songName: songName,
           artists: artists,
-          // onLike: onLike,
-          // onComment: onComment,
-          // onShare: onShare,
-          // isLiked: isLiked,
         ),
       ],
     );
