@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/profile/profile_stat_column.dart';
+import '../../../widgets/profile/profile_header.dart';
 
 class AlbumArtPostsTab extends StatelessWidget {
   final String username;
+  final String fullName;
   final int posts;
   final int followers;
   final int following;
@@ -10,10 +12,13 @@ class AlbumArtPostsTab extends StatelessWidget {
   final String description;
   final bool showGrid;
   final String? profileImage;
+  final VoidCallback? onFollowersTap;
+  final VoidCallback? onFollowingTap;
 
   const AlbumArtPostsTab({
     Key? key,
     required this.username,
+    required this.fullName,
     required this.posts,
     required this.followers,
     required this.following,
@@ -21,6 +26,8 @@ class AlbumArtPostsTab extends StatelessWidget {
     required this.description,
     this.showGrid = true,
     this.profileImage,
+    this.onFollowersTap,
+    this.onFollowingTap,
   }) : super(key: key);
 
   @override
@@ -29,52 +36,16 @@ class AlbumArtPostsTab extends StatelessWidget {
       child: Column(
         children: [
           if (!showGrid) ...[
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 44,
-                    backgroundImage:
-                        profileImage != null && profileImage!.isNotEmpty
-                            ? NetworkImage(profileImage!)
-                            : const AssetImage('assets/images/hehe.png')
-                                as ImageProvider,
-                  ),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ProfileStatColumn(label: 'Posts', count: posts),
-                        ProfileStatColumn(label: 'Followers', count: followers),
-                        ProfileStatColumn(label: 'Following', count: following),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      username,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      description,
-                      style: const TextStyle(fontSize: 15),
-                    ),
-                  ],
-                ),
-              ),
+            ProfileHeader(
+              username: username,
+              fullName: fullName,
+              posts: posts,
+              followers: followers,
+              following: following,
+              profileImage: profileImage,
+              description: description,
+              onFollowersTap: onFollowersTap,
+              onFollowingTap: onFollowingTap,
             ),
           ],
           if (showGrid) ...[
