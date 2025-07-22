@@ -27,8 +27,8 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
               children: [
                 Image.asset(
                   isDark
-                      ? 'assets/images/logo_white.png'
-                      : 'assets/images/logo_black.png',
+                      ? 'assets/images/logo.png'
+                      : 'assets/images/logo.png',
                   width: 100,
                   height: 40,
                 ),
