@@ -38,7 +38,7 @@ class PostDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(descriptionTitle ?? 'Post Details'),
+        title: Text('  '),
         backgroundColor: backgroundColor ?? Colors.black,
         foregroundColor: Colors.white,
       ),
@@ -56,7 +56,7 @@ class PostDetailPage extends StatelessWidget {
           ),
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16.0, 100.0, 16.0, 16.0),
+          padding: const EdgeInsets.fromLTRB(16.0, 60.0, 16.0, 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
