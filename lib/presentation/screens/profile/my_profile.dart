@@ -17,6 +17,7 @@ import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../data/models/post_model.dart';
+import '../../widgets/common/bottom_bar.dart';
 
 class NormalUserProfilePage extends StatefulWidget {
   static const routeName = '/profile/normal';
@@ -269,12 +270,16 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
             child: SizedBox(
               width: 160,
               child: OutlinedButton(
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const EditProfilePage()),
                   );
+                  if (result == true) {
+                    // Only fetch if profile was updated
+                    await _fetchProfileData();
+                  }
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.white),
@@ -331,6 +336,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
         ],
       ),
       backgroundColor: Colors.black,
+      bottomNavigationBar: const BottomBar(),
     );
   }
 }
