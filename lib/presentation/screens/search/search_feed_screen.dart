@@ -202,7 +202,7 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
                                         child: Text(
                                           _query.isEmpty
                                               ? 'Start typing to search Song Posts...'
-                                              : 'No song posts found for "$_query"',
+                                              : 'There is no related posts',
                                           style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[600]),
@@ -220,8 +220,8 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
                                       final post = songPosts[index];
                                       final img = post['albumImage'] ??
                                           'assets/images/song.png';
-                                      final isNetwork =
-                                          img is String && img.startsWith('http');
+                                      final isNetwork = img is String &&
+                                          img.startsWith('http');
                                       final username =
                                           post['username'] ?? 'Unknown User';
                                       final songName =
@@ -248,30 +248,25 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
                                           children: [
                                             // Username
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      12, 12, 12, 4),
+                                              padding: const EdgeInsets.fromLTRB(
+                                                  12, 12, 12, 4),
                                               child: Text(
                                                 username,
                                                 style: const TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold,
+                                                    fontWeight: FontWeight.bold,
                                                     fontSize: 15),
                                               ),
                                             ),
                                             // Song name (minor opacity)
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12),
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 12),
                                               child: Text(
                                                 songName,
                                                 style: TextStyle(
                                                   fontSize: 13,
-                                                  color: Colors.black
-                                                      .withOpacity(0.5),
-                                                  fontWeight:
-                                                      FontWeight.w500,
+                                                  color: Colors.black.withOpacity(0.5),
+                                                  fontWeight: FontWeight.w500,
                                                 ),
                                               ),
                                             ),
@@ -280,81 +275,55 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
                                             AspectRatio(
                                               aspectRatio: 1,
                                               child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
+                                                borderRadius: BorderRadius.circular(10),
                                                 child: isNetwork
                                                     ? Image.network(
                                                         img,
                                                         fit: BoxFit.cover,
-                                                        errorBuilder: (context,
-                                                                error,
-                                                                stackTrace) =>
-                                                            const Icon(
-                                                                Icons
-                                                                    .broken_image,
-                                                                size: 80),
+                                                        errorBuilder: (context, error, stackTrace) =>
+                                                            const Icon(Icons.broken_image, size: 80),
                                                       )
                                                     : Image.asset(
                                                         img,
                                                         fit: BoxFit.cover,
-                                                        errorBuilder: (context,
-                                                                error,
-                                                                stackTrace) =>
-                                                            const Icon(
-                                                                Icons
-                                                                    .broken_image,
-                                                                size: 80),
+                                                        errorBuilder: (context, error, stackTrace) =>
+                                                            const Icon(Icons.broken_image, size: 80),
                                                       ),
                                               ),
                                             ),
                                             // Like, Comment, Share row
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
                                                 children: [
                                                   IconButton(
-                                                    icon: const Icon(
-                                                        Icons.favorite_border,
-                                                        size: 26),
+                                                    icon: const Icon(Icons.favorite_border, size: 26),
                                                     onPressed: () {},
+                                                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                                                   ),
                                                   const SizedBox(width: 8),
                                                   IconButton(
-                                                    icon: const Icon(
-                                                        Icons
-                                                            .mode_comment_outlined,
-                                                        size: 26),
+                                                    icon: const Icon(Icons.mode_comment_outlined, size: 26),
                                                     onPressed: () {},
+                                                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                                                   ),
                                                   const SizedBox(width: 8),
                                                   IconButton(
-                                                    icon: const Icon(
-                                                        Icons.share_outlined,
-                                                        size: 26),
+                                                    icon: const Icon(Icons.share_outlined, size: 26),
                                                     onPressed: () {},
+                                                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                                                   ),
                                                 ],
                                               ),
                                             ),
                                             // Optional: Caption
-                                            if (post['caption'] != null &&
-                                                post['caption']
-                                                    .toString()
-                                                    .isNotEmpty)
+                                            if (post['caption'] != null && post['caption'].toString().isNotEmpty)
                                               Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        12, 0, 12, 12),
+                                                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                                                 child: Text(
                                                   post['caption'],
-                                                  style: const TextStyle(
-                                                      fontSize: 13,
-                                                      color: Colors.black87),
+                                                  style: const TextStyle(fontSize: 13, color: Colors.black87),
                                                 ),
                                               ),
                                             const SizedBox(height: 4),
@@ -365,6 +334,54 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
                                   );
                                 },
                               )
+                            : _selectedSegment == 4 // Posts
+                                ? Builder(
+                                    builder: (context) {
+                                      final posts =
+                                          (_searchResults['posts'] ?? [])
+                                              as List;
+                                      if (posts.isEmpty) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(32.0),
+                                          child: Center(
+                                            child: Text(
+                                              _query.isEmpty
+                                                  ? 'Start typing to search Posts...'
+                                                  : 'There is no related posts',
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.grey[600]),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      // Show posts as a vertical list
+                                      return ListView.separated(
+                                        itemCount: posts.length,
+                                        separatorBuilder: (context, index) =>
+                                            const SizedBox(height: 16),
+                                        itemBuilder: (context, index) {
+                                          final post = posts[index];
+                                          final username =
+                                              post['username'] ?? 'Unknown User';
+                                          final caption = post['caption'] ?? '';
+                                          return Post(
+                                            username: username,
+                                            caption: caption,
+                                            isLiked: false,
+                                            isPlaying: false,
+                                            isCurrentTrack: false,
+                                            onLike: () {},
+                                            onComment: () {},
+                                            onShare: () {},
+                                            onPlayPause: () {},
+                                            onUsernameTap: () {},
+                                          );
+                                        },
+                                      );
+                                    },
+                                  )
                             : ExploreFeed(imageUrls: _exploreImages))
                 : ExploreFeed(imageUrls: _exploreImages),
           ),
