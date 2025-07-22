@@ -474,6 +474,8 @@ class FooterWidget extends StatelessWidget {
   final VoidCallback? onComment;
   final VoidCallback? onShare;
   final bool isLiked;
+  final int likeCount;
+  final int commentCount;
 
   const FooterWidget({
     super.key,
@@ -484,6 +486,8 @@ class FooterWidget extends StatelessWidget {
     this.onComment,
     this.onShare,
     this.isLiked = false,
+    this.likeCount = 0,
+    this.commentCount = 0,
   });
 
   @override
@@ -592,6 +596,8 @@ class Post extends StatelessWidget {
   final bool isLiked;
   final bool isPlaying;
   final bool isCurrentTrack;
+  final int likeCount;
+  final int commentCount;
 
   const Post({
     super.key,
@@ -610,6 +616,8 @@ class Post extends StatelessWidget {
     this.isLiked = false,
     this.isPlaying = false,
     this.isCurrentTrack = false,
+    this.likeCount = 0,
+    this.commentCount = 0,
   });
 
   @override
@@ -635,6 +643,8 @@ class Post extends StatelessWidget {
             onComment: onComment,
             onShare: onShare,
             isLiked: isLiked,
+            likeCount: likeCount,
+            commentCount: commentCount,
           ),
         ],
       ),

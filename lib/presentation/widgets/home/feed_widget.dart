@@ -268,12 +268,12 @@ class _FeedWidgetState extends State<FeedWidget> {
                   isPlaying: widget.isPlaying,
                   isCurrentTrack:
                       widget.currentlyPlayingTrackId == post.trackId,
-                  // Add this line:
                   onUsernameTap: () {
                     if (widget.onUserTap != null && post.userId != null) {
                       widget.onUserTap!(post.userId!); // Use ! to assert non-null
                     }
                   },
+                  // likeCount and commentCount intentionally omitted for home/feed
                 ),
               ],
             ),
