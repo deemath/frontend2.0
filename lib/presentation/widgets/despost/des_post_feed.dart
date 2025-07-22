@@ -155,6 +155,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                 // Layer for post widget
                 Post(
                   trackId: post['trackId'] ?? '',
+                  postId: post['_id'],
                   songName: post['songName'] ?? '',
                   artists: post['artists'] ?? '',
                   albumImage: post['albumImage'] ?? '',
@@ -163,10 +164,11 @@ class _FeedWidgetState extends State<FeedWidget> {
                   userImage: 'assets/images/profile_picture.jpg',
                   descriptionTitle: post['title'],
                   description: post['description'],
-                  onLike: () => print('Liked post: \\${post['_id']}'),
-                  onComment: () => print('Comment: \\${post['_id']}'),
+                  onLike: () => print('Liked post: ${post['_id']}'),
+                  onComment: () => print('Comment: ${post['_id']}'),
                   isLiked: false,
                   isPlaying: false,
+                  backgroundColor: backgroundColor, // Add this line
                 ),
               ],
             ),

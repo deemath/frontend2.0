@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import '../../../screens/desPost/desPost_screen.dart'; // Add this import
 
 // ========== HeaderWidget ==========
 class HeaderWidget extends StatelessWidget {
@@ -93,12 +94,36 @@ class PostArtWidget extends StatefulWidget {
   final String? albumImage;
   final String? title;
   final String? description;
+  final String? postId;
+  // Add all the missing parameters
+  final String? trackId;
+  final String? songName;
+  final String? artists;
+  final String? caption;
+  final String? username;
+  final String? userImage;
+  final bool isLiked;
+  final bool isPlaying;
+  final bool isCurrentTrack;
+  final Color? backgroundColor; // Add this line
 
   const PostArtWidget({
     super.key,
     this.albumImage,
     this.title,
     this.description,
+    this.postId,
+    // Add all the missing parameters to constructor
+    this.trackId,
+    this.songName,
+    this.artists,
+    this.caption,
+    this.username,
+    this.userImage,
+    this.isLiked = false,
+    this.isPlaying = false,
+    this.isCurrentTrack = false,
+    this.backgroundColor, // Add this line
   });
 
   @override
@@ -108,96 +133,156 @@ class PostArtWidget extends StatefulWidget {
 class _PostArtWidgetState extends State<PostArtWidget> {
   bool _showFull = false;
 
+  void _navigateToPost(BuildContext context) {
+    if (widget.postId != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => PostDetailPage(
+            postId: widget.postId,
+            trackId: widget.trackId,
+            songName: widget.songName,
+            artists: widget.artists,
+            albumImage: widget.albumImage,
+            caption: widget.caption,
+            username: widget.username,
+            userImage: widget.userImage,
+            descriptionTitle: widget.title,
+            description: widget.description,
+            isLiked: widget.isLiked,
+            isPlaying: widget.isPlaying,
+            isCurrentTrack: widget.isCurrentTrack,
+            backgroundColor: widget.backgroundColor, // Add this line
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final description = widget.description ?? '';
     final title = widget.title ?? '';
-    const fixedFontSize = 14.0;
+    const fixedFontSize = 12.0;
 
-    final descriptionStyle = const TextStyle(
-      color: Colors.white70,
-      fontSize: fixedFontSize,
-      height: 1.4,
-    );
+    return Flexible(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double totalWidth = constraints.maxWidth;
+            final double imageSize = totalWidth * 0.20;
 
-    // Truncate title and description
-    String displayTitle =
-        title.length > 30 ? title.substring(0, 30) + '...' : title;
-    String displayDescription = description.length > 100
-        ? description.substring(0, 100) + '...'
-        : description;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final double totalWidth = constraints.maxWidth;
-          final double imageSize = totalWidth * 0.20;
-          // final double textWidth = totalWidth - imageSize - 12;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top row: image + title + side text
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Album image
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      width: imageSize,
-                      height: imageSize,
-                      color: Colors.grey.shade800,
-                      child: widget.albumImage != null &&
-                              widget.albumImage!.startsWith('http')
-                          ? Image.network(
-                              widget.albumImage!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Image.asset(
-                                'assets/images/song.png',
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : Image.asset(
-                              'assets/images/song.png',
-                              fit: BoxFit.cover,
-                            ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-
-                  // Right side text
-                  Expanded(
-                    child: Column(
+            return InkWell(
+              onTap: () => _navigateToPost(context),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AutoSizeText(
-                          displayTitle,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: imageSize,
+                            height: imageSize,
+                            color: Colors.grey.shade800,
+                            child: widget.albumImage != null &&
+                                    widget.albumImage!.startsWith('http')
+                                ? Image.network(
+                                    widget.albumImage!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Image.asset(
+                                      'assets/images/song.png',
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : Image.asset(
+                                    'assets/images/song.png',
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 6),
-                        AutoSizeText(
-                          displayDescription,
-                          style: descriptionStyle,
-                          maxLines: 3,
-                          minFontSize: 12,
-                          overflow: TextOverflow.ellipsis,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  int titleLimit = constraints.maxWidth > 200
+                                      ? 35
+                                      : constraints.maxWidth > 150
+                                          ? 25
+                                          : 15;
+
+                                  String responsiveTitle = title.length >
+                                          titleLimit
+                                      ? title.substring(0, titleLimit) + '...'
+                                      : title;
+
+                                  return AutoSizeText(
+                                    responsiveTitle,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    minFontSize: 10,
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 6),
+                              Flexible(
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    int descLimit = constraints.maxWidth > 200
+                                        ? 100
+                                        : constraints.maxWidth > 150
+                                            ? 70
+                                            : 40;
+                                    int maxLines = constraints.maxHeight > 60
+                                        ? 3
+                                        : constraints.maxHeight > 40
+                                            ? 2
+                                            : 1;
+
+                                    String responsiveDesc = description.length >
+                                            descLimit
+                                        ? description.substring(0, descLimit) +
+                                            '...'
+                                        : description;
+
+                                    return AutoSizeText(
+                                      responsiveDesc,
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: fixedFontSize,
+                                        height: 1.2,
+                                      ),
+                                      maxLines: maxLines,
+                                      minFontSize: 8,
+                                      overflow: TextOverflow.ellipsis,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -257,6 +342,7 @@ class TrackDetailWidget extends StatelessWidget {
           songName ?? '',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 241, 241, 241),
             fontSize: 14,
           ),
           overflow: TextOverflow.ellipsis,
@@ -267,7 +353,7 @@ class TrackDetailWidget extends StatelessWidget {
           artists ?? '',
           style: TextStyle(
             fontSize: 13,
-            color: Colors.grey[600],
+            color: const Color.fromARGB(255, 199, 198, 198),
           ),
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
