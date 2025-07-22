@@ -16,7 +16,6 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
   String bio = '';
   String profileImage = '';
   String fullName = '';
-  String username = '';
   bool isLoading = false;
 
   Future<void> _submitProfile() async {

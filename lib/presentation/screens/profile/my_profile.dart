@@ -12,6 +12,7 @@ import 'settings/create_profile.dart';
 import './settings/options.dart';
 import 'followers_list.dart';
 import 'following_list.dart';
+import 'profile_feed_screen.dart';
 
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
@@ -263,6 +264,18 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
                 );
               }
             },
+            // Make posts clickable
+            onPostTap: (postId) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileFeedScreen(
+                    userId: userId!,
+                    initialPostId: postId,
+                  ),
+                ),
+              );
+            },
           ),
           // --- Add Edit Profile Button ---
           Padding(
@@ -321,6 +334,18 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
                         showGrid: true,
                         profileImage: profile!.profileImage,
                         postsList: posts,
+                        // Make posts clickable in grid tab as well
+                        onPostTap: (postId) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfileFeedScreen(
+                                userId: userId!,
+                                initialPostId: postId,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       const DescriptionPostsTab(),
                       const TaggedPostsTab(),

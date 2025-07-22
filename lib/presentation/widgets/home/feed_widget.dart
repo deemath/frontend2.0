@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../song_post/post.dart';
 import '../song_post/post_shape.dart';
 import '../../../data/models/post_model.dart' as data_model;
@@ -18,6 +19,9 @@ class FeedWidget extends StatefulWidget {
   final String? currentlyPlayingTrackId;
   final bool isPlaying;
   final void Function(String userId)? onUserTap;
+  final int initialIndex;
+  final ItemScrollController? itemScrollController;
+  final ItemPositionsListener? itemPositionsListener;
 
   const FeedWidget({
     Key? key,
@@ -32,6 +36,9 @@ class FeedWidget extends StatefulWidget {
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
     this.onUserTap,
+    this.initialIndex = 0,
+    this.itemScrollController,
+    this.itemPositionsListener,
   }) : super(key: key);
 
   @override
@@ -48,10 +55,28 @@ class _FeedWidgetState extends State<FeedWidget> {
         : const Color(0xFFF5F5F5);
   }
 
+  final ItemScrollController _itemScrollController = ItemScrollController();
+  final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();
+
+  bool _hasJumped = false;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _jumpToInitialIndex();
+    });
     _extractColorsFromAlbumImages();
+  }
+
+  void _jumpToInitialIndex() {
+    if (widget.initialIndex > 0 &&
+        widget.posts != null &&
+        widget.posts!.isNotEmpty &&
+        _itemScrollController.isAttached) {
+      _itemScrollController.jumpTo(index: widget.initialIndex);
+    }
   }
 
   @override
@@ -59,6 +84,9 @@ class _FeedWidgetState extends State<FeedWidget> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.posts != widget.posts) {
       _extractColorsFromAlbumImages();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _jumpToInitialIndex();
+      });
     }
   }
 
@@ -201,7 +229,9 @@ class _FeedWidgetState extends State<FeedWidget> {
           widget.onRefresh!();
         }
       },
-      child: ListView.builder(
+      child: ScrollablePositionedList.builder(
+        itemScrollController: widget.itemScrollController,
+        itemPositionsListener: widget.itemPositionsListener,
         itemCount: widget.posts!.length,
         itemBuilder: (context, index) {
           final post = widget.posts![index];
@@ -270,7 +300,8 @@ class _FeedWidgetState extends State<FeedWidget> {
                       widget.currentlyPlayingTrackId == post.trackId,
                   onUsernameTap: () {
                     if (widget.onUserTap != null && post.userId != null) {
-                      widget.onUserTap!(post.userId!); // Use ! to assert non-null
+                      widget
+                          .onUserTap!(post.userId!); // Use ! to assert non-null
                     }
                   },
                   // likeCount and commentCount intentionally omitted for home/feed
