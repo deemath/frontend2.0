@@ -136,32 +136,20 @@ class AlbumArtPostsTab extends StatelessWidget {
                                   bottom: 4,
                                   left: 4,
                                   right: 4,
-                                  child: Container(
-                                    color: Colors.black54,
-                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        if (likeCount > 0)
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.favorite, color: Colors.purple, size: 16),
-                                              const SizedBox(width: 2),
-                                              Text('$likeCount', style: const TextStyle(color: Colors.white, fontSize: 12)),
-                                            ],
-                                          )
-                                        else
-                                          const Icon(Icons.favorite_border, color: Colors.white, size: 16),
-                                        if (commentCount > 0)
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.comment, color: Colors.white, size: 16),
-                                              const SizedBox(width: 2),
-                                              Text('$commentCount', style: const TextStyle(color: Colors.white, fontSize: 12)),
-                                            ],
-                                          ),
-                                      ],
-                                    ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      if (likeCount > 0)
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.favorite, color: Colors.purple, size: 16),
+                                            const SizedBox(width: 2),
+                                            Text('$likeCount', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                                          ],
+                                        )
+                                      else
+                                        const Icon(Icons.favorite_border, color: Colors.white, size: 16),
+                                    ],
                                   ),
                                 ),
                             ],
