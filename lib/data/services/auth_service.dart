@@ -47,8 +47,12 @@ class AuthService {
           // Update user data in auth provider
           authProvider.setUser(responseData['user']);
 
+          // Set the token and update authentication status to true
+          authProvider.setToken(token);
+
           // Return both token and user data
           return {
+            'status': 200, // Using status for consistency with login_screen
             'success': true,
             'user': responseData['user'],
             'token': token,
