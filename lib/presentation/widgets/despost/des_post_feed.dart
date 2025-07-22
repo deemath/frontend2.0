@@ -19,7 +19,7 @@ class _FeedWidgetState extends State<FeedWidget> {
       "artists": "Pretty Patterns",
       "albumImage":
           "https://i.scdn.co/image/ab67616d0000b273371ea9340b6b2157e8adc10f",
-      "caption": "guliguli", // WHAT IS A CAPTION? - RAVINDU
+      "caption": "guliguli", // WHAT IS A CAPTION? - RAVINDU   need to remove forgot to remove it from here keep it just for now -irushi
       "username": "owl",
       "title": "This song hits different",
       "description":
