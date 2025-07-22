@@ -14,6 +14,7 @@ import './settings/options.dart';
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../data/models/post_model.dart';
 
 class NormalUserProfilePage extends StatefulWidget {
   static const routeName = '/profile/normal';
@@ -75,12 +76,14 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
     final profileService = ProfileService();
     final profileResult = await profileService.getUserProfile(userId!);
     final postsResult = await profileService.getUserPosts(userId!);
+    // Convert each map to a Post object
+    final postObjects = postsResult.map((json) => Post.fromJson(json)).toList();
     final albumImagesResult = await profileService.getUserAlbumImages(userId!);
 
     if (profileResult['success'] == true && profileResult['data'] != null) {
       setState(() {
         profile = ProfileModel.fromJson(profileResult['data']);
-        posts = postsResult;
+        posts = postObjects;
         albumImages = albumImagesResult;
 
         profileNotFound = false;
@@ -221,7 +224,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
             description: profile?.bio ?? '',
             showGrid: false,
             profileImage: profile?.profileImage ?? '',
-
+            postsList: posts,
           ),
           // --- Add Edit Profile Button ---
           Padding(
@@ -275,6 +278,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
                         description: profile!.bio,
                         showGrid: true,
                         profileImage: profile!.profileImage,
+                        postsList: posts,
                       ),
                       const DescriptionPostsTab(),
                       const TaggedPostsTab(),

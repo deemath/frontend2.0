@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/common/musicplayer_bar.dart';
 import '../../../data/services/song_post_service.dart';
+import 'create_noot_preview.dart';
 
 class CreateNewNootPage extends StatefulWidget {
   final Map<String, dynamic> track;
@@ -56,8 +57,8 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
               backgroundColor: Colors.green,
             ),
           );
-          // Navigate back to previous screen
-          Navigator.of(context).pop();
+          // Navigate back to home screen
+          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       } else {
         // Show error message
@@ -86,6 +87,30 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
         });
       }
     }
+  }
+
+  void _showPreview() {
+    final track = widget.track;
+    final String songName = track['name'] ?? '';
+    final String artists = track['artists'] is List
+        ? track['artists'].join(", ")
+        : track['artists'].toString();
+    final String? albumImage = track['album'];
+    final String caption = _captionController.text.trim();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateNootPreviewPage(
+          track: track,
+          songName: songName,
+          artists: artists,
+          albumImage: albumImage,
+          caption: caption,
+          createPost: _createPost,
+        ),
+      ),
+    );
   }
 
   @override
@@ -152,33 +177,65 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
             ),
           ),
           const Spacer(),
+          // Updated button section with Preview and Share buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _createPost,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8E08EF),
-                  foregroundColor: Colors.white,
-                  textStyle: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            child: Row(
+              children: [
+                // Preview Button
+                Expanded(
+                  child: SizedBox(
+                    height: 56,
+                    child: OutlinedButton(
+                      onPressed: _showPreview,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF8E08EF),
+                        side: const BorderSide(
+                          color: Color(0xFF8E08EF),
+                          width: 2,
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold, 
+                          fontSize: 18
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Preview'),
+                    ),
                   ),
                 ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
+                const SizedBox(width: 16),
+                // Share Button
+                Expanded(
+                  child: SizedBox(
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _createPost,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF8E08EF),
+                        foregroundColor: Colors.white,
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      )
-                    : const Text('Share'),
-              ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text('Share'),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

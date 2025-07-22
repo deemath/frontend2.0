@@ -108,6 +108,27 @@ class ProfileService {
     }
   }
 
+  // Fetch user's post stats (likes/comments for each post)
+  Future<List<dynamic>> getUserPostStats(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/post-stats/$userId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          return data;
+        }
+        return [];
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
+  }
+
   // Update user profile info
   Future<Map<String, dynamic>> updateProfile(
       String userId, Map<String, dynamic> updateData) async {
