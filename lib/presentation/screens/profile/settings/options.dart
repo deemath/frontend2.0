@@ -5,11 +5,6 @@ import '../../../../core/providers/auth_provider.dart';
 class OptionsPage extends StatelessWidget {
   const OptionsPage({Key? key}) : super(key: key);
 
-  void _logout(BuildContext context) {
-    Provider.of<AuthProvider>(context, listen: false).logout();
-    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +49,11 @@ class OptionsPage extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Logout', style: TextStyle(color: Colors.red)),
-            onTap: () => _logout(context),
+            onTap: () async {
+              await Provider.of<AuthProvider>(context, listen: false).logout();
+              Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              
+            },
           ),
         ],
       ),

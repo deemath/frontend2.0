@@ -60,11 +60,12 @@ class AuthProvider with ChangeNotifier {
     setToken(token);
   }
 
-  void logout() async {
+  Future<void> logout() async {
     _user = null;
     _token = null;
     _isAuthenticated = false;
-    await _clearUserDataFromSharedPreferences();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
     notifyListeners();
   }
 
