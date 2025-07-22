@@ -10,6 +10,8 @@ import 'settings/edit_profile.dart';
 
 import 'settings/create_profile.dart';
 import './settings/options.dart';
+import 'followers_list.dart';
+import 'following_list.dart';
 
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
@@ -36,7 +38,7 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
   bool isLoading = true;
 
   bool profileNotFound = false;
-
+  int postCount = 0;
 
   @override
   void initState() {
@@ -80,11 +82,19 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
     final postObjects = postsResult.map((json) => Post.fromJson(json)).toList();
     final albumImagesResult = await profileService.getUserAlbumImages(userId!);
 
+    // --- Fetch post count from backend ---
+    final postCountResult = await profileService.getUserPostCount(userId!);
+    int fetchedPostCount = 0;
+    if (postCountResult != null && postCountResult['postCount'] != null) {
+      fetchedPostCount = postCountResult['postCount'];
+    }
+
     if (profileResult['success'] == true && profileResult['data'] != null) {
       setState(() {
         profile = ProfileModel.fromJson(profileResult['data']);
         posts = postObjects;
         albumImages = albumImagesResult;
+        postCount = fetchedPostCount;
 
         profileNotFound = false;
         isLoading = false;
@@ -98,7 +108,6 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
       });
     } else {
       setState(() {
-
         profile = null;
         profileNotFound = false;
 
@@ -133,7 +142,6 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
         ),
       );
     }
-
 
     if (profile == null && profileNotFound) {
       return Scaffold(
@@ -179,7 +187,6 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
       );
     }
 
-
     if (profile == null) {
       return const Scaffold(
         backgroundColor: Colors.black,
@@ -191,7 +198,6 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
 
     return Scaffold(
       appBar: AppBar(
-
         // Remove leading, add actions for right top
         title: Text(profile?.username ?? 'Profile'),
         centerTitle: true,
@@ -209,15 +215,14 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
             },
           ),
         ],
-
       ),
       body: Column(
         children: [
           // Profile details (header, stats, description)
           AlbumArtPostsTab(
-
             username: profile?.username ?? '',
-            posts: profile?.posts ?? 0,
+            fullName: profile?.fullName ?? '',
+            posts: postCount,
             followers: profile?.followers.length ?? 0,
             following: profile?.following.length ?? 0,
             albumImages: albumImages,
@@ -225,6 +230,38 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
             showGrid: false,
             profileImage: profile?.profileImage ?? '',
             postsList: posts,
+
+            // --- Add gesture detectors for followers/following ---
+            onFollowersTap: () async {
+              if (profile != null) {
+                final profileService = ProfileService();
+                final followersList = await profileService
+                    .getFollowersListWithDetails(profile!.userId);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FollowersListPage(
+                      followers: followersList,
+                    ),
+                  ),
+                );
+              }
+            },
+            onFollowingTap: () async {
+              if (profile != null) {
+                final profileService = ProfileService();
+                final followingList = await profileService
+                    .getFollowingListWithDetails(profile!.userId);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FollowingListPage(
+                      following: followingList,
+                    ),
+                  ),
+                );
+              }
+            },
           ),
           // --- Add Edit Profile Button ---
           Padding(
@@ -264,14 +301,14 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
           ),
           // TabBarView for posts
           Expanded(
-
             child: profile != null
                 ? TabBarView(
                     controller: _tabController,
                     children: [
                       AlbumArtPostsTab(
                         username: profile!.username,
-                        posts: profile!.posts,
+                        fullName: profile!.fullName,
+                        posts: postCount,
                         followers: profile!.followers.length,
                         following: profile!.following.length,
                         albumImages: albumImages,
@@ -290,7 +327,6 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
-
           ),
         ],
       ),

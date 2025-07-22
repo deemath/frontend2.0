@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/profile/profile_stat_column.dart';
 import '../../../../data/services/profile_service.dart';
-
+import '../../../widgets/profile/profile_header.dart';
 
 class AlbumArtPostsTab extends StatelessWidget {
   final String username;
+  final String fullName;
   final int posts;
   final int followers;
   final int following;
@@ -13,10 +14,13 @@ class AlbumArtPostsTab extends StatelessWidget {
   final bool showGrid;
   final String? profileImage;
   final List<dynamic> postsList;
+  final VoidCallback? onFollowersTap;
+  final VoidCallback? onFollowingTap;
 
   const AlbumArtPostsTab({
     Key? key,
     required this.username,
+    required this.fullName,
     required this.posts,
     required this.followers,
     required this.following,
@@ -24,15 +28,15 @@ class AlbumArtPostsTab extends StatelessWidget {
     required this.description,
     this.showGrid = true,
     this.profileImage,
-    required this.postsList, 
+    required this.postsList,
+    this.onFollowersTap,
+    this.onFollowingTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final userId = postsList.isNotEmpty
-        ? (postsList[0] is Map
-            ? postsList[0]['userId']
-            : postsList[0].userId)
+        ? (postsList[0] is Map ? postsList[0]['userId'] : postsList[0].userId)
         : '';
     return FutureBuilder<List<dynamic>>(
       future: ProfileService().getUserPostStats(userId),
@@ -43,8 +47,8 @@ class AlbumArtPostsTab extends StatelessWidget {
             children: [
               if (!showGrid) ...[
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 24.0, horizontal: 16.0),
                   child: Row(
                     children: [
                       CircleAvatar(
@@ -60,8 +64,16 @@ class AlbumArtPostsTab extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             ProfileStatColumn(label: 'Posts', count: posts),
-                            ProfileStatColumn(label: 'Followers', count: followers),
-                            ProfileStatColumn(label: 'Following', count: following),
+                            GestureDetector(
+                              onTap: onFollowersTap,
+                              child: ProfileStatColumn(
+                                  label: 'Followers', count: followers),
+                            ),
+                            GestureDetector(
+                              onTap: onFollowingTap,
+                              child: ProfileStatColumn(
+                                  label: 'Following', count: following),
+                            ),
                           ],
                         ),
                       ),
@@ -76,7 +88,7 @@ class AlbumArtPostsTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          username,
+                          fullName.isNotEmpty ? fullName : username,
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -121,8 +133,10 @@ class AlbumArtPostsTab extends StatelessWidget {
                             orElse: () => null,
                           );
                           print('post.id: $postId, stat: $stat');
-                          final likeCount = stat != null ? stat['likes'] ?? 0 : 0;
-                          final commentCount = stat != null ? stat['commentsCount'] ?? 0 : 0;
+                          final likeCount =
+                              stat != null ? stat['likes'] ?? 0 : 0;
+                          final commentCount =
+                              stat != null ? stat['commentsCount'] ?? 0 : 0;
                           return Stack(
                             children: [
                               Image.network(
@@ -136,20 +150,45 @@ class AlbumArtPostsTab extends StatelessWidget {
                                   bottom: 4,
                                   left: 4,
                                   right: 4,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      if (likeCount > 0)
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.favorite, color: Colors.purple, size: 16),
-                                            const SizedBox(width: 2),
-                                            Text('$likeCount', style: const TextStyle(color: Colors.white, fontSize: 12)),
-                                          ],
-                                        )
-                                      else
-                                        const Icon(Icons.favorite_border, color: Colors.white, size: 16),
-                                    ],
+                                  child: Container(
+                                    color: Colors.black54,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4, vertical: 2),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        if (likeCount > 0)
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.favorite,
+                                                  color: Colors.purple,
+                                                  size: 16),
+                                              const SizedBox(width: 2),
+                                              Text('$likeCount',
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12)),
+                                            ],
+                                          )
+                                        else
+                                          const Icon(Icons.favorite_border,
+                                              color: Colors.white, size: 16),
+                                        if (commentCount > 0)
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.comment,
+                                                  color: Colors.white,
+                                                  size: 16),
+                                              const SizedBox(width: 2),
+                                              Text('$commentCount',
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12)),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                             ],

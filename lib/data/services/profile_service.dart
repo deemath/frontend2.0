@@ -190,4 +190,67 @@ class ProfileService {
       };
     }
   }
+
+  // Fetch user post count
+  Future<Map<String, dynamic>?> getUserPostCount(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/$userId/post_count'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Should contain userId and postCount
+        if (data is Map<String, dynamic> && data.containsKey('postCount')) {
+          return data;
+        }
+        return {'userId': userId, 'postCount': 0};
+      }
+      return {'userId': userId, 'postCount': 0};
+    } catch (e) {
+      return {'userId': userId, 'postCount': 0};
+    }
+  }
+
+  // Fetch followers with username and profileImage
+  Future<List<dynamic>> getFollowersListWithDetails(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/$userId/followers'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          return data;
+        }
+        return [];
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Fetch following with username and profileImage
+  Future<List<dynamic>> getFollowingListWithDetails(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/$userId/following'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          return data;
+        }
+        return [];
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
+  }
 }
