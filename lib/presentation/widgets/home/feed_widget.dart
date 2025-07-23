@@ -18,6 +18,8 @@ class FeedWidget extends StatefulWidget {
   final String? currentlyPlayingTrackId;
   final bool isPlaying;
   final void Function(String userId)? onUserTap;
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
 
   const FeedWidget({
     Key? key,
@@ -32,6 +34,8 @@ class FeedWidget extends StatefulWidget {
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
     this.onUserTap,
+    this.shrinkWrap = false,
+    this.physics,
   }) : super(key: key);
 
   @override
@@ -202,6 +206,8 @@ class _FeedWidgetState extends State<FeedWidget> {
         }
       },
       child: ListView.builder(
+        shrinkWrap: widget.shrinkWrap,
+        physics: widget.physics,
         itemCount: widget.posts!.length,
         itemBuilder: (context, index) {
           final post = widget.posts![index];

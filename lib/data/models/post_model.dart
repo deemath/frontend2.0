@@ -84,7 +84,7 @@ class Post {
       userId: json['userId'] as String?,
       username: json['username'] as String?,
       likes: json['likes'] ?? 0,
-      commentsCount: json['comments'] is int ? json['comments'] : (json['comments'] as List).length,
+      commentsCount: (json['comments'] is List) ? (json['comments'] as List).length : (json['comments'] is int ? json['comments'] : 0),
       likedBy: (json['likedBy'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       likedByMe: false,
       createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
