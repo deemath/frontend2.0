@@ -5,11 +5,15 @@ import 'package:frontend/presentation/widgets/song_post/post.dart';
 import 'package:frontend/presentation/widgets/search/explore_feed.dart';
 import 'package:frontend/presentation/widgets/search/segmant_divider.dart';
 import 'package:frontend/presentation/widgets/song_post/post_shape.dart';
+import 'package:frontend/presentation/widgets/despost/widgets/des_post_content_widget.dart' as DesPost;
+import 'package:frontend/presentation/widgets/home/feed_widget.dart';
+import 'package:frontend/data/models/post_model.dart' as data_model;
 
 import 'package:frontend/presentation/widgets/search/searchbar.dart';
 
 import 'package:frontend/presentation/widgets/search/category_selector.dart';
 import 'package:frontend/presentation/widgets/search/user_search_results.dart';
+import 'package:frontend/presentation/widgets/search/fanbase_search_results.dart';
 
 class SearchFeedScreen extends StatefulWidget {
   const SearchFeedScreen({Key? key}) : super(key: key);
@@ -55,11 +59,9 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
   final List<String> _segments = [
     'All',
     'People',
-    'Pages',
-    'Song Posts',
     'Posts',
+    'Song Posts',
     'Fanbases',
-    'Playlists'
   ];
 
   final SearchService _searchService = SearchService();
@@ -133,7 +135,7 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
           leading: CircleAvatar(
             backgroundImage: AssetImage('assets/images/hehe.png'),
           ),
-          title: Text('Temporary Post #\$index'),
+          title: Text('Temporary Post #$index'),
           subtitle:
               const Text('This is a temporary post shown in search feed.'),
           onTap: () {
@@ -178,6 +180,105 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
             child: showResults
                 ? (_isLoading
                     ? const Center(child: CircularProgressIndicator())
+                    : _selectedSegment == 0 // All
+                        ? SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if ((_searchResults['users'] ?? []).isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'People',
+                                      style: Theme.of(context).textTheme.headlineSmall,
+                                    ),
+                                  ),
+                                if ((_searchResults['users'] ?? []).isNotEmpty)
+                                  UserSearchResults(
+                                    users: (_searchResults['users'] ?? []) as List,
+                                    query: _query,
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                  ),
+                                if ((_searchResults['fanbases'] ?? []).isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'Fanbases',
+                                      style: Theme.of(context).textTheme.headlineSmall,
+                                    ),
+                                  ),
+                                if ((_searchResults['fanbases'] ?? []).isNotEmpty)
+                                  FanbaseSearchResults(
+                                    fanbases: (_searchResults['fanbases'] ?? []) as List,
+                                    query: _query,
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                  ),
+                                if ((_searchResults['posts'] ?? []).isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'Posts',
+                                      style: Theme.of(context).textTheme.headlineSmall,
+                                    ),
+                                  ),
+                                if ((_searchResults['posts'] ?? []).isNotEmpty)
+                                  ListView.separated(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: (_searchResults['posts'] ?? []).length,
+                                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                                    itemBuilder: (context, index) {
+                                      final post = (_searchResults['posts'] ?? [])[index];
+                                      return DesPost.Post(
+                                        trackId: post['trackId'] ?? '',
+                                        songName: post['songName'] ?? '',
+                                        artists: post['artists'] ?? '',
+                                        albumImage: post['albumImage'] ?? '',
+                                        caption: post['caption'] ?? '',
+                                        username: post['username'] ?? 'Unknown User',
+                                        userImage: post['userImage'] ?? 'assets/images/profile_picture.jpg',
+                                        descriptionTitle: post['topic'] ?? '',
+                                        description: post['description'] ?? '',
+                                        onLike: () => print('Liked post: ${post['_id']}'),
+                                        onComment: () => print('Comment: ${post['_id']}'),
+                                        onShare: () => print('Share: ${post['_id']}'),
+                                        onPlayPause: () => print('Play/Pause: ${post['_id']}'),
+                                        onUsernameTap: () => print('Username tap: ${post['username']}'),
+                                        isLiked: false,
+                                        isPlaying: false,
+                                        isCurrentTrack: false,
+                                      );
+                                    },
+                                  ),
+                                if ((_searchResults['songPosts'] ?? []).isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'Song Posts',
+                                      style: Theme.of(context).textTheme.headlineSmall,
+                                    ),
+                                  ),
+                                if ((_searchResults['songPosts'] ?? []).isNotEmpty)
+                                  FeedWidget(
+                                    posts: (_searchResults['songPosts'] ?? []).map<data_model.Post>((post) => data_model.Post.fromJson(post)).toList(),
+                                    isLoading: false,
+                                    error: null,
+                                    onRefresh: () {},
+                                    onLike: (post) => print('Liked song post: ${post.id}'),
+                                    onComment: (post) => print('Comment song post: ${post.id}'),
+                                    onPlay: (post) => print('Play/Pause song post: ${post.id}'),
+                                    onShare: (post) => print('Share song post: ${post.id}'),
+                                    currentlyPlayingTrackId: null,
+                                    isPlaying: false,
+                                    onUserTap: (userId) => print('User tapped: $userId'),
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                  ),
+                              ],
+                            ),
+                          )
                     : _selectedSegment == 1 // People
                         ? Builder(
                             builder: (context) {
@@ -195,6 +296,7 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
                                   final songPosts =
                                       (_searchResults['songPosts'] ?? [])
                                           as List;
+                                  print('Song Posts data from search results: $songPosts');
                                   if (songPosts.isEmpty) {
                                     return Padding(
                                       padding: const EdgeInsets.all(32.0),
@@ -212,176 +314,83 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
                                     );
                                   }
                                   // Show song posts as a vertical list
+                                  return FeedWidget(
+                                    posts: songPosts.map<data_model.Post>((post) => data_model.Post.fromJson(post)).toList(),
+                                    isLoading: false,
+                                    error: null,
+                                    onRefresh: () {},
+                                    onLike: (post) => print('Liked song post: ${post.id}'),
+                                    onComment: (post) => print('Comment song post: ${post.id}'),
+                                    onPlay: (post) => print('Play/Pause song post: ${post.id}'),
+                                    onShare: (post) => print('Share song post: ${post.id}'),
+                                    currentlyPlayingTrackId: null,
+                                    isPlaying: false,
+                                    onUserTap: (userId) => print('User tapped: $userId'),
+                                  );
+                                },
+                              )
+                        : _selectedSegment == 4 // Fanbases
+                            ? Builder(
+                                builder: (context) {
+                                  final fanbases =
+                                      (_searchResults['fanbases'] ?? [])
+                                          as List;
+                                  return FanbaseSearchResults(
+                                    fanbases: fanbases,
+                                    query: _query,
+                                  );
+                                },
+                              )
+                        : _selectedSegment == 2 // Posts
+                            ? Builder(
+                                builder: (context) {
+                                  final posts =
+                                      (_searchResults['posts'] ?? [])
+                                          as List;
+                                  if (posts.isEmpty) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(32.0),
+                                      child: Center(
+                                        child: Text(
+                                          'no related results',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[600]),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  // Show only topics of posts as a vertical list
                                   return ListView.separated(
-                                    itemCount: songPosts.length,
+                                    itemCount: posts.length,
                                     separatorBuilder: (context, index) =>
-                                        const SizedBox(height: 16),
+                                        const SizedBox(height: 8),
                                     itemBuilder: (context, index) {
-                                      final post = songPosts[index];
-                                      final img = post['albumImage'] ??
-                                          'assets/images/song.png';
-                                      final isNetwork = img is String &&
-                                          img.startsWith('http');
-                                      final username =
-                                          post['username'] ?? 'Unknown User';
-                                      final songName =
-                                          post['name'] ?? 'Unknown Song';
-                                      return Container(
-                                        margin: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 0),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black
-                                                  .withOpacity(0.04),
-                                              blurRadius: 4,
-                                              offset: const Offset(0, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            // Username
-                                            Padding(
-                                              padding: const EdgeInsets.fromLTRB(
-                                                  12, 12, 12, 4),
-                                              child: Text(
-                                                username,
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 15),
-                                              ),
-                                            ),
-                                            // Song name (minor opacity)
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 12),
-                                              child: Text(
-                                                songName,
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  color: Colors.black.withOpacity(0.5),
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            // Album image
-                                            AspectRatio(
-                                              aspectRatio: 1,
-                                              child: ClipRRect(
-                                                borderRadius: BorderRadius.circular(10),
-                                                child: isNetwork
-                                                    ? Image.network(
-                                                        img,
-                                                        fit: BoxFit.cover,
-                                                        errorBuilder: (context, error, stackTrace) =>
-                                                            const Icon(Icons.broken_image, size: 80),
-                                                      )
-                                                    : Image.asset(
-                                                        img,
-                                                        fit: BoxFit.cover,
-                                                        errorBuilder: (context, error, stackTrace) =>
-                                                            const Icon(Icons.broken_image, size: 80),
-                                                      ),
-                                              ),
-                                            ),
-                                            // Like, Comment, Share row
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  IconButton(
-                                                    icon: const Icon(Icons.favorite_border, size: 26),
-                                                    onPressed: () {},
-                                                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  IconButton(
-                                                    icon: const Icon(Icons.mode_comment_outlined, size: 26),
-                                                    onPressed: () {},
-                                                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  IconButton(
-                                                    icon: const Icon(Icons.share_outlined, size: 26),
-                                                    onPressed: () {},
-                                                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            // Optional: Caption
-                                            if (post['caption'] != null && post['caption'].toString().isNotEmpty)
-                                              Padding(
-                                                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                                                child: Text(
-                                                  post['caption'],
-                                                  style: const TextStyle(fontSize: 13, color: Colors.black87),
-                                                ),
-                                              ),
-                                            const SizedBox(height: 4),
-                                          ],
-                                        ),
+                                      final post = posts[index];
+                                      return DesPost.Post(
+                                        trackId: post['trackId'] ?? '',
+                                        songName: post['songName'] ?? '',
+                                        artists: post['artists'] ?? '',
+                                        albumImage: post['albumImage'] ?? '',
+                                        caption: post['caption'] ?? '',
+                                        username: post['username'] ?? 'Unknown User',
+                                        userImage: post['userImage'] ?? 'assets/images/profile_picture.jpg',
+                                        descriptionTitle: post['topic'] ?? '',
+                                        description: post['description'] ?? '',
+                                        onLike: () => print('Liked post: ${post['_id']}'),
+                                        onComment: () => print('Comment: ${post['_id']}'),
+                                        onShare: () => print('Share: ${post['_id']}'),
+                                        onPlayPause: () => print('Play/Pause: ${post['_id']}'),
+                                        onUsernameTap: () => print('Username tap: ${post['username']}'),
+                                        isLiked: false,
+                                        isPlaying: false,
+                                        isCurrentTrack: false,
                                       );
                                     },
                                   );
                                 },
                               )
-                            : _selectedSegment == 4 // Posts
-                                ? Builder(
-                                    builder: (context) {
-                                      final posts =
-                                          (_searchResults['posts'] ?? [])
-                                              as List;
-                                      if (posts.isEmpty) {
-                                        return Padding(
-                                          padding: const EdgeInsets.all(32.0),
-                                          child: Center(
-                                            child: Text(
-                                              _query.isEmpty
-                                                  ? 'Start typing to search Posts...'
-                                                  : 'There is no related posts',
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.grey[600]),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                      // Show posts as a vertical list
-                                      return ListView.separated(
-                                        itemCount: posts.length,
-                                        separatorBuilder: (context, index) =>
-                                            const SizedBox(height: 16),
-                                        itemBuilder: (context, index) {
-                                          final post = posts[index];
-                                          final username =
-                                              post['username'] ?? 'Unknown User';
-                                          final caption = post['caption'] ?? '';
-                                          return Post(
-                                            username: username,
-                                            caption: caption,
-                                            isLiked: false,
-                                            isPlaying: false,
-                                            isCurrentTrack: false,
-                                            onLike: () {},
-                                            onComment: () {},
-                                            onShare: () {},
-                                            onPlayPause: () {},
-                                            onUsernameTap: () {},
-                                          );
-                                        },
-                                      );
-                                    },
-                                  )
                             : ExploreFeed(imageUrls: _exploreImages))
                 : ExploreFeed(imageUrls: _exploreImages),
           ),
@@ -390,4 +399,3 @@ class _SearchFeedScreenState extends State<SearchFeedScreen> {
     );
   }
 }
-// Duplicate block removed. File ends cleanly after the main Scaffold.

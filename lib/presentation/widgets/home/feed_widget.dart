@@ -19,9 +19,14 @@ class FeedWidget extends StatefulWidget {
   final String? currentlyPlayingTrackId;
   final bool isPlaying;
   final void Function(String userId)? onUserTap;
+
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
+
   final int initialIndex;
   final ItemScrollController? itemScrollController;
   final ItemPositionsListener? itemPositionsListener;
+
 
   const FeedWidget({
     Key? key,
@@ -36,9 +41,14 @@ class FeedWidget extends StatefulWidget {
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
     this.onUserTap,
+
+    this.shrinkWrap = false,
+    this.physics,
+
     this.initialIndex = 0,
     this.itemScrollController,
     this.itemPositionsListener,
+
   }) : super(key: key);
 
   @override
@@ -230,6 +240,8 @@ class _FeedWidgetState extends State<FeedWidget> {
         }
       },
       child: ScrollablePositionedList.builder(
+        shrinkWrap: widget.shrinkWrap,
+        physics: widget.physics,
         itemScrollController: widget.itemScrollController,
         itemPositionsListener: widget.itemPositionsListener,
         itemCount: widget.posts!.length,
