@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class PostDetailPage extends StatelessWidget {
   final String? postId;
@@ -64,21 +65,32 @@ class PostDetailPage extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    radius: 25,
-                    backgroundImage: userImage != null
-                        ? (userImage!.startsWith('http')
-                            ? NetworkImage(userImage!) as ImageProvider
-                            : AssetImage(userImage!))
-                        : const AssetImage('assets/images/profile_picture.jpg'),
+                  radius: 25,
+                  backgroundImage: userImage != null
+                    ? (userImage!.startsWith('http')
+                      ? NetworkImage(userImage!) as ImageProvider
+                      : AssetImage(userImage!))
+                    : const AssetImage('assets/images/profile_picture.jpg'),
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    username ?? 'Unknown User',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  username ?? 'Unknown User',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                  icon: Icon(
+                    isPlaying == true ? LucideIcons.pause : LucideIcons.play,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    // TODO: Implement play/pause logic
+                  },
                   ),
                 ],
               ),
