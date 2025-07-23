@@ -7,6 +7,14 @@ class ExploreFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (imageUrls.isEmpty) {
+      return Center(
+        child: Text(
+          'No posts to explore.',
+          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+        ),
+      );
+    }
     return GridView.builder(
       padding: const EdgeInsets.all(4),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -17,14 +25,25 @@ class ExploreFeed extends StatelessWidget {
       ),
       itemCount: imageUrls.length,
       itemBuilder: (context, index) {
+        final img = imageUrls[index];
+        final isNetwork = img.startsWith('http');
         return GestureDetector(
           onTap: () {
             // TODO: Open post or reel details
           },
-          child: Image.asset(
-            imageUrls[index],
-            fit: BoxFit.cover,
-          ),
+          child: isNetwork
+              ? Image.network(
+                  img,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.broken_image),
+                )
+              : Image.asset(
+                  img,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.broken_image),
+                ),
         );
       },
     );
