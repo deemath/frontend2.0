@@ -2,6 +2,7 @@ class ProfileModel {
   final String id;
   final String userId;
   final String username;
+  final String fullName;
   final String profileImage;
   final String bio;
   final int posts;
@@ -13,6 +14,7 @@ class ProfileModel {
     required this.id,
     required this.userId,
     required this.username,
+    required this.fullName,
     required this.profileImage,
     required this.bio,
     required this.posts,
@@ -47,6 +49,7 @@ class ProfileModel {
       id: json['_id'] ?? '',
       userId: json['userId'] ?? '',
       username: json['username'] ?? '',
+      fullName: json['fullName'] ?? '',
       profileImage: json['profileImage'] ?? '',
       bio: json['bio'] ?? '',
       posts: json['posts'] ?? 0,
@@ -64,6 +67,7 @@ class ProfileModel {
       '_id': id,
       'userId': userId,
       'username': username,
+      'fullName': fullName,
       'profileImage': profileImage,
       'bio': bio,
       'posts': posts,
@@ -79,12 +83,14 @@ class EditProfileModel {
   final String bio;
   final String profileImage;
   final String email;
+  final String fullName; // Added
 
   EditProfileModel({
     required this.username,
     required this.bio,
     required this.profileImage,
     required this.email,
+    required this.fullName, // Added
   });
 
   Map<String, dynamic> toJson() {
@@ -92,6 +98,7 @@ class EditProfileModel {
       'username': username,
       'bio': bio,
       'profileImage': profileImage,
+      'fullName': fullName, // Added
     };
   }
 }

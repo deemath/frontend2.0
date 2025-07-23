@@ -18,24 +18,24 @@ class Comment {
   });
 
   factory Comment.fromJson(Map<String, dynamic> json) => Comment(
-    id: json['_id'] ?? '',
-    userId: json['userId'] ?? '',
-    username: json['username'],
-    text: json['text'] ?? '',
-    createdAt: DateTime.parse(json['createdAt']),
-    likes: json['likes'] ?? 0,
-    likedBy: List<String>.from(json['likedBy'] ?? []),
-  );
+        id: json['_id'] ?? '',
+        userId: json['userId'] ?? '',
+        username: json['username'],
+        text: json['text'] ?? '',
+        createdAt: DateTime.parse(json['createdAt']),
+        likes: json['likes'] ?? 0,
+        likedBy: List<String>.from(json['likedBy'] ?? []),
+      );
 
   Map<String, dynamic> toJson() => {
-    '_id': id,
-    'userId': userId,
-    'username': username,
-    'text': text,
-    'createdAt': createdAt.toIso8601String(),
-    'likes': likes,
-    'likedBy': likedBy,
-  };
+        '_id': id,
+        'userId': userId,
+        'username': username,
+        'text': text,
+        'createdAt': createdAt.toIso8601String(),
+        'likes': likes,
+        'likedBy': likedBy,
+      };
 }
 
 class Post {
@@ -84,16 +84,23 @@ class Post {
       userId: json['userId'] as String?,
       username: json['username'] as String?,
       likes: json['likes'] ?? 0,
-      commentsCount: (json['comments'] is List) ? (json['comments'] as List).length : (json['comments'] is int ? json['comments'] : 0),
-      likedBy: (json['likedBy'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      commentsCount: json['comments'] is int
+          ? json['comments']
+          : (json['comments'] as List).length,
+      likedBy: (json['likedBy'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       likedByMe: false,
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updatedAt'] ?? DateTime.now().toIso8601String()),
+      createdAt:
+          DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      updatedAt:
+          DateTime.parse(json['updatedAt'] ?? DateTime.now().toIso8601String()),
       comments: (json['comments'] is List)
-        ? (json['comments'] as List)
-            .map((c) => Comment.fromJson(c as Map<String, dynamic>))
-            .toList()
-        : [],
+          ? (json['comments'] as List)
+              .map((c) => Comment.fromJson(c as Map<String, dynamic>))
+              .toList()
+          : [],
     );
   }
 
@@ -114,5 +121,41 @@ class Post {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
+  }
+
+  Post copyWith({
+    String? id,
+    String? trackId,
+    String? songName,
+    String? artists,
+    String? albumImage,
+    String? caption,
+    String? userId,
+    String? username,
+    int? likes,
+    int? commentsCount,
+    List<String>? likedBy,
+    bool? likedByMe,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    List<Comment>? comments,
+  }) {
+    return Post(
+      id: id ?? this.id,
+      trackId: trackId ?? this.trackId,
+      songName: songName ?? this.songName,
+      artists: artists ?? this.artists,
+      albumImage: albumImage ?? this.albumImage,
+      caption: caption ?? this.caption,
+      userId: userId ?? this.userId,
+      username: username ?? this.username,
+      likes: likes ?? this.likes,
+      commentsCount: commentsCount ?? this.commentsCount,
+      likedBy: likedBy ?? this.likedBy,
+      likedByMe: likedByMe ?? this.likedByMe,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      comments: comments ?? this.comments,
+    );
   }
 }

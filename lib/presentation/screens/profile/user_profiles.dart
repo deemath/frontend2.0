@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'dart:math'; 
+import 'dart:math';
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
 import 'tabs/album_art_posts_tab.dart';
 import 'tabs/description_posts_tab.dart';
 import 'tabs/tagged_posts_tab.dart';
 import 'my_profile.dart';
+import 'followers_list.dart';
+import 'following_list.dart';
+import 'profile_feed_screen.dart';
 
 class UserProfilePage extends StatefulWidget {
   final String userId;
@@ -25,6 +28,7 @@ class _UserProfilePageState extends State<UserProfilePage>
   List<String> albumImages = [];
   bool isLoading = true;
   String? loggedUserId;
+  int postCount = 0;
 
   @override
   void initState() {
@@ -57,11 +61,20 @@ class _UserProfilePageState extends State<UserProfilePage>
     final albumImagesResult =
         await profileService.getUserAlbumImages(widget.userId);
 
+    // --- Fetch post count from backend ---
+    final postCountResult =
+        await profileService.getUserPostCount(widget.userId);
+    int fetchedPostCount = 0;
+    if (postCountResult != null && postCountResult['postCount'] != null) {
+      fetchedPostCount = postCountResult['postCount'];
+    }
+
     if (profileResult['success'] == true && profileResult['data'] != null) {
       setState(() {
         profile = ProfileModel.fromJson(profileResult['data']);
         posts = postsResult;
         albumImages = albumImagesResult;
+        postCount = fetchedPostCount;
         isLoading = false;
       });
     } else {
@@ -116,16 +129,55 @@ class _UserProfilePageState extends State<UserProfilePage>
         children: [
           AlbumArtPostsTab(
             username: profile!.username,
-            posts: profile!.posts,
-
+            fullName: profile!.fullName,
+            posts: postCount,
             followers: profile!.followers.length,
             following: profile!.following.length,
-
             albumImages: albumImages,
             description: profile!.bio,
             showGrid: false,
             profileImage: profile!.profileImage,
-            postsList: posts, 
+            postsList: posts,
+            onFollowersTap: () async {
+              final profileService = ProfileService();
+              final followersList = await profileService
+                  .getFollowersListWithDetails(profile!.userId);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FollowersListPage(
+                    followers: followersList,
+                  ),
+                ),
+              );
+            },
+            onFollowingTap: () async {
+              final profileService = ProfileService();
+              final followingList = await profileService
+                  .getFollowingListWithDetails(profile!.userId);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FollowingListPage(
+                    following: followingList,
+                  ),
+                ),
+              );
+            },
+            onPostTap: (postId) {
+              final String? id = postId?.toString();
+              if (id != null && id.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileFeedScreen(
+                      userId: profile!.userId,
+                      initialPostId: id,
+                    ),
+                  ),
+                );
+              }
+            },
           ),
           // Add Follow and Message buttons for other users
           Padding(
@@ -179,16 +231,29 @@ class _UserProfilePageState extends State<UserProfilePage>
               children: [
                 AlbumArtPostsTab(
                   username: profile!.username,
-                  posts: profile!.posts,
-
+                  fullName: profile!.fullName,
+                  posts: postCount,
                   followers: profile!.followers.length,
                   following: profile!.following.length,
-
                   albumImages: albumImages,
                   description: profile!.bio,
                   showGrid: true,
                   profileImage: profile!.profileImage,
                   postsList: posts,
+                  onPostTap: (postId) {
+                    final String? id = postId?.toString();
+                    if (id != null && id.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProfileFeedScreen(
+                            userId: profile!.userId,
+                            initialPostId: id,
+                          ),
+                        ),
+                      );
+                    }
+                  },
                 ),
                 const DescriptionPostsTab(),
                 const TaggedPostsTab(),

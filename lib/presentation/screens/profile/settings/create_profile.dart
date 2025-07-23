@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../data/services/profile_service.dart';
+import 'edit_profile.dart'; // Import the EditProfilePage
 
 class CreateProfilePage extends StatefulWidget {
   const CreateProfilePage({Key? key}) : super(key: key);
@@ -14,30 +15,75 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
   final _formKey = GlobalKey<FormState>();
   String bio = '';
   String profileImage = '';
+  String fullName = '';
   bool isLoading = false;
 
   Future<void> _submitProfile() async {
+    if (!_formKey.currentState!.validate()) return;
     setState(() {
       isLoading = true;
     });
-    // Get userId from AuthProvider
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final userId = authProvider.user?.id;
+    if (userId == null) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not logged in')),
+      );
+      return;
+    }
     final profileService = ProfileService();
     final result = await profileService.createProfile({
       'userId': userId,
       'bio': bio,
       'profileImage': profileImage,
+      'fullName': fullName,
     });
     setState(() {
       isLoading = false;
     });
     if (result['success'] == true) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile created successfully!')),
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: const Text('Profile Created'),
+            content: const Text('Your profile was created successfully!'),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  textStyle: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacementNamed(context, '/profile');
+                },
+                child: const Text('Go to Profile'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  textStyle: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const EditProfilePage()),
+                  );
+                },
+                child: const Text('Edit Profile'),
+              ),
+            ],
+          ),
         );
-        Navigator.pop(context);
       }
     } else {
       if (mounted) {
@@ -65,6 +111,21 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
             children: [
               TextFormField(
                 decoration: const InputDecoration(
+                  labelText: 'Full Name',
+                  labelStyle: TextStyle(color: Colors.white),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: (value) => fullName = value,
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Full name is required'
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                decoration: const InputDecoration(
                   labelText: 'Bio',
                   labelStyle: TextStyle(color: Colors.white),
                   enabledBorder: UnderlineInputBorder(
@@ -73,6 +134,9 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                 ),
                 style: const TextStyle(color: Colors.white),
                 onChanged: (value) => bio = value,
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Bio is required'
+                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -85,6 +149,9 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                 ),
                 style: const TextStyle(color: Colors.white),
                 onChanged: (value) => profileImage = value,
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Profile image URL is required'
+                    : null,
               ),
               const SizedBox(height: 32),
               ElevatedButton(
@@ -98,6 +165,8 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
+                  textStyle: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 child: isLoading
                     ? const SizedBox(
