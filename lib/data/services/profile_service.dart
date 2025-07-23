@@ -14,15 +14,19 @@ class ProfileService {
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // If the backend returns a profile object, use it
-        if (data is Map<String, dynamic> && data.containsKey('username')) {
+        // Always extract the profile object if present
+        final profile =
+            (data is Map<String, dynamic> && data.containsKey('profile'))
+                ? data['profile']
+                : data;
+        if (profile is Map<String, dynamic> &&
+            profile.containsKey('username')) {
           return {
             'success': true,
-            'data': data,
+            'data': profile,
             'message': 'Profile retrieved successfully',
           };
         }
-        // If the backend returns a "Profile not found" message
         if (data is Map<String, dynamic> &&
             data['message'] == 'Profile not found') {
           return {
@@ -31,13 +35,11 @@ class ProfileService {
             'error': data['error'] ?? '',
           };
         }
-        // Otherwise, treat as failed
         return {
           'success': false,
           'message': 'Failed to retrieve profile',
         };
       } else {
-        // Try to parse error message from backend
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic> &&
             data['message'] == 'Profile not found') {
