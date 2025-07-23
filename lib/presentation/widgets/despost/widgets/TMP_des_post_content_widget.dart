@@ -4,6 +4,7 @@ import './TMP_des_post_layers.dart';
 // ========== Post ==========
 class Post extends StatelessWidget {
   final String? trackId;
+  final String? postId;
   final String? songName;
   final String? artists;
   final String? albumImage;
@@ -12,7 +13,6 @@ class Post extends StatelessWidget {
   final String? userImage;
   final String? descriptionTitle;
   final String? description;
-
   final VoidCallback? onLike;
   final VoidCallback? onComment;
   final VoidCallback? onShare;
@@ -21,10 +21,12 @@ class Post extends StatelessWidget {
   final bool isLiked;
   final bool isPlaying;
   final bool isCurrentTrack;
+  final Color? backgroundColor;
 
   const Post({
     super.key,
     this.trackId,
+    this.postId,
     this.songName,
     this.artists,
     this.albumImage,
@@ -41,6 +43,7 @@ class Post extends StatelessWidget {
     this.isLiked = false,
     this.isPlaying = false,
     this.isCurrentTrack = false,
+    this.backgroundColor,
   });
 
   @override
@@ -56,6 +59,17 @@ class Post extends StatelessWidget {
           albumImage: albumImage,
           title: descriptionTitle,
           description: description,
+          postId: postId,
+          trackId: trackId,
+          songName: songName,
+          artists: artists,
+          caption: caption,
+          username: username,
+          userImage: userImage,
+          isLiked: isLiked,
+          isPlaying: isPlaying,
+          isCurrentTrack: isCurrentTrack,
+          backgroundColor: backgroundColor,
         ),
         FooterWidget(
           songName: songName,
