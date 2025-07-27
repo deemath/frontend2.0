@@ -82,6 +82,7 @@ flutter:
     - assets/images/hehe.png
     - assets/images/profile_picture.jpg
     - assets/images/song.png
+    - assets/backgrounds/black-and-green-background.jpg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

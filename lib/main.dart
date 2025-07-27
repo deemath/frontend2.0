@@ -25,6 +25,7 @@ import 'package:provider/provider.dart';
 import 'presentation/screens/shell_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/auth/signup_screen.dart';
+import 'presentation/screens/auth/link_spotify_screen.dart';
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
@@ -140,6 +141,8 @@ class MyApp extends StatelessWidget {
           //   return MaterialPageRoute(builder: (_) => FeedPage());
           case '/request':
             return MaterialPageRoute(builder: (_) => RequestScreen());
+          case '/link-account':
+            return MaterialPageRoute(builder: (_) => const LinkSpotifyScreen());
           default:
             return MaterialPageRoute(
               builder: (_) => Scaffold(
