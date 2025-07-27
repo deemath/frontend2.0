@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
+import '../../../data/services/auth_service.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -24,6 +26,50 @@ class _SignupScreenState extends State<SignupScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  bool _validateInputs() {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return false;
+    }
+    return true;
+  }
+
+  void handleRegister() async {
+    if (!_validateInputs()) return;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final response = await authService.register(
+        _emailController.text.trim(),
+        _usernameController.text.trim(),
+        _passwordController.text,
+      );
+      if (response['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Registration successful! Please login.')),
+        );
+        Navigator.pushNamed(context, '/login'); // Go back to login
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'] ?? 'Registration failed')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registration failed. Please try again.')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -214,7 +260,7 @@ class _SignupScreenState extends State<SignupScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : () {}, // No logic yet
+                  onPressed: _isLoading ? null : handleRegister,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
                     backgroundColor: Colors.purple,
