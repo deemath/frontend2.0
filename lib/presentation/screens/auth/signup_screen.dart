@@ -111,7 +111,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     padding: const EdgeInsets.only(bottom: 40.0),
                     child: Image.asset(
                       'assets/images/logo.png',
-                      height: 50,
+                      height: 40,
                     ),
                   ),
 
@@ -202,6 +202,27 @@ class _SignupScreenState extends State<SignupScreen> {
                       onPressed: handleRegister,
                       isLoading: _isLoading,
                       text: 'Sign Up',
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                      ),
+                      child: const Text(
+                        "Already have an account?",
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ),
                   ),
                 ],
