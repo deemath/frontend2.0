@@ -244,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to sign up page
+                    Navigator.pushNamed(context, '/signup');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,

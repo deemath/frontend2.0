@@ -24,6 +24,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'presentation/screens/shell_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
+import 'presentation/screens/auth/signup_screen.dart';
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
@@ -121,8 +122,8 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const ShellScreen());
           case '/login':
             return MaterialPageRoute(builder: (_) => const LoginScreen());
-          // case '/signup':
-          //   return MaterialPageRoute(builder: (_) => const SignupScreen());
+          case '/signup':
+            return MaterialPageRoute(builder: (_) => const SignupScreen());
           case '/create':
             return MaterialPageRoute(
               builder: (_) => CreatePostPage(),
