@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../data/services/auth_service.dart';
+import '../../widgets/auth/custom_text_form_field.dart';
+import '../../widgets/auth/custom_button.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -117,8 +118,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   // Email Field
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: TextFormField(
+                    child: CustomTextFormField(
                       controller: _emailController,
+                      hintText: 'Enter your email',
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -129,28 +131,6 @@ class _SignupScreenState extends State<SignupScreen> {
                         }
                         return null;
                       },
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 16.0, horizontal: 20.0),
-                        labelStyle: TextStyle(color: Colors.grey),
-                        hintText: 'Enter your email',
-                        hintStyle: TextStyle(color: Color(0xFF9E9E9E)),
-                        fillColor: Color(0xFF212121),
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          borderSide: BorderSide(color: Color(0xFF424242)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          borderSide: BorderSide(color: Color(0xFF424242)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                          borderSide: BorderSide(color: Colors.purple),
-                        ),
-                      ),
                     ),
                   ),
 
@@ -159,36 +139,15 @@ class _SignupScreenState extends State<SignupScreen> {
                   // Username Field
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: TextFormField(
+                    child: CustomTextFormField(
                       controller: _usernameController,
+                      hintText: 'Enter your username',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your username';
                         }
                         return null;
                       },
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 16.0, horizontal: 20.0),
-                        labelStyle: TextStyle(color: Colors.grey),
-                        hintText: 'Enter your username',
-                        hintStyle: TextStyle(color: Color(0xFF9E9E9E)),
-                        fillColor: Color(0xFF212121),
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          borderSide: BorderSide(color: Color(0xFF424242)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          borderSide: BorderSide(color: Color(0xFF424242)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                          borderSide: BorderSide(color: Colors.purple),
-                        ),
-                      ),
                     ),
                   ),
 
@@ -197,8 +156,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   // Password Field
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: TextFormField(
+                    child: CustomTextFormField(
                       controller: _passwordController,
+                      hintText: 'Enter your password',
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -209,28 +169,6 @@ class _SignupScreenState extends State<SignupScreen> {
                         }
                         return null;
                       },
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 16.0, horizontal: 20.0),
-                        labelStyle: TextStyle(color: Colors.grey),
-                        hintText: 'Enter your password',
-                        hintStyle: TextStyle(color: Color(0xFF9E9E9E)),
-                        fillColor: Color(0xFF212121),
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          borderSide: BorderSide(color: Color(0xFF424242)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          borderSide: BorderSide(color: Color(0xFF424242)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                          borderSide: BorderSide(color: Colors.purple),
-                        ),
-                      ),
                     ),
                   ),
 
@@ -239,8 +177,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   // Confirm Password Field
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: TextFormField(
+                    child: CustomTextFormField(
                       controller: _confirmPasswordController,
+                      hintText: 'Confirm your password',
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -251,28 +190,6 @@ class _SignupScreenState extends State<SignupScreen> {
                         }
                         return null;
                       },
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 16.0, horizontal: 20.0),
-                        labelStyle: TextStyle(color: Colors.grey),
-                        hintText: 'Confirm your password',
-                        hintStyle: TextStyle(color: Color(0xFF9E9E9E)),
-                        fillColor: Color(0xFF212121),
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          borderSide: BorderSide(color: Color(0xFF424242)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          borderSide: BorderSide(color: Color(0xFF424242)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                          borderSide: BorderSide(color: Colors.purple),
-                        ),
-                      ),
                     ),
                   ),
 
@@ -281,29 +198,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   // Signup Button
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : handleRegister,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 20.0),
-                        backgroundColor: Colors.purple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text(
-                              'Sign Up',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.white),
-                            ),
+                    child: CustomButton(
+                      onPressed: handleRegister,
+                      isLoading: _isLoading,
+                      text: 'Sign Up',
                     ),
                   ),
                 ],
