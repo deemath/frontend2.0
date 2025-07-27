@@ -4,12 +4,14 @@ class CustomButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isLoading;
   final String text;
+  final EdgeInsetsGeometry? padding; // Add this
 
   const CustomButton({
     Key? key,
     required this.onPressed,
     required this.isLoading,
     required this.text,
+    this.padding, // Add this
   }) : super(key: key);
 
   @override
@@ -17,7 +19,7 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 20.0),
+        padding: padding ?? const EdgeInsets.symmetric(vertical: 20.0), // Use it here
         backgroundColor: Colors.purple,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),

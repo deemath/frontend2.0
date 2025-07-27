@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/auth/custom_button.dart';
 
 class LinkSpotifyScreen extends StatelessWidget {
   const LinkSpotifyScreen({Key? key}) : super(key: key);
@@ -32,15 +33,52 @@ class LinkSpotifyScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Link your Spotify account',
-                  style: const TextStyle(color: Colors.white),
+                  'Link account',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    // Logic to link Spotify account goes here
-                  },
-                  child: const Text('Link Spotify'),
+                const SizedBox(height: 10),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 36.0),
+                  child: Text(
+                    'Inorder to access more features, a spotify account is required.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                // Replace ElevatedButton with CustomButton
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: CustomButton(
+                    onPressed: () {},
+                    isLoading: false,
+                    text: 'Link Spotify',
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32.0, vertical: 18.0),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/home');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                    ),
+                    child: const Text(
+                      "Skip for now",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
                 ),
               ],
             ),
