@@ -134,7 +134,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // Username Field
                   Padding(
@@ -151,7 +151,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // Password Field
                   Padding(
@@ -172,7 +172,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
                   // Confirm Password Field
                   Padding(
@@ -193,7 +193,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 48),
 
                   // Signup Button
                   Padding(
