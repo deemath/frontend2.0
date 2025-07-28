@@ -1,8 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:provider/provider.dart';
+import 'package:frontend/data/services/auth_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:html' as html; // Only used on web
 import '../../widgets/auth/custom_button.dart';
 
 class LinkSpotifyScreen extends StatelessWidget {
   const LinkSpotifyScreen({Key? key}) : super(key: key);
+
+  Future<void> _handleLinkSpotify(BuildContext context) async {
+    try {
+      if (kIsWeb) {
+        // On web, redirect the browser to your backend endpoint
+        final backendUrl = 'http://localhost:3000/spotify/login/alt';
+        html.window.open(backendUrl, 'SpotifyAuth');
+        return;
+      }
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final dio = authService.dio; // Authenticated Dio instance
+      final response = await dio.post('/spotify/login');
+      if (response.statusCode == 200 || response.statusCode == 302) {
+        final data = response.data;
+        final regex = RegExp(r'Redirecting to (https?://\S+)');
+        final match = regex.firstMatch(data.toString());
+        final url = match != null ? match.group(1) : null;
+        if (url != null) {
+          if (await canLaunchUrl(Uri.parse(url))) {
+            await launchUrl(Uri.parse(url),
+                mode: LaunchMode.externalApplication);
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to get Spotify redirect URL.')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to initiate Spotify login.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +98,7 @@ class LinkSpotifyScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: CustomButton(
-                    onPressed: () {},
+                    onPressed: () => _handleLinkSpotify(context),
                     isLoading: false,
                     text: 'Link Spotify',
                     padding: const EdgeInsets.symmetric(
