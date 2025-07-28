@@ -221,14 +221,15 @@ class TokenManagerService {
   // Refresh token
   Future<bool> refreshToken() async {
     try {
-      print('Attempting to refresh token...');
+      print('[At Token.Manager.Service] Attempting to refresh token...');
 
       // Call the refresh endpoint
       final response = await _dio.post(_refreshEndpoint, options: Options(
           // Ensure cookies are sent with the request
           extra: {'withCredentials': true}));
 
-      print('Refresh response status: ${response.statusCode}');
+      print(
+          '[At Token.Manager.Service] Refresh response status: ${response.statusCode}');
 
       // Handle successful response
       if (response.statusCode == 200 && response.data != null) {
@@ -241,31 +242,34 @@ class TokenManagerService {
 
           // If user data is included, update auth provider
           if (data['user'] != null) {
-            print('User data received in refresh response');
+            print(
+                '[At Token.Manager.Service] User data received in refresh response');
             _authProvider.setUser(data['user']);
           }
 
           return true;
         } else {
-          print('Refresh response missing accessToken field: ${response.data}');
+          print(
+              '[At Token.Manager.Service] Refresh response missing accessToken field: ${response.data}');
         }
       } else {
         print(
-            'Unexpected refresh response format or status code: ${response.statusCode}');
+            '[At Token.Manager.Service] Unexpected refresh response format or status code: ${response.statusCode}');
       }
 
       return false;
     } catch (e) {
-      print('Error refreshing token: $e');
+      print('[At Token.Manager.Service] Error refreshing token: $e');
       if (e is DioException) {
         print(
-            'DioException details - Status code: ${e.response?.statusCode}, Message: ${e.message}');
-        print('Response data: ${e.response?.data}');
+            '[At Token.Manager.Service] DioException details - Status code: ${e.response?.statusCode}, Message: ${e.message}');
+        print('[At Token.Manager.Service] Response data: ${e.response?.data}');
       }
 
       // Clear tokens if refresh fails with 401
       if (e is DioException && e.response?.statusCode == 401) {
-        print('Unauthorized (401) during refresh, clearing tokens');
+        print(
+            '[At Token.Manager.Service] Unauthorized (401) during refresh, clearing tokens');
         await clearTokens();
       }
 

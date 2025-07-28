@@ -46,13 +46,24 @@ class OptionsPage extends StatelessWidget {
             },
           ),
           const Divider(color: Colors.white54),
+          Provider.of<AuthProvider>(context, listen: false).isSpotifyLinked
+              ? ListTile(
+                  leading:
+                      const Icon(Icons.account_circle, color: Colors.white),
+                  title: const Text('Link Account to Spotify',
+                      style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/link-account');
+                  },
+                )
+              : const SizedBox.shrink(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Logout', style: TextStyle(color: Colors.red)),
             onTap: () async {
               await Provider.of<AuthProvider>(context, listen: false).logout();
-              Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-              
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil('/login', (route) => false);
             },
           ),
         ],

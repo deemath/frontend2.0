@@ -138,7 +138,7 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
   Future<void> _fetchCurrentTrack() async {
     // Only fetch if user is authenticated
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    if (!authProvider.isAuthenticated) {
+    if (!authProvider.isAuthenticated || !authProvider.isSpotifyLinked) {
       return;
     }
 
@@ -190,10 +190,11 @@ class _MusicPlayerBarState extends State<MusicPlayerBar> {
           }
         }
       } else {
-        print('Failed to load current track: ${response.statusCode}');
+        print(
+            '[At Musicplayer.Bar] Failed to load current track: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching current track: $e');
+      print('[At Musicplayer.Bar] Error fetching current track: $e');
     }
   }
 
