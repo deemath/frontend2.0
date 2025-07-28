@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:frontend/data/services/auth_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:html' as html; // Only used on web
 import '../../widgets/auth/custom_button.dart';
+// Conditional import for openSpotifyAuth
+import 'link_spotify_mobile.dart'
+    if (dart.library.html) 'link_spotify_web.dart';
 
 class LinkSpotifyScreen extends StatelessWidget {
   const LinkSpotifyScreen({Key? key}) : super(key: key);
@@ -13,9 +15,9 @@ class LinkSpotifyScreen extends StatelessWidget {
   Future<void> _handleLinkSpotify(BuildContext context) async {
     try {
       if (kIsWeb) {
-        // On web, redirect the browser to your backend endpoint
+        // On web, use openSpotifyAuth from conditional import
         final backendUrl = 'http://localhost:3000/spotify/login/alt';
-        html.window.open(backendUrl, 'SpotifyAuth');
+        openSpotifyAuth(backendUrl);
         return;
       }
       final authService = Provider.of<AuthService>(context, listen: false);
