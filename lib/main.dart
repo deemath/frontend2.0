@@ -97,7 +97,7 @@ class MyApp extends StatelessWidget {
         final isAuthenticated = authProvider.isAuthenticated;
 
         // List of protected routes that require authentication
-        final protectedRoutes = ['/home', '/demodespost'];
+        final protectedRoutes = ['/home', '/link-account', '/demodespost'];
 
         // Redirect to login if trying to access protected route while not authenticated
         if (protectedRoutes.contains(settings.name) && !isAuthenticated) {

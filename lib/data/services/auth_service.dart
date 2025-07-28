@@ -107,10 +107,16 @@ class AuthService {
       );
 
       if (response.statusCode == 201) {
+        // Log in the new user using authService.login
+        final loginResponse = await login(
+          email,
+          password,
+        );
         return {
           'success': true,
           'message': 'Registration successful',
           'user': response.data['user'],
+          'login': loginResponse,
         };
       } else {
         return {

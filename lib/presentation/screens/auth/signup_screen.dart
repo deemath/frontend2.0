@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../data/services/auth_service.dart';
 import '../../widgets/auth/custom_text_form_field.dart';
 import '../../widgets/auth/custom_button.dart';
+import '../../../core/providers/auth_provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -56,7 +57,13 @@ class _SignupScreenState extends State<SignupScreen> {
           const SnackBar(
               content: Text('Registration successful! Please login.')),
         );
-        Navigator.pushNamed(context, '/login'); // Go back to login
+        // Check if user is authenticated in auth provider
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        if (authProvider.isAuthenticated) {
+          Navigator.pushNamed(context, '/link-account');
+        } else {
+          Navigator.pushNamed(context, '/login');
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Registration failed')),
