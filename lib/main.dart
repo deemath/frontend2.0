@@ -24,6 +24,8 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'presentation/screens/shell_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
+import 'presentation/screens/auth/signup_screen.dart';
+import 'presentation/screens/auth/link_spotify_screen.dart';
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
 import 'data/services/spotify_service.dart';
@@ -96,7 +98,7 @@ class MyApp extends StatelessWidget {
         final isAuthenticated = authProvider.isAuthenticated;
 
         // List of protected routes that require authentication
-        final protectedRoutes = ['/home', '/demodespost'];
+        final protectedRoutes = ['/home', '/link-account', '/demodespost'];
 
         // Redirect to login if trying to access protected route while not authenticated
         if (protectedRoutes.contains(settings.name) && !isAuthenticated) {
@@ -122,8 +124,8 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const ShellScreen());
           case '/login':
             return MaterialPageRoute(builder: (_) => const LoginScreen());
-          // case '/signup':
-          //   return MaterialPageRoute(builder: (_) => const SignupScreen());
+          case '/signup':
+            return MaterialPageRoute(builder: (_) => const SignupScreen());
           case '/create':
             return MaterialPageRoute(
               builder: (_) => CreatePostPage(),
@@ -140,6 +142,8 @@ class MyApp extends StatelessWidget {
           //   return MaterialPageRoute(builder: (_) => FeedPage());
           case '/request':
             return MaterialPageRoute(builder: (_) => RequestScreen());
+          case '/link-account':
+            return MaterialPageRoute(builder: (_) => const LinkSpotifyScreen());
           default:
             return MaterialPageRoute(
               builder: (_) => Scaffold(
