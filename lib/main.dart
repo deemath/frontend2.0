@@ -40,7 +40,8 @@ import 'presentation/screens/search/search_feed_screen.dart';
 //import 'presentation/screens/show_all_posts_screen.dart';
 import 'presentation/screens/fanbase/fanbase_details.dart';
 import 'presentation/screens/splash_screen.dart'; // Import the SplashScreen
-import 'presentation/screens/shell_screen2.dart';
+// import 'presentation/screens/shell_screen2.dart';
+import '/presentation/screens/fanbase/fanbase.dart';
 import 'presentation/screens/request/request.dart';
 
 void main() async {
@@ -128,7 +129,7 @@ class MyApp extends StatelessWidget {
               builder: (_) => CreatePostPage(),
             );
           case '/fanbases':
-            return MaterialPageRoute(builder: (_) => const ShellScreen2());
+            return MaterialPageRoute(builder: (_) => FanbasePage());
           case '/profile':
             return MaterialPageRoute(builder: (_) => NormalUserProfilePage());
           case '/search':
