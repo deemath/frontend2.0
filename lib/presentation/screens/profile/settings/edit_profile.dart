@@ -17,6 +17,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
   String profileImage =
       'https://i.scdn.co/image/ab6761610000e5eb02e3c8b0e6e6e6e6e6e6e6e6';
 
@@ -34,20 +35,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _fetchProfile() async {
+    setState(() => _loading = true); // Ensure loading state is set
     final userId = Provider.of<AuthProvider>(context, listen: false).user?.id;
     if (userId == null) {
       setState(() => _loading = false);
       return;
     }
     final result = await _service.getUserProfile(userId);
+
+    // Debug: print the result for troubleshooting
+    // ignore: avoid_print
+    print('Profile fetch result: $result');
+
     if (result['success'] == false) {
       setState(() => _loading = false);
       return;
     }
     final data = result['data'];
+    // No need to check for 'profile' key here, as service already extracts it
     _usernameController.text = data['username'] ?? '';
     _bioController.text = data['bio'] ?? '';
     _emailController.text = data['email'] ?? '';
+    _fullNameController.text = data['fullName'] ?? '';
     profileImage = data['profileImage'] ?? profileImage;
     setState(() => _loading = false);
   }
@@ -75,11 +84,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
       bio: _bioController.text,
       profileImage: profileImage,
       email: _emailController.text,
+      fullName: _fullNameController.text,
     );
     final result = await _service.updateProfile(userId, editProfile.toJson());
     setState(() => _saving = false);
     if (result['success'] == true) {
-      Navigator.pop(context);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!')),
+        );
+        // Do not pop here; stay on the edit page
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -123,6 +138,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
             ),
             const SizedBox(height: 24),
+            TextField(
+              controller: _fullNameController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Full Name',
+                labelStyle: const TextStyle(color: Colors.grey),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey.shade700),
+                ),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             TextField(
               controller: _usernameController,
               style: const TextStyle(color: Colors.white),
@@ -173,12 +203,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.white),
                   ),
                   child: const Text('Cancel',
                       style: TextStyle(color: Colors.white)),
+                  // Redirect to /profile after clicking
+                  // Use pushReplacementNamed to avoid stacking
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/profile');
+                  },
                 ),
                 ElevatedButton(
                   onPressed: _saveProfile,
@@ -195,4 +229,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
     );
   }
+
+// END LEGACY NAVIGATION SUPPORT
 }

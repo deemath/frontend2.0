@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
-import './widgets/des_post_content_widget.dart';
-import './widgets/des_post_bg_container.dart';
+import './widgets/TMP_des_post_content_widget.dart';
+import './widgets/TMP_des_post_bg_container.dart';
 
-/// A feed widget that displays song posts
 class FeedWidget extends StatefulWidget {
   const FeedWidget({Key? key}) : super(key: key);
 
@@ -12,7 +11,6 @@ class FeedWidget extends StatefulWidget {
 }
 
 class _FeedWidgetState extends State<FeedWidget> {
-  // Hardcoded feed posts data
   final List<Map<String, dynamic>> feedPosts = [
     {
       "_id": "686b967060b0a052ded69195",
@@ -21,11 +19,11 @@ class _FeedWidgetState extends State<FeedWidget> {
       "artists": "Pretty Patterns",
       "albumImage":
           "https://i.scdn.co/image/ab67616d0000b273371ea9340b6b2157e8adc10f",
-      "caption": "guliguli",
+      "caption": "guliguli", // WHAT IS A CAPTION? - RAVINDU   need to remove forgot to remove it from here keep it just for now -irushi
       "username": "owl",
-      "title": "ATLAS by Pretty Patterns",
+      "title": "This song hits different",
       "description":
-          "ATLAS by Pretty Patterns is a richly layered composition that evokes the feeling of wandering through a dreamscape. With its hypnotic rhythms and delicate synth textures, the track opens like a slow unfurling of space and time. Gentle melodic lines intertwine with atmospheric pads, creating a sense of movement—like floating through constellations or navigating the vast unknown. The production balances minimalism with complexity, never overwhelming, but always evolving. Subtle electronic flourishes and ambient echoes give the track an almost cinematic quality, making it perfect for introspection, night drives, or quiet creative sessions. It's both grounding and expansive—an emotional journey that seems to tell a story without words. Pretty Patterns shows impressive control here, delivering a track that is both intimate and infinite.",
+          "It’s 2AM and I’ve got ATLAS on repeat—there’s something about this song that just hits different when the world is quiet. The synths feel like they’re wrapping around me, and every little detail stands out in the dark. It’s like drifting through space, but somehow it makes everything feel closer and more real. The way the melodies weave together is almost hypnotic, and I catch myself getting lost in it every time. Pretty Patterns really nailed that late-night vibe—this track is my go-to for those moments when I just want to think, dream, or just exist for a while.",
     },
     {
       "_id": "686b966920b0a052ded69192",
@@ -34,11 +32,11 @@ class _FeedWidgetState extends State<FeedWidget> {
       "artists": "Pretty Patterns",
       "albumImage":
           "https://i.scdn.co/image/ab67616d0000b27358b2eb8669e1197a203afb3f",
-      "caption": "hehe",
+      "caption": "hehe", // WHAT IS A CAPTION? -RAVINDU
       "username": "owl",
-      "title": "BLUESTAR by Pretty Patterns",
+      "title": "This song is just amazing",
       "description":
-          "In BLUESTAR, Pretty Patterns crafts an ethereal soundscape that transcends genre boundaries. The track shimmers with a dreamlike ambiance, where softly plucked guitars and airy synths coexist in perfect harmony. From the first note, you're drawn into a world where time seems to stretch and colors seem to glow just a bit brighter. The song’s progression is subtle but immersive, with each layer building toward a gentle climax that feels like sunrise after a long night. There's a wistful energy in the melodies, as if the track is remembering something distant yet deeply personal. Hints of lo-fi percussion and reverb-soaked instrumentation add a raw, emotional edge—making it feel handcrafted and human despite its electronic roots. BLUESTAR is the kind of track that sticks with you, not through force, but through the quiet power of mood and memory. It's a brilliant testament to Pretty Patterns' ability to translate feeling into sound.",
+          "BLUESTAR just leaves me speechless every time. The vocals are honestly angelic—there’s this softness and clarity that makes every word feel like it’s floating. And when the piano comes in, it hits you in ways you can’t even explain. It’s not just a melody, it’s like an emotion you can feel in your bones. The whole track feels weightless, but somehow it still lands with so much impact. Pretty Patterns really knows how to make a song that sticks with you long after it ends.",
     },
     {
       "_id": "686b966060b0a052ded69190",
@@ -47,17 +45,17 @@ class _FeedWidgetState extends State<FeedWidget> {
       "artists": "LE SSERAFIM",
       "albumImage":
           "https://i.scdn.co/image/ab67616d0000b27386efcf81bf1382daa2d2afe6",
-      "caption": "huh",
+      "caption": "huh", // WHAT IS A CAPTION? - RAVINDU
       "username": "owl",
-      "title": "HOT by LE SSERAFIM",
+      "title":
+          "I didnt think i would get this addicted to a Kpop song of all songs",
       "description":
-          "A high-energy track that combines pop and hip-hop influences.",
+          "HOT by LE SSERAFIM is just pure energy from start to finish. The beat instantly gets your heart racing, and the way the vocals ride over those punchy synths is addictive. Every time the chorus drops, I can’t help but move—there’s this confidence and attitude in the delivery that makes you feel unstoppable. It’s the kind of song that makes you want to blast it with friends or put on repeat when you need a boost. I never thought I’d get hooked on a Kpop track, but HOT totally changed my mind. It’s bold, catchy, and honestly impossible to sit still while it’s playing.",
     }
   ];
 
-  // Map to store extracted colors for each album image
   final Map<String, Color> _extractedColors = {};
-  final Color _defaultColor = Color.fromARGB(255, 17, 37, 37);
+  final Color _defaultColor = const Color.fromARGB(255, 17, 37, 37);
 
   @override
   void initState() {
@@ -73,7 +71,7 @@ class _FeedWidgetState extends State<FeedWidget> {
           final PaletteGenerator paletteGenerator =
               await PaletteGenerator.fromImageProvider(
             NetworkImage(albumImageUrl),
-            size: Size(100, 100),
+            size: const Size(100, 100),
             maximumColorCount: 10,
           );
 
@@ -120,51 +118,114 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      itemCount: feedPosts.length,
-      itemBuilder: (context, index) {
-        final post = feedPosts[index];
-        return _buildPostItem(post);
-      },
-    );
-  }
-
-  Widget _buildPostItem(Map<String, dynamic> post) {
-    const aspectRatio = 496 / 455;
-    final albumImageUrl = post['albumImage'] as String;
-    final backgroundColor = _extractedColors[albumImageUrl] ?? _defaultColor;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: AspectRatio(
-        aspectRatio: aspectRatio,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            CustomPaint(
-              painter: PostShape(backgroundColor: backgroundColor),
-              child: const SizedBox.expand(),
-            ),
-            Post(
-              trackId: post['trackId'],
-              songName: post['songName'],
-              artists: post['artists'],
-              albumImage: post['albumImage'],
-              caption: post['caption'],
-              username: post['username'] ?? 'Unknown User',
-              userImage: 'assets/images/profile_picture.jpg',
-              descriptionTitle: post['title'],
-              description: post['description'],
-              onLike: () => print('Liked post: ${post['_id']}'),
-              onComment: () => print('Comment: ${post['_id']}'),
-              onPlay: () => print('Play: ${post['_id']}'),
-              isLiked: false,
-              isPlaying: false,
-            ),
-          ],
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          itemCount: feedPosts.length,
+          itemBuilder: (context, index) {
+            final post = feedPosts[index];
+            return _buildPostItem(post);
+          },
         ),
       ),
     );
   }
+
+  Widget _buildPostItem(Map<String, dynamic> post) {
+    final albumImageUrl = post['albumImage'] as String;
+    final backgroundColor = _extractedColors[albumImageUrl] ?? _defaultColor;
+    const double postAspectRatio = 490 / 223; // Old Aspect ratio was 496 / 455
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      child: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: postAspectRatio,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Layer for post_shape widget
+                CustomPaint(
+                  painter: PostShape(backgroundColor: backgroundColor),
+                  child: Container(),
+                ),
+                // Layer for post widget
+                Post(
+                  trackId: post['trackId'] ?? '',
+                  postId: post['_id'],
+                  songName: post['songName'] ?? '',
+                  artists: post['artists'] ?? '',
+                  albumImage: post['albumImage'] ?? '',
+                  caption: post['caption'] ?? '',
+                  username: post['username'] ?? '',
+                  userImage: 'assets/images/profile_picture.jpg',
+                  descriptionTitle: post['title'],
+                  description: post['description'],
+                  onLike: () => print('Liked post: ${post['_id']}'),
+                  onComment: () => print('Comment: ${post['_id']}'),
+                  isLiked: false,
+                  isPlaying: false,
+                  backgroundColor: backgroundColor, // Add this line
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+//   Widget _buildPostItem(Map<String, dynamic> post) {
+//   final albumImageUrl = post['albumImage'] as String;
+//   final backgroundColor = _extractedColors[albumImageUrl] ?? _defaultColor;
+
+//   return Padding(
+//     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+//     child: LayoutBuilder(
+//       builder: (context, constraints) {
+//         return ConstrainedBox(
+//           constraints: const BoxConstraints(
+//             minHeight: 220,
+//             maxHeight: 455, // allows growth but caps it
+//           ),
+//           child: Container(
+//             clipBehavior: Clip.hardEdge,
+//             decoration: const BoxDecoration(),
+//             child: Stack(
+//               children: [
+//                 // Background painter fills height naturally
+//                 Positioned.fill(
+//                   child: CustomPaint(
+//                     painter: PostShape(backgroundColor: backgroundColor),
+//                   ),
+//                 ),
+//                 Padding(
+//                   padding: const EdgeInsets.all(12.0),
+//                   child: Post(
+//                     trackId: post['trackId'],
+//                     songName: post['songName'],
+//                     artists: post['artists'],
+//                     albumImage: post['albumImage'],
+//                     caption: post['caption'],
+//                     username: post['username'] ?? 'Unknown User',
+//                     userImage: 'assets/images/profile_picture.jpg',
+//                     descriptionTitle: post['title'],
+//                     description: post['description'],
+//                     onLike: () => print('Liked post: ${post['_id']}'),
+//                     onComment: () => print('Comment: ${post['_id']}'),
+//                     isLiked: false,
+//                     isPlaying: false,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     ),
+//   );
+// }
 }

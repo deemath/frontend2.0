@@ -38,6 +38,18 @@ class _SplashScreenState extends State<SplashScreen> {
       // Small delay to ensure smooth transition
       await Future.delayed(const Duration(milliseconds: 500));
 
+      // Check authentication status after initialization
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      if (!authProvider.isAuthenticated && mounted) {
+        // Redirect to login screen by setting _isInitializing to false
+        setState(() {
+          _isInitializing = false;
+        });
+        // Optionally, you could use Navigator to push the authScreen here if you want an immediate redirect
+        // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => widget.authScreen));
+        return;
+      }
+
       if (mounted) {
         setState(() {
           _isInitializing = false;

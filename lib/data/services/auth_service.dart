@@ -28,7 +28,7 @@ class AuthService {
   // Login with credentials and handle token storage
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      final response = await _tokenManager.authenticatedDio.post(
+      final response = await _tokenManager.unauthenticatedDio.post(
         '/auth/login',
         data: {
           'email': email,
@@ -47,8 +47,12 @@ class AuthService {
           // Update user data in auth provider
           authProvider.setUser(responseData['user']);
 
+          // Set the token and update authentication status to true
+          authProvider.setToken(token);
+
           // Return both token and user data
           return {
+            'status': 200, // Using status for consistency with login_screen
             'success': true,
             'user': responseData['user'],
             'token': token,
@@ -81,6 +85,63 @@ class AuthService {
       };
     } catch (e) {
       debugPrint('Login error: $e');
+      return {
+        'success': false,
+        'message':
+            'An error occurred. Please check your connection and try again.'
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> register(
+      String email, String username, String password) async {
+    try {
+      final response = await _tokenManager.unauthenticatedDio.post(
+        '/auth/register',
+        data: {
+          'email': email,
+          'username': username,
+          'role': 'user',
+          'password': password,
+        },
+      );
+
+      if (response.statusCode == 201) {
+        // Log in the new user using authService.login
+        final loginResponse = await login(
+          email,
+          password,
+        );
+        return {
+          'success': true,
+          'message': 'Registration successful',
+          'user': response.data['user'],
+          'login': loginResponse,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.data['message'] ??
+              'Registration failed. Please try again.'
+        };
+      }
+    } on DioException catch (e) {
+      debugPrint('Registration error: ${e.message}');
+      // Check for specific error responses
+      if (e.response != null) {
+        return {
+          'success': false,
+          'message': e.response?.data?['message'] ??
+              '[DIO FAIL]Registration failed. Please try again.'
+        };
+      }
+      return {
+        'success': false,
+        'message':
+            'Connection error. Please check your connection and try again.'
+      };
+    } catch (e) {
+      debugPrint('Registration error: $e');
       return {
         'success': false,
         'message':

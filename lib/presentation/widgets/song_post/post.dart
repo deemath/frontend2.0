@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 // ================= SongControlWidget =================
 class SongControlWidget extends StatefulWidget {
@@ -23,47 +25,71 @@ class SongControlWidget extends StatefulWidget {
 class _SongControlWidgetState extends State<SongControlWidget> {
   @override
   Widget build(BuildContext context) {
-    // Always use white for Spotify and play/pause icons
-    final iconColor = Colors.white;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pillColor = isDark ? Colors.black : Colors.white;
+    final iconColor = isDark ? Colors.white : Colors.black;
+    final spotifyAsset = isDark
+        ? 'assets/icons/icons-spotify-dark.svg'
+        : 'assets/icons/icons-spotify-light.svg';
+
     return Expanded(
-      flex: 100,
+      flex: 110,
       child: Container(
-        margin: const EdgeInsets.all(4.0),
+        margin: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Spotify icon on the left
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Image.network(
-                'https://cdn-icons-png.flaticon.com/512/174/174872.png',
-                width: 24,
-                height: 24,
-                color: iconColor,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(
-                    Icons.music_note,
-                    color: iconColor,
-                    size: 24,
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final parentWidth = constraints.maxWidth;
+                  final parentHeight = constraints.maxHeight;
+                  return Container(
+                    height: (parentHeight * 0.8).clamp(40.0, 120.0),
+                    decoration: BoxDecoration(
+                      color: pillColor,
+                      borderRadius: BorderRadius.circular(14.0), // pill shape
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: parentWidth * 0.06, // 3% of parent width
+                      vertical: parentHeight * 0.08, // 8% of parent height
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: SvgPicture.asset(
+                            spotifyAsset,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (widget.onPlayPause != null)
+                          GestureDetector(
+                            onTap: widget.onPlayPause,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: pillColor,
+                                borderRadius: BorderRadius.circular(32.0),
+                              ),
+                              // padding: const EdgeInsets.symmetric(
+                              //     horizontal: 8, vertical: 4),
+                              child: Icon(
+                                widget.isCurrentTrack && widget.isPlaying
+                                    ? LucideIcons.pause
+                                    : LucideIcons.play,
+                                color: iconColor,
+                                size: 22,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   );
                 },
               ),
             ),
-            // Play/Pause button on the right
-            if (widget.onPlayPause != null)
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: GestureDetector(
-                  onTap: widget.onPlayPause,
-                  child: Icon(
-                    widget.isCurrentTrack && widget.isPlaying
-                        ? Icons.pause
-                        : Icons.play_arrow,
-                    color: iconColor,
-                    size: 24,
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -96,59 +122,73 @@ class _TrackDetailWidgetState extends State<TrackDetailWidget> {
     // Always use white for song/artist, white70 for caption
     final textColor = Colors.white;
     final captionColor = Colors.white70;
+
     return Expanded(
       flex: 300,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Song name and artist on one line
-            Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final parentWidth = constraints.maxWidth;
+          final parentHeight = constraints.maxHeight;
+          return Container(
+            margin: EdgeInsets.symmetric(
+              horizontal: parentWidth * 0.06,
+              vertical: parentHeight * 0.04,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AutoSizeText(
-                        widget.songName ?? 'Unknown Track',
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        minFontSize: 8,
-                        maxFontSize: 14,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
+                // Song name and artist on one line
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AutoSizeText(
+                            widget.songName ?? 'Unknown Track',
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            minFontSize: 8,
+                            maxFontSize: 14,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                          ),
+                          AutoSizeText(
+                            widget.artists != null
+                                ? (widget.artists!.length > 20
+                                    ? '${widget.artists!.substring(0, 20)}...'
+                                    : widget.artists!)
+                                : 'Unknown Artist',
+                            style: TextStyle(
+                              color: textColor.withOpacity(0.8),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            minFontSize: 8,
+                            maxFontSize: 13,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                          ),
+                        ],
                       ),
-                      AutoSizeText(
-                        widget.artists ?? 'Unknown Artist',
-                        style: TextStyle(
-                          color: textColor.withOpacity(0.8),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        minFontSize: 8,
-                        maxFontSize: 13,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+                // Caption with see more functionality
+                if (widget.caption != null && widget.caption!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  _buildCaptionText(captionColor),
+                ],
               ],
             ),
-            // Caption with see more functionality
-            if (widget.caption != null && widget.caption!.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              _buildCaptionText(captionColor),
-            ],
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -298,8 +338,11 @@ class InteractionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final iconColor = isDark ? Colors.white : Colors.black;
-    final likedColor = isDark ? Colors.purple : Colors.deepPurple;
+    // final likedColor = isDark ? Colors.purple : Colors.deepPurple;
+    final likedColor = Color(0xFFFd535f9);
     final textColor = isDark ? Colors.white : Colors.black;
+    final parentWidth = MediaQuery.of(context).size.width;
+
     return Expanded(
       flex: 140,
       child: Container(
@@ -312,7 +355,6 @@ class InteractionWidget extends StatelessWidget {
             GestureDetector(
               onTap: onLike,
               child: SizedBox(
-                height: 32,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -320,50 +362,51 @@ class InteractionWidget extends StatelessWidget {
                     Icon(
                       isLiked ? Icons.favorite : Icons.favorite_border,
                       color: isLiked ? likedColor : iconColor,
-                      size: 18,
+                      size: 24,
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: (parentWidth * 0.02).clamp(6.0, 20.0)),
             // Comment button
             GestureDetector(
               onTap: onComment,
               child: SizedBox(
-                height: 32,
+                // height: 32,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.comment_outlined,
+                      LucideIcons.messageCircle,
                       color: iconColor,
-                      size: 18,
+                      size: 22,
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: (parentWidth * 0.02).clamp(6.0, 20.0)),
             // Share button
             GestureDetector(
               onTap: onShare,
               child: SizedBox(
-                height: 32,
+                // height: 48,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.share,
+                      LucideIcons.share2,
                       color: iconColor,
-                      size: 18,
+                      size: 22,
                     ),
                   ],
                 ),
               ),
             ),
+            SizedBox(width: (parentWidth * 0.02).clamp(6.0, 20.0)),
           ],
         ),
       ),
@@ -431,6 +474,8 @@ class FooterWidget extends StatelessWidget {
   final VoidCallback? onComment;
   final VoidCallback? onShare;
   final bool isLiked;
+  final int likeCount;
+  final int commentCount;
 
   const FooterWidget({
     super.key,
@@ -441,6 +486,8 @@ class FooterWidget extends StatelessWidget {
     this.onComment,
     this.onShare,
     this.isLiked = false,
+    this.likeCount = 0,
+    this.commentCount = 0,
   });
 
   @override
@@ -549,6 +596,8 @@ class Post extends StatelessWidget {
   final bool isLiked;
   final bool isPlaying;
   final bool isCurrentTrack;
+  final int likeCount;
+  final int commentCount;
 
   const Post({
     super.key,
@@ -567,6 +616,8 @@ class Post extends StatelessWidget {
     this.isLiked = false,
     this.isPlaying = false,
     this.isCurrentTrack = false,
+    this.likeCount = 0,
+    this.commentCount = 0,
   });
 
   @override
@@ -592,6 +643,8 @@ class Post extends StatelessWidget {
             onComment: onComment,
             onShare: onShare,
             isLiked: isLiked,
+            likeCount: likeCount,
+            commentCount: commentCount,
           ),
         ],
       ),

@@ -1,456 +1,243 @@
-// import 'package:flutter/material.dart';
-// import 'login_screen.dart';
-// import '../../../data/services/auth_service.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../data/services/auth_service.dart';
+import '../../widgets/auth/custom_text_form_field.dart';
+import '../../widgets/auth/custom_button.dart';
+import '../../../core/providers/auth_provider.dart';
 
-// class SignupScreen extends StatefulWidget {
-//   const SignupScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({Key? key}) : super(key: key);
 
-//   @override
-//   State<SignupScreen> createState() => _SignupScreenState();
-// }
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
 
-// class _SignupScreenState extends State<SignupScreen> {
-//   final TextEditingController _emailController = TextEditingController();
-//   final TextEditingController _fullNameController = TextEditingController();
-//   final TextEditingController _usernameController = TextEditingController();
-//   final TextEditingController _passwordController = TextEditingController();
-//   bool _isLoading = false;
-//   bool _obscurePassword = true;
+class _SignupScreenState extends State<SignupScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
-//   Future<void> _handleSignup() async {
-//     if (_emailController.text.trim().isEmpty ||
-//         _fullNameController.text.trim().isEmpty ||
-//         _usernameController.text.trim().isEmpty ||
-//         _passwordController.text.trim().isEmpty) {
-//       _showMessage('Please fill in all fields');
-//       return;
-//     }
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
-//     setState(() {
-//       _isLoading = true;
-//     });
+  bool _validateInputs() {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return false;
+    }
+    return true;
+  }
 
-//     try {
-//       final authService = AuthService();
-//       final result = await authService.register(
-//         email: _emailController.text.trim(),
-//         username: _usernameController.text.trim(),
-//         password: _passwordController.text.trim(),
-//         role: 'Normal', // Default role as per your backend
-//       );
+  void handleRegister() async {
+    if (!_validateInputs()) return;
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final response = await authService.register(
+        _emailController.text.trim(),
+        _usernameController.text.trim(),
+        _passwordController.text,
+      );
+      if (response['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Registration successful! Please login.')),
+        );
+        // Check if user is authenticated in auth provider
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        if (authProvider.isAuthenticated) {
+          Navigator.pushNamed(context, '/link-account');
+        } else {
+          Navigator.pushNamed(context, '/login');
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'] ?? 'Registration failed')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registration failed. Please try again.')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
-//       if (result['success']) {
-//         _showMessage('Account created successfully!');
-//         Navigator.pushReplacement(
-//           context,
-//           MaterialPageRoute(builder: (context) => LoginScreen()),
-//         );
-//       } else {
-//         _showMessage(result['message'] ?? 'Registration failed');
-//       }
-//     } catch (e) {
-//       _showMessage('Registration failed: ${e.toString()}');
-//     } finally {
-//       setState(() {
-//         _isLoading = false;
-//       });
-//     }
-//   }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Background image
+          SizedBox.expand(
+            child: Image.asset(
+              'assets/backgrounds/purple-black-painting.jpg',
+              fit: BoxFit.cover,
+            ),
+          ),
+          // 0.8 opacity black overlay
+          Container(
+            color: Colors.black.withOpacity(0.8),
+          ),
+          // 0.9 opacity black container with border radius and margin
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 60),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(40),
+            ),
+          ),
+          // Existing widget content
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // App Logo
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 40.0),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      height: 40,
+                    ),
+                  ),
 
-//   Future<void> _handleSpotifySignup() async {
-//     setState(() {
-//       _isLoading = true;
-//     });
+                  // Email Field
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: CustomTextFormField(
+                      controller: _emailController,
+                      hintText: 'Enter your email',
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
 
-//     try {
-//       final authService = AuthService();
-//       final result = await authService.signupWithSpotify();
+                  const SizedBox(height: 16),
 
-//       if (result['success']) {
-//         Navigator.pushReplacementNamed(context, '/home');
-//       } else {
-//         _showMessage(result['message'] ?? 'Spotify signup failed');
-//       }
-//     } catch (e) {
-//       _showMessage('Spotify signup failed: ${e.toString()}');
-//     } finally {
-//       setState(() {
-//         _isLoading = false;
-//       });
-//     }
-//   }
+                  // Username Field
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: CustomTextFormField(
+                      controller: _usernameController,
+                      hintText: 'Enter your username',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your username';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
 
-//   void _showMessage(String message) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(content: Text(message)),
-//     );
-//   }
+                  const SizedBox(height: 16),
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Theme.of(context).colorScheme.primary,
-//       body: SafeArea(
-//         child: Center(
-//           child: SingleChildScrollView(
-//             padding: const EdgeInsets.all(24.0),
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 // Noot Logo
-//                 Image.asset(
-//                   Theme.of(context).brightness == Brightness.dark 
-//                       ? 'assets/images/logo_white.png' 
-//                       : 'assets/images/logo_black.png',
-//                   width: 150,
-//                   height: 60,
-//                 ),
-                
-//                 SizedBox(height: 24),
-                
-//                 // Subtitle
-//                 Text(
-//                   'Sign up to connect with music lovers\nfrom around the world.',
-//                   textAlign: TextAlign.center,
-//                   style: TextStyle(
-//                     color: Theme.of(context).colorScheme.secondary,
-//                     fontSize: 16,
-//                     fontWeight: FontWeight.w400,
-//                   ),
-//                 ),
-                
-//                 SizedBox(height: 32),
-                
-//                 // Spotify signup button
-//                 SizedBox(
-//                   width: double.infinity,
-//                   height: 44,
-//                   child: ElevatedButton.icon(
-//                     onPressed: _isLoading ? null : _handleSpotifySignup,
-//                     style: ElevatedButton.styleFrom(
-//                       backgroundColor: Color(0xFF1DB954),
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(8),
-//                       ),
-//                       elevation: 0,
-//                     ),
-//                     icon: Image.asset(
-//                       'assets/images/spotify.png',
-//                       width: 20,
-//                       height: 20,
-//                     ),
-//                     label: Text(
-//                       'Sign up with Spotify',
-//                       style: TextStyle(
-//                         color: Colors.white,
-//                         fontSize: 14,
-//                         fontWeight: FontWeight.w600,
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-                
-//                 SizedBox(height: 24),
-                
-//                 // OR divider
-//                 Row(
-//                   children: [
-//                     Expanded(
-//                       child: Container(
-//                         height: 1,
-//                         color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-//                       ),
-//                     ),
-//                     Padding(
-//                       padding: const EdgeInsets.symmetric(horizontal: 16),
-//                       child: Text(
-//                         'OR',
-//                         style: TextStyle(
-//                           color: Theme.of(context).colorScheme.secondary,
-//                           fontSize: 12,
-//                           fontWeight: FontWeight.w600,
-//                         ),
-//                       ),
-//                     ),
-//                     Expanded(
-//                       child: Container(
-//                         height: 1,
-//                         color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-                
-//                 SizedBox(height: 24),
-                
-//                 // Email field
-//                 Container(
-//                   decoration: BoxDecoration(
-//                     color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-//                     borderRadius: BorderRadius.circular(8),
-//                     border: Border.all(
-//                       color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-//                       width: 1,
-//                     ),
-//                   ),
-//                   child: TextField(
-//                     controller: _emailController,
-//                     keyboardType: TextInputType.emailAddress,
-//                     decoration: InputDecoration(
-//                       hintText: 'Mobile Number or Email',
-//                       hintStyle: TextStyle(
-//                         color: Theme.of(context).colorScheme.secondary,
-//                         fontSize: 14,
-//                       ),
-//                       border: InputBorder.none,
-//                       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-//                     ),
-//                     style: TextStyle(
-//                       color: Theme.of(context).colorScheme.onPrimary,
-//                       fontSize: 14,
-//                     ),
-//                   ),
-//                 ),
-                
-//                 SizedBox(height: 12),
-                
-//                 // Full Name field
-//                 Container(
-//                   decoration: BoxDecoration(
-//                     color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-//                     borderRadius: BorderRadius.circular(8),
-//                     border: Border.all(
-//                       color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-//                       width: 1,
-//                     ),
-//                   ),
-//                   child: TextField(
-//                     controller: _fullNameController,
-//                     decoration: InputDecoration(
-//                       hintText: 'Full Name',
-//                       hintStyle: TextStyle(
-//                         color: Theme.of(context).colorScheme.secondary,
-//                         fontSize: 14,
-//                       ),
-//                       border: InputBorder.none,
-//                       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-//                     ),
-//                     style: TextStyle(
-//                       color: Theme.of(context).colorScheme.onPrimary,
-//                       fontSize: 14,
-//                     ),
-//                   ),
-//                 ),
-                
-//                 SizedBox(height: 12),
-                
-//                 // Username field
-//                 Container(
-//                   decoration: BoxDecoration(
-//                     color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-//                     borderRadius: BorderRadius.circular(8),
-//                     border: Border.all(
-//                       color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-//                       width: 1,
-//                     ),
-//                   ),
-//                   child: TextField(
-//                     controller: _usernameController,
-//                     decoration: InputDecoration(
-//                       hintText: 'Username',
-//                       hintStyle: TextStyle(
-//                         color: Theme.of(context).colorScheme.secondary,
-//                         fontSize: 14,
-//                       ),
-//                       border: InputBorder.none,
-//                       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-//                     ),
-//                     style: TextStyle(
-//                       color: Theme.of(context).colorScheme.onPrimary,
-//                       fontSize: 14,
-//                     ),
-//                   ),
-//                 ),
-                
-//                 SizedBox(height: 12),
-                
-//                 // Password field
-//                 Container(
-//                   decoration: BoxDecoration(
-//                     color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-//                     borderRadius: BorderRadius.circular(8),
-//                     border: Border.all(
-//                       color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-//                       width: 1,
-//                     ),
-//                   ),
-//                   child: TextField(
-//                     controller: _passwordController,
-//                     obscureText: _obscurePassword,
-//                     decoration: InputDecoration(
-//                       hintText: 'Password',
-//                       hintStyle: TextStyle(
-//                         color: Theme.of(context).colorScheme.secondary,
-//                         fontSize: 14,
-//                       ),
-//                       border: InputBorder.none,
-//                       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-//                       suffixIcon: IconButton(
-//                         icon: Icon(
-//                           _obscurePassword ? Icons.visibility_off : Icons.visibility,
-//                           color: Theme.of(context).colorScheme.secondary,
-//                         ),
-//                         onPressed: () {
-//                           setState(() {
-//                             _obscurePassword = !_obscurePassword;
-//                           });
-//                         },
-//                       ),
-//                     ),
-//                     style: TextStyle(
-//                       color: Theme.of(context).colorScheme.onPrimary,
-//                       fontSize: 14,
-//                     ),
-//                   ),
-//                 ),
-                
-//                 SizedBox(height: 24),
-                
-//                 // Sign up button
-//                 SizedBox(
-//                   width: double.infinity,
-//                   height: 44,
-//                   child: ElevatedButton(
-//                     onPressed: _isLoading ? null : _handleSignup,
-//                     style: ElevatedButton.styleFrom(
-//                       backgroundColor: Color(0xFF0095F6),
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(8),
-//                       ),
-//                       elevation: 0,
-//                     ),
-//                     child: _isLoading
-//                         ? SizedBox(
-//                             width: 20,
-//                             height: 20,
-//                             child: CircularProgressIndicator(
-//                               color: Colors.white,
-//                               strokeWidth: 2,
-//                             ),
-//                           )
-//                         : Text(
-//                             'Sign up',
-//                             style: TextStyle(
-//                               color: Colors.white,
-//                               fontSize: 14,
-//                               fontWeight: FontWeight.w600,
-//                             ),
-//                           ),
-//                   ),
-//                 ),
-                
-//                 SizedBox(height: 16),
-                
-//                 // Terms and conditions
-//                 Padding(
-//                   padding: const EdgeInsets.symmetric(horizontal: 32),
-//                   child: RichText(
-//                     textAlign: TextAlign.center,
-//                     text: TextSpan(
-//                       style: TextStyle(
-//                         color: Theme.of(context).colorScheme.secondary,
-//                         fontSize: 12,
-//                       ),
-//                       children: [
-//                         TextSpan(text: 'By signing up, you agree to our '),
-//                         TextSpan(
-//                           text: 'Terms',
-//                           style: TextStyle(
-//                             color: Theme.of(context).colorScheme.onPrimary,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                         TextSpan(text: ', '),
-//                         TextSpan(
-//                           text: 'Data Policy',
-//                           style: TextStyle(
-//                             color: Theme.of(context).colorScheme.onPrimary,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                         TextSpan(text: ' and '),
-//                         TextSpan(
-//                           text: 'Cookies Policy',
-//                           style: TextStyle(
-//                             color: Theme.of(context).colorScheme.onPrimary,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                         TextSpan(text: '.'),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-                
-//                 SizedBox(height: 48),
-                
-//                 // Login link
-//                 Container(
-//                   width: double.infinity,
-//                   padding: EdgeInsets.symmetric(vertical: 16),
-//                   decoration: BoxDecoration(
-//                     border: Border(
-//                       top: BorderSide(
-//                         color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-//                         width: 1,
-//                       ),
-//                     ),
-//                   ),
-//                   child: Row(
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     children: [
-//                       Text(
-//                         'Have an account? ',
-//                         style: TextStyle(
-//                           color: Theme.of(context).colorScheme.secondary,
-//                           fontSize: 12,
-//                         ),
-//                       ),
-//                       GestureDetector(
-//                         onTap: () {
-//                           Navigator.pushReplacement(
-//                             context,
-//                             MaterialPageRoute(
-//                               builder: (context) => LoginScreen(),
-//                             ),
-//                           );
-//                         },
-//                         child: Text(
-//                           'Log in',
-//                           style: TextStyle(
-//                             color: Color(0xFF0095F6),
-//                             fontSize: 12,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
+                  // Password Field
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: CustomTextFormField(
+                      controller: _passwordController,
+                      hintText: 'Enter your password',
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
 
-//   @override
-//   void dispose() {
-//     _emailController.dispose();
-//     _fullNameController.dispose();
-//     _usernameController.dispose();
-//     _passwordController.dispose();
-//     super.dispose();
-//   }
-// }
+                  const SizedBox(height: 16),
+
+                  // Confirm Password Field
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: CustomTextFormField(
+                      controller: _confirmPasswordController,
+                      hintText: 'Confirm your password',
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please confirm your password';
+                        }
+                        if (value != _passwordController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 48),
+
+                  // Signup Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: CustomButton(
+                      onPressed: handleRegister,
+                      isLoading: _isLoading,
+                      text: 'Sign Up',
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                      ),
+                      child: const Text(
+                        "Already have an account?",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

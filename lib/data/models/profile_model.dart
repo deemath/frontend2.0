@@ -2,17 +2,19 @@ class ProfileModel {
   final String id;
   final String userId;
   final String username;
+  final String fullName;
   final String profileImage;
   final String bio;
   final int posts;
-  final int followers;
-  final int following;
+  final List<String> followers;
+  final List<String> following;
   final List<String> albumImages;
 
   ProfileModel({
     required this.id,
     required this.userId,
     required this.username,
+    required this.fullName,
     required this.profileImage,
     required this.bio,
     required this.posts,
@@ -22,35 +24,37 @@ class ProfileModel {
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
-    int followersCount;
-    int followingCount;
+    List<String> followersList;
+    List<String> followingList;
 
-    // Handle followers as int or List
-    if (json['followers'] is int) {
-      followersCount = json['followers'];
-    } else if (json['followers'] is List) {
-      followersCount = (json['followers'] as List).length;
+    // Parse followers as List<String>
+    if (json['followers'] is List) {
+      followersList = (json['followers'] as List<dynamic>)
+          .map((e) => e.toString())
+          .toList();
     } else {
-      followersCount = 0;
+      followersList = [];
     }
 
-    if (json['following'] is int) {
-      followingCount = json['following'];
-    } else if (json['following'] is List) {
-      followingCount = (json['following'] as List).length;
+    // Parse following as List<String>
+    if (json['following'] is List) {
+      followingList = (json['following'] as List<dynamic>)
+          .map((e) => e.toString())
+          .toList();
     } else {
-      followingCount = 0;
+      followingList = [];
     }
 
     return ProfileModel(
       id: json['_id'] ?? '',
       userId: json['userId'] ?? '',
       username: json['username'] ?? '',
+      fullName: json['fullName'] ?? '',
       profileImage: json['profileImage'] ?? '',
       bio: json['bio'] ?? '',
       posts: json['posts'] ?? 0,
-      followers: followersCount,
-      following: followingCount,
+      followers: followersList,
+      following: followingList,
       albumImages: (json['albumImages'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
@@ -63,6 +67,7 @@ class ProfileModel {
       '_id': id,
       'userId': userId,
       'username': username,
+      'fullName': fullName,
       'profileImage': profileImage,
       'bio': bio,
       'posts': posts,
@@ -78,12 +83,14 @@ class EditProfileModel {
   final String bio;
   final String profileImage;
   final String email;
+  final String fullName; // Added
 
   EditProfileModel({
     required this.username,
     required this.bio,
     required this.profileImage,
     required this.email,
+    required this.fullName, // Added
   });
 
   Map<String, dynamic> toJson() {
@@ -91,7 +98,7 @@ class EditProfileModel {
       'username': username,
       'bio': bio,
       'profileImage': profileImage,
-      'email': email,
+      'fullName': fullName, // Added
     };
   }
 }

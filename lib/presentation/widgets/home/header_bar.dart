@@ -27,8 +27,8 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
               children: [
                 Image.asset(
                   isDark
-                      ? 'assets/images/logo_white.png'
-                      : 'assets/images/logo_black.png',
+                      ? 'assets/images/logo.png'
+                      : 'assets/images/logo.png',
                   width: 100,
                   height: 40,
                 ),
@@ -41,7 +41,9 @@ class NootAppBar extends StatelessWidget implements PreferredSizeWidget {
           IconButton(
             icon: Icon(LucideIcons.heart,
                 color: Theme.of(context).colorScheme.onPrimary, size: 22),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/request');
+            },
           ),
           // Message Icon - Updated this section
           IconButton(

@@ -17,90 +17,389 @@ class CommentSection extends StatefulWidget {
   final String postId;
   final String currentUserId;
   final SongPostService songPostService;
-  const CommentSection({Key? key, required this.comments, required this.onAddComment, required this.postId, required this.currentUserId, required this.songPostService}) : super(key: key);
+  
+  const CommentSection({
+    Key? key,
+    required this.comments,
+    required this.onAddComment,
+    required this.postId,
+    required this.currentUserId,
+    required this.songPostService,
+  }) : super(key: key);
 
   @override
   State<CommentSection> createState() => _CommentSectionState();
 }
 
-class _CommentSectionState extends State<CommentSection> {
+class _CommentSectionState extends State<CommentSection> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
+  late List<Comment> _comments;
+  late AnimationController _sendButtonController;
+  late Animation<double> _sendButtonScale;
+
+  @override
+  void initState() {
+    super.initState();
+    _comments = List.from(widget.comments);
+    _sendButtonController = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _sendButtonScale = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _sendButtonController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _sendButtonController.dispose();
+    super.dispose();
+  }
+
+  // Modern color scheme with glassmorphism
+  Color _getCardColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF1A1A23).withOpacity(0.8)  
+        : Colors.white.withOpacity(0.9);           
+  }
+
+  Color _getCardBlurColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF000000)
+        : const Color(0xFFF8F9FD);
+  }
+
+  Color _getTextColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFFE8E8F0)
+        : const Color(0xFF1A1A2E);
+  }
+
+  Color _getSubTextColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFFA0A0B0)
+        : const Color(0xFF6B7280);
+  }
+
+  Color _getInputBgColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF1A1A2E).withOpacity(0.9)  
+        : const Color(0xFFF8F9FA).withOpacity(0.95); 
+  }
+
+  Color _getBorderColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withOpacity(0.1)
+        : Colors.black.withOpacity(0.05);
+  }
+
+  LinearGradient _getGradientOverlay(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? LinearGradient(
+            colors: [
+              const Color(0xFF8B5CF6).withOpacity(0.1),
+              const Color(0xFFA855F7).withOpacity(0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+        : LinearGradient(
+            colors: [
+              const Color(0xFF8B5CF6).withOpacity(0.05),
+              const Color(0xFFA855F7).withOpacity(0.02),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            itemCount: widget.comments.length,
-            itemBuilder: (context, index) {
-              final comment = widget.comments[index];
-              return ListTile(
-                leading: CircleAvatar(child: Text(comment.username[0])),
-                title: Text(
-                  comment.username,
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  comment.text,
-                  style: TextStyle(color: Colors.black),
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(timeAgo(comment.createdAt)),
-                    IconButton(
-                      icon: Icon(
-                        comment.likedBy.contains(widget.currentUserId) ? Icons.favorite : Icons.favorite_border,
-                        color: comment.likedBy.contains(widget.currentUserId) ? Colors.purple : Colors.grey,
-                        size: 20,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark 
+            ? const Color(0xFF000000)        
+            : Colors.white,                 
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              itemCount: _comments.length,
+              itemBuilder: (context, index) {
+                final comment = _comments[index];
+                return TweenAnimationBuilder<double>(
+                  duration: Duration(milliseconds: 300 + (index * 50)),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, value, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 20 * (1 - value)),
+                      child: Opacity(
+                        opacity: value,
+                        child: child,
                       ),
-                      onPressed: () async {
-                        final result = await widget.songPostService.likeComment(widget.postId, comment.id, widget.currentUserId);
-                        if (result['success']) {
-                          setState(() {
-                            widget.comments[index] = Comment.fromJson(
-                              (result['data']['comments'] as List).firstWhere((c) => c['_id'] == comment.id),
-                            );
-                          });
-                        }
-                      },
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                            // Modern Avatar with gradient
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFF000000),
+                                    Color(0xFFA855F7),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  (comment.username?.isNotEmpty == true 
+                                      ? comment.username![0].toUpperCase() 
+                                      : '?'),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            
+                            // Comment content
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        comment.username ?? 'Unknown user',
+                                        style: TextStyle(
+                                          color: _getTextColor(context),
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, 
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: _getSubTextColor(context).withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          timeAgo(comment.createdAt),
+                                          style: TextStyle(
+                                            color: _getSubTextColor(context),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    comment.text,
+                                    style: TextStyle(
+                                      color: _getSubTextColor(context),
+                                      fontSize: 14,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            // Like section
+                            Column(
+                              children: [
+                                GestureDetector(
+                                  onTap: () async {
+                                    final result = await widget.songPostService.likeComment(
+                                      widget.postId, 
+                                      comment.id, 
+                                      widget.currentUserId,
+                                    );
+                                    if (result['success'] == true) {
+                                      setState(() {
+                                        _comments[index] = Comment.fromJson(
+                                          (result['data']['comments'] as List)
+                                              .firstWhere((c) => c['_id'] == comment.id),
+                                        );
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.transparent, 
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      comment.likedBy.contains(widget.currentUserId)
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: comment.likedBy.contains(widget.currentUserId)
+                                          ? const Color(0xFF800080)
+                                          : _getSubTextColor(context),
+                                      size: 18,
+                                    ),
+                                  ),
+                                ),
+                                if (comment.likes > 0)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      '${comment.likes}',
+                                      style: TextStyle(
+                                        color: _getSubTextColor(context),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                      ),
                     ),
-                    Text('${comment.likes}', style: TextStyle(color: Colors.black)),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-        Divider(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  style: TextStyle(color: Colors.black),
-                  decoration: InputDecoration(
-                    hintText: 'Add a comment...',
-                    border: InputBorder.none,
                   ),
+                );
+              },
+            ),
+          ),
+          
+          // Modern input section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark 
+                  ? const Color(0xFF000000)     
+                  : Colors.white.withOpacity(0.98),           
+              border: Border(
+                top: BorderSide(
+                  color: _getBorderColor(context),
+                  width: 1,
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.send, color: Colors.purple),
-                onPressed: () {
-                  if (_controller.text.trim().isNotEmpty) {
-                    widget.onAddComment(_controller.text.trim());
-                    _controller.clear();
-                  }
-                },
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: _getInputBgColor(context),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: _getBorderColor(context),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark 
+                        ? Colors.black.withOpacity(0.3)
+                        : Colors.black.withOpacity(0.05),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ],
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      child: TextField(
+                        controller: _controller,
+                        style: TextStyle(
+                          color: _getTextColor(context),
+                          fontSize: 15,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Share your thoughts...',
+                          hintStyle: TextStyle(
+                            color: _getSubTextColor(context),
+                            fontSize: 15,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        maxLines: null,
+                        textCapitalization: TextCapitalization.sentences,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ScaleTransition(
+                      scale: _sendButtonScale,
+                      child: GestureDetector(
+                        onTapDown: (_) => _sendButtonController.forward(),
+                        onTapUp: (_) => _sendButtonController.reverse(),
+                        onTapCancel: () => _sendButtonController.reverse(),
+                        onTap: () async {
+                          if (_controller.text.trim().isNotEmpty) {
+                            final newComments = await widget.onAddComment(_controller.text.trim());
+                            setState(() {
+                              _comments.clear();
+                              _comments.addAll(newComments);
+                            });
+                            _controller.clear();
+                          }
+                        },
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFF8B5CF6),
+                                Color(0xFFA855F7),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFF800080).withOpacity(0.4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
