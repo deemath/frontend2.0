@@ -41,6 +41,7 @@ dependencies:
   uni_links: ^0.5.1
   intl: ^0.18.1
   scrollable_positioned_list: ^0.3.8
+  image_picker: ^1.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -76,7 +77,6 @@ flutter:
     - assets/icons/icons-spotify-light.svg # Ensure this SVG is converted to PNG if needed
     - assets/icons/icons-spotify-dark.svg # Ensure this SVG is converted to PNG if needed
     - assets/images/
-    - assets/fonts/
     - assets/images/logo.png
     - assets/images/spotify.png
     - assets/images/hehe.png
