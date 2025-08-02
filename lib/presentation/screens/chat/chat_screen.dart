@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/chat_model.dart';
+import '../../../data/services/chat_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final Chat chat;
+  final String currentUserId;
 
-  const ChatScreen({super.key, required this.chat});
+  const ChatScreen({super.key, required this.chat, required this.currentUserId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -13,8 +15,12 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final ChatService _chatService = ChatService();
   
   List<Message> messages = [];
+  bool _isLoading = true;
+  bool _isSending = false;
+  String? _error;
 
   @override
   void initState() {
@@ -22,64 +28,89 @@ class _ChatScreenState extends State<ChatScreen> {
     _loadMessages();
   }
 
-  void _loadMessages() {
-    // Sample messages
-    messages = [
-      Message(
-        id: '1',
-        senderId: widget.chat.user.id,
-        text: 'Hey! How are you doing?',
-        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        isMe: false,
-      ),
-      Message(
-        id: '2',
-        senderId: 'me',
-        text: 'I\'m good! Just discovered this amazing new song 🎵',
-        timestamp: DateTime.now().subtract(const Duration(hours: 1, minutes: 45)),
-        isMe: true,
-      ),
-      Message(
-        id: '3',
-        senderId: widget.chat.user.id,
-        text: 'Really? What song is it?',
-        timestamp: DateTime.now().subtract(const Duration(hours: 1, minutes: 30)),
-        isMe: false,
-      ),
-      Message(
-        id: '4',
-        senderId: 'me',
-        text: 'It\'s "Blinding Lights" by The Weeknd. You should check it out!',
-        timestamp: DateTime.now().subtract(const Duration(hours: 1, minutes: 25)),
-        isMe: true,
-      ),
-      Message(
-        id: '5',
-        senderId: widget.chat.user.id,
-        text: 'Thanks for sharing that playlist! 🎶',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-        isMe: false,
-      ),
-    ];
+  Future<void> _loadMessages() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      final result = await _chatService.getChatMessages(widget.chat.id);
+      
+      if (result['success']) {
+        final List<dynamic> messagesData = result['data'];
+        final messageList = messagesData.map((json) => Message.fromJson(json, widget.currentUserId)).toList();
+        
+        setState(() {
+          messages = messageList;
+          _isLoading = false;
+        });
+
+        _scrollToBottom();
+      } else {
+        setState(() {
+          _error = result['message'];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Error loading messages: $e';
+        _isLoading = false;
+      });
+    }
   }
 
-  void _sendMessage() {
-    if (_messageController.text.trim().isEmpty) return;
+  Future<void> _sendMessage() async {
+    if (_messageController.text.trim().isEmpty || _isSending) return;
 
-    final newMessage = Message(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderId: 'me',
-      text: _messageController.text.trim(),
-      timestamp: DateTime.now(),
-      isMe: true,
-    );
+    final messageText = _messageController.text.trim();
+    _messageController.clear();
 
     setState(() {
-      messages.add(newMessage);
+      _isSending = true;
     });
 
-    _messageController.clear();
-    _scrollToBottom();
+    try {
+      final result = await _chatService.sendMessage(widget.chat.id, messageText);
+      
+      if (result['success']) {
+        final newMessage = Message.fromJson(result['data'], widget.currentUserId);
+        setState(() {
+          messages.add(newMessage);
+          _isSending = false;
+        });
+        _scrollToBottom();
+      } else {
+        setState(() {
+          _isSending = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message']),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        // Restore the message text if sending failed
+        _messageController.text = messageText;
+      }
+    } catch (e) {
+      setState(() {
+        _isSending = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error sending message: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      // Restore the message text if sending failed
+      _messageController.text = messageText;
+    }
   }
 
   void _scrollToBottom() {
@@ -114,7 +145,11 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundImage: AssetImage(widget.chat.user.profileImage),
+                  backgroundImage: widget.chat.user.profileImage != null && widget.chat.user.profileImage!.isNotEmpty
+                      ? (widget.chat.user.profileImage!.startsWith('http')
+                          ? NetworkImage(widget.chat.user.profileImage!) as ImageProvider
+                          : AssetImage(widget.chat.user.profileImage!))
+                      : const AssetImage('assets/images/hehe.png'),
                 ),
                 if (widget.chat.user.isOnline)
                   Positioned(
@@ -140,7 +175,7 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.chat.user.name,
+                  widget.chat.user.username,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontSize: 16,
@@ -161,17 +196,10 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           IconButton(
             icon: Icon(
-              Icons.videocam,
+              Icons.refresh,
               color: Theme.of(context).colorScheme.onPrimary,
             ),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.call,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-            onPressed: () {},
+            onPressed: _loadMessages,
           ),
         ],
       ),
@@ -180,15 +208,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             // Messages list
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  final message = messages[index];
-                  return MessageBubble(message: message);
-                },
-              ),
+              child: _buildMessagesContent(),
             ),
             
             // Message input
@@ -205,14 +225,6 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.attach_file,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    onPressed: () {},
-                  ),
-                  
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -237,16 +249,26 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         maxLines: null,
                         onSubmitted: (_) => _sendMessage(),
+                        enabled: !_isSending,
                       ),
                     ),
                   ),
                   
                   IconButton(
-                    icon: const Icon(
-                      Icons.send,
-                      color: Colors.green,
-                    ),
-                    onPressed: _sendMessage,
+                    icon: _isSending
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.green,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.send,
+                            color: Colors.green,
+                          ),
+                    onPressed: _isSending ? null : _sendMessage,
                   ),
                 ],
               ),
@@ -254,6 +276,56 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMessagesContent() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: Theme.of(context).colorScheme.onPrimary, size: 48),
+            const SizedBox(height: 16),
+            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadMessages,
+              child: const Text('Try Again'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (messages.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.chat_bubble_outline, color: Theme.of(context).colorScheme.onPrimary, size: 48),
+            const SizedBox(height: 16),
+            Text('No messages yet', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 18)),
+            Text('Send the first message!', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: messages.length,
+      itemBuilder: (context, index) {
+        final message = messages[index];
+        return MessageBubble(message: message);
+      },
     );
   }
 
