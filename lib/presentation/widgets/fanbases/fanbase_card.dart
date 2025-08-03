@@ -58,7 +58,7 @@ class FanbaseCard extends StatelessWidget {
                 ProfileNameRow(
                   profileImageUrl:
                       profileImageUrl ?? 'https://via.placeholder.com/150',
-                  fanbaseName: truncateText(fanbaseName, 20),
+                  fanbaseName: truncateText(fanbaseName, 15),
                 ),
                 OutlinedButton(
                   onPressed: onJoin,
