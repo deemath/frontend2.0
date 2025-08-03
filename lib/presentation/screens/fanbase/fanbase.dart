@@ -94,245 +94,219 @@ class _FanbasePageState extends State<FanbasePage> {
   // ─────────────────────────────────────────────────────────────────────────────
   // Floating Action Button Logic
   void _showCreateFanbaseSheet() {
-    final nameController = TextEditingController();
-    final topicController = TextEditingController();
-    final urlController = TextEditingController();
+  final nameController = TextEditingController();
+  final topicController = TextEditingController();
+  final urlController = TextEditingController();
 
-    File? selectedImage;
-    String? networkImageUrl;
+  File? selectedImage;
+  String? networkImageUrl;
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            Future<void> _pickImage() async {
-              final picker = ImagePicker();
-              final pickedFile =
-                  await picker.pickImage(source: ImageSource.gallery);
-
-              if (pickedFile != null) {
-                setModalState(() {
-                  selectedImage = File(pickedFile.path);
-                  networkImageUrl = null;
-                });
-              }
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setModalState) {
+          Future<void> _pickImage() async {
+            final picker = ImagePicker();
+            final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+            if (pickedFile != null) {
+              setModalState(() {
+                selectedImage = File(pickedFile.path);
+                networkImageUrl = null;
+              });
             }
+          }
 
-            void _showUrlInputDialog() {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Enter the fanbase Photo URL.'),
-                    content: TextField(
-                      controller: urlController,
-                      decoration:
-                          const InputDecoration(hintText: 'https://...'),
-                      keyboardType: TextInputType.url,
+          void _showUrlInputDialog() {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Enter the fanbase Photo URL'),
+                  content: TextField(
+                    controller: urlController,
+                    decoration: const InputDecoration(hintText: 'https://...'),
+                    keyboardType: TextInputType.url,
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
                     ),
-                    actions: [
-                      TextButton(
-                        child: const Text('Cancel'),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      ElevatedButton(
-                        child: const Text('Enter'),
-                        onPressed: () {
-                          setModalState(() {
-                            networkImageUrl = urlController.text.trim();
-                            selectedImage = null;
-                          });
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
+                    ElevatedButton(
+                      onPressed: () {
+                        setModalState(() {
+                          networkImageUrl = urlController.text.trim();
+                          selectedImage = null;
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Use URL'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
 
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                top: 24,
-                left: 16,
-                right: 16,
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              left: 20,
+              right: 20,
+              top: 24,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Create Fanbase',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+
+                // Avatar + Popup
+                Stack(
                   children: [
-                    const Text(
-                      'Create Fanbase',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    CircleAvatar(
+                      radius: 34,
+                      backgroundColor: Colors.grey[300],
+                      backgroundImage: selectedImage != null
+                          ? FileImage(selectedImage!)
+                          : (networkImageUrl != null && networkImageUrl!.isNotEmpty)
+                              ? NetworkImage(networkImageUrl!) as ImageProvider
+                              : const AssetImage('assets/images/spotify.png'),
                     ),
-                    const SizedBox(height: 16),
-
-                    // ─── Circular Avatar with + Button ───────────────────────────────
-                    Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.grey[300],
-                          backgroundImage: selectedImage != null
-                              ? FileImage(selectedImage!)
-                              : (networkImageUrl != null &&
-                                      networkImageUrl!.isNotEmpty)
-                                  ? NetworkImage(networkImageUrl!)
-                                      as ImageProvider
-                                  : const AssetImage(
-                                      'assets/images/spotify.png'),
+                    Positioned(
+                      bottom: -8,
+                      right: -8,
+                      child: PopupMenuButton<String>(
+                        icon: CircleAvatar(
+                          radius: 14,
+                          backgroundColor: Colors.white,
+                          child: Icon(Icons.add, size: 18, color: Colors.black),
                         ),
-                        Positioned(
-                          bottom: -8,
-                          right: -8,
-                          child: PopupMenuButton<String>(
-                            icon: CircleAvatar(
-                              radius: 12,
-                              backgroundColor: Colors.white,
-                              child: const Icon(Icons.add, size: 18),
+                        onSelected: (value) {
+                          if (value == 'gallery') _pickImage();
+                          if (value == 'url') _showUrlInputDialog();
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'gallery',
+                            child: Row(
+                              children: [Icon(Icons.photo), SizedBox(width: 8), Text("Gallery")],
                             ),
-                            onSelected: (value) {
-                              if (value == 'gallery') {
-                                _pickImage();
-                              } else if (value == 'url') {
-                                _showUrlInputDialog();
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'gallery',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.photo_library),
-                                    SizedBox(width: 8),
-                                    Text('Choose from Gallery'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem(
-                                value: 'url',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.link),
-                                    SizedBox(width: 8),
-                                    Text('Enter URL'),
-                                  ],
-                                ),
-                              ),
-                            ],
                           ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // ─── Fanbase Name Input ─────────────────────────────────────────
-                    TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        labelText: 'Fanbase Name',
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
-                        ),
+                          const PopupMenuItem(
+                            value: 'url',
+                            child: Row(
+                              children: [Icon(Icons.link), SizedBox(width: 8), Text("Enter URL")],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
-                    const SizedBox(height: 12),
-
-                    // ─── Fanbase Topic Input ───────────────────────────────────────
-                    TextField(
-                      controller: topicController,
-                      maxLines: 2,
-                      decoration: InputDecoration(
-                        labelText: 'What is this fanbase about?',
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // ─── Buttons ────────────────────────────────────────────────────
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton.icon(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close, color: Colors.grey),
-                          label: const Text('Cancel'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.grey[700],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            final name = nameController.text.trim();
-                            final topic = topicController.text.trim();
-
-                            if (name.isNotEmpty && topic.isNotEmpty) {
-                              try {
-                                await FanbaseService.createFanbase(
-                                  name,
-                                  topic,
-                                  context,
-                                  imageFile: selectedImage,
-                                  imageUrl: networkImageUrl,
-                                );
-                                if (!mounted) return;
-                                Navigator.pop(context);
-                                _loadFanbases();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Fanbase created successfully')),
-                                );
-                              } catch (e) {
-                                if (!mounted) return;
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Error: $e')),
-                                );
-                              }
-                            }
-                          },
-                          icon: const Icon(Icons.check),
-                          label: const Text('Create'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurpleAccent,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
                   ],
                 ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+                const SizedBox(height: 20),
+
+                // Name Input
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Fanbase Name',
+                    labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                    filled: true,
+                    fillColor: const Color(0xFFF0F2FF),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Topic Input
+                TextField(
+                  controller: topicController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    labelText: 'What is this fanbase about?',
+                    labelStyle: const TextStyle(color:  Color.fromARGB(255, 0, 0, 0)),
+                    filled: true,
+                    fillColor: const Color(0xFFF0F2FF),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Action Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final name = nameController.text.trim();
+                        final topic = topicController.text.trim();
+                        if (name.isNotEmpty && topic.isNotEmpty) {
+                          try {
+                            await FanbaseService.createFanbase(
+                              name,
+                              topic,
+                              context,
+                              imageFile: selectedImage,
+                              imageUrl: networkImageUrl,
+                            );
+                            if (!mounted) return;
+                            Navigator.pop(context);
+                            _loadFanbases();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Fanbase created successfully')),
+                            );
+                          } catch (e) {
+                            if (!mounted) return;
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDB0DF9),
+                        foregroundColor: Colors.white,
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text('Create'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
 
   // // ─────────────────────────────────────────────────────────────────────────────
   // // Music Player Widget
