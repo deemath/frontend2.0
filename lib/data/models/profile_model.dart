@@ -83,12 +83,14 @@ class EditProfileModel {
   final String bio;
   final String profileImage;
   final String email;
+  final String fullName; // Added
 
   EditProfileModel({
     required this.username,
     required this.bio,
     required this.profileImage,
     required this.email,
+    required this.fullName, // Added
   });
 
   Map<String, dynamic> toJson() {
@@ -96,6 +98,7 @@ class EditProfileModel {
       'username': username,
       'bio': bio,
       'profileImage': profileImage,
+      'fullName': fullName, // Added
     };
   }
 }

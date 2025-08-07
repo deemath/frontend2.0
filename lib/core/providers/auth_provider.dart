@@ -7,12 +7,14 @@ class User {
   final String name;
   final String email;
   final String role;
+  final bool isSpotifyLinked;
 
   User({
     required this.id,
     required this.name,
     required this.email,
     required this.role,
+    required this.isSpotifyLinked,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -21,6 +23,7 @@ class User {
       name: json['name'] as String,
       email: json['email'] as String,
       role: json['role'] as String,
+      isSpotifyLinked: json['isSpotifyLinked'] as bool,
     );
   }
 
@@ -30,6 +33,7 @@ class User {
       'name': name,
       'email': email,
       'role': role,
+      'isSpotifyLinked': isSpotifyLinked,
     };
   }
 }
@@ -38,13 +42,16 @@ class AuthProvider with ChangeNotifier {
   User? _user;
   String? _token;
   bool _isAuthenticated = false;
+  bool _isSpotifyLinked = false;
 
   User? get user => _user;
   String? get token => _token;
   bool get isAuthenticated => _isAuthenticated;
+  bool get isSpotifyLinked => _isSpotifyLinked;
 
   void setUser(Map<String, dynamic> userData) {
     _user = User.fromJson(userData);
+    _isSpotifyLinked = userData['isSpotifyLinked'] as bool;
     _saveUserDataToSharedPreferences(userData);
     notifyListeners();
   }
@@ -70,7 +77,8 @@ class AuthProvider with ChangeNotifier {
   }
 
   // Save user data to SharedPreferences
-  Future<void> _saveUserDataToSharedPreferences(Map<String, dynamic> userData) async {
+  Future<void> _saveUserDataToSharedPreferences(
+      Map<String, dynamic> userData) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_data', jsonEncode(userData));
@@ -94,7 +102,7 @@ class AuthProvider with ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userDataString = prefs.getString('user_data');
-      
+
       if (userDataString != null) {
         final userData = jsonDecode(userDataString);
         _user = User.fromJson(userData);

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/profile/profile_stat_column.dart';
 import '../../../../data/services/profile_service.dart';
-import '../../../widgets/profile/profile_header.dart';
+// import '../../../widgets/profile/profile_header.dart';
+import '../profile_feed_screen.dart';
 
 class AlbumArtPostsTab extends StatelessWidget {
   final String username;
@@ -16,6 +17,7 @@ class AlbumArtPostsTab extends StatelessWidget {
   final List<dynamic> postsList;
   final VoidCallback? onFollowersTap;
   final VoidCallback? onFollowingTap;
+  final void Function(String postId)? onPostTap;
 
   const AlbumArtPostsTab({
     Key? key,
@@ -31,6 +33,7 @@ class AlbumArtPostsTab extends StatelessWidget {
     required this.postsList,
     this.onFollowersTap,
     this.onFollowingTap,
+    this.onPostTap,
   }) : super(key: key);
 
   @override
@@ -128,6 +131,8 @@ class AlbumArtPostsTab extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final post = postsList[index];
                           final postId = post is Map ? post['id'] : post.id;
+                          final userId =
+                              post is Map ? post['userId'] : post.userId;
                           final stat = postStats.firstWhere(
                             (s) => s['postId'] == postId,
                             orElse: () => null,
@@ -137,61 +142,78 @@ class AlbumArtPostsTab extends StatelessWidget {
                               stat != null ? stat['likes'] ?? 0 : 0;
                           final commentCount =
                               stat != null ? stat['commentsCount'] ?? 0 : 0;
-                          return Stack(
-                            children: [
-                              Image.network(
-                                albumImages[index],
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                              ),
-                              if (likeCount > 0 || commentCount > 0)
-                                Positioned(
-                                  bottom: 4,
-                                  left: 4,
-                                  right: 4,
-                                  child: Container(
-                                    color: Colors.black54,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4, vertical: 2),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        if (likeCount > 0)
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.favorite,
-                                                  color: Colors.purple,
-                                                  size: 16),
-                                              const SizedBox(width: 2),
-                                              Text('$likeCount',
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 12)),
-                                            ],
-                                          )
-                                        else
-                                          const Icon(Icons.favorite_border,
-                                              color: Colors.white, size: 16),
-                                        if (commentCount > 0)
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.comment,
-                                                  color: Colors.white,
-                                                  size: 16),
-                                              const SizedBox(width: 2),
-                                              Text('$commentCount',
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 12)),
-                                            ],
-                                          ),
-                                      ],
+                          return GestureDetector(
+                            onTap: () {
+                              if (onPostTap != null && postId != null) {
+                                onPostTap!(postId);
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ProfileFeedScreen(
+                                      userId: userId,
+                                      initialPostId: postId,
                                     ),
                                   ),
+                                );
+                              }
+                            },
+                            child: Stack(
+                              children: [
+                                Image.network(
+                                  albumImages[index],
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
                                 ),
-                            ],
+                                if (likeCount > 0 || commentCount > 0)
+                                  Positioned(
+                                    bottom: 4,
+                                    left: 4,
+                                    right: 4,
+                                    child: Container(
+                                      color: Colors.black54,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 4, vertical: 2),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          if (likeCount > 0)
+                                            Row(
+                                              children: [
+                                                const Icon(Icons.favorite,
+                                                    color: Colors.purple,
+                                                    size: 16),
+                                                const SizedBox(width: 2),
+                                                Text('$likeCount',
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 12)),
+                                              ],
+                                            )
+                                          else
+                                            const Icon(Icons.favorite_border,
+                                                color: Colors.white, size: 16),
+                                          if (commentCount > 0)
+                                            Row(
+                                              children: [
+                                                const Icon(Icons.comment,
+                                                    color: Colors.white,
+                                                    size: 16),
+                                                const SizedBox(width: 2),
+                                                Text('$commentCount',
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 12)),
+                                              ],
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           );
                         },
                       ),

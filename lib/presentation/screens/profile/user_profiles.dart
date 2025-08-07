@@ -10,6 +10,7 @@ import 'tabs/tagged_posts_tab.dart';
 import 'my_profile.dart';
 import 'followers_list.dart';
 import 'following_list.dart';
+import 'profile_feed_screen.dart';
 
 class UserProfilePage extends StatefulWidget {
   final String userId;
@@ -163,6 +164,20 @@ class _UserProfilePageState extends State<UserProfilePage>
                 ),
               );
             },
+            onPostTap: (postId) {
+              final String? id = postId?.toString();
+              if (id != null && id.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileFeedScreen(
+                      userId: profile!.userId,
+                      initialPostId: id,
+                    ),
+                  ),
+                );
+              }
+            },
           ),
           // Add Follow and Message buttons for other users
           Padding(
@@ -225,6 +240,20 @@ class _UserProfilePageState extends State<UserProfilePage>
                   showGrid: true,
                   profileImage: profile!.profileImage,
                   postsList: posts,
+                  onPostTap: (postId) {
+                    final String? id = postId?.toString();
+                    if (id != null && id.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProfileFeedScreen(
+                            userId: profile!.userId,
+                            initialPostId: id,
+                          ),
+                        ),
+                      );
+                    }
+                  },
                 ),
                 const DescriptionPostsTab(),
                 const TaggedPostsTab(),
