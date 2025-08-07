@@ -45,7 +45,7 @@ class Post {
   final String artists;
   final String? albumImage;
   final String? caption;
-  final String? userId;
+  final String? userId; 
   final String? username;
   int likes;
   int commentsCount;
