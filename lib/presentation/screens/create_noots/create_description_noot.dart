@@ -315,7 +315,7 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
         });
       },
       icon: const Icon(Icons.image),
-      label: const Text('Add Cover Image'),
+      label: const Text('Add Song'),
       style: ElevatedButton.styleFrom(
         backgroundColor: theme.cardColor.withOpacity(0.2),
         foregroundColor: colorScheme.onPrimary,
@@ -334,13 +334,6 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
     return Column(
       children: [
         const SizedBox(height: 16),
-        Text(
-          'Search for a song to get cover image',
-          style: TextStyle(
-            color: colorScheme.onPrimary.withOpacity(0.7),
-            fontSize: 14,
-          ),
-        ),
         const SizedBox(height: 8),
         _buildSearchField(theme, colorScheme),
         _buildSearchResults(colorScheme),
@@ -548,7 +541,7 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Share Your Thoughts'),
+        title: const Text('Noot'),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
       ),
