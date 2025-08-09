@@ -13,7 +13,7 @@ class ThoughtsPostService {
     String? fanbaseID,
   }) async {
     try {
-      // Get user data from shared preferences (same pattern as SongPostService)
+      // Get user data from shared preferences 
       final prefs = await SharedPreferences.getInstance();
       final userDataString = prefs.getString('user_data');
       

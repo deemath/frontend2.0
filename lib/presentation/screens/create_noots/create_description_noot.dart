@@ -154,7 +154,7 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
             ),
           );
           
-          // Clear form and reset state
+
           _thoughtsController.clear();
           setState(() {
             _selectedCoverImage = null;
@@ -162,7 +162,7 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
             _searchResults = null;
           });
           
-          // Navigate back to home
+          
           Navigator.of(context).popUntil((route) => route.isFirst);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -192,7 +192,6 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
     }
   }
 
-  // Shows preview for thoughts posts
   void _showThoughtsPreview() {
     final thoughtsText = _thoughtsController.text.trim();
     if (thoughtsText.isEmpty) {
@@ -243,7 +242,7 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
     );
   }
   
-  // header section with icon and title
+  // header icon and title
   Widget _buildHeader(ColorScheme colorScheme) {
     return Column(
       children: [
