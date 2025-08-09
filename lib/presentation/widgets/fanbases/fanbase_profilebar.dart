@@ -15,8 +15,12 @@ class ProfileNameRow extends StatelessWidget {
     return Row(
       children: [
         CircleAvatar(
-          backgroundImage: AssetImage(profileImageUrl),
+          backgroundImage: NetworkImage(profileImageUrl),
           radius: 14.0,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          onBackgroundImageError: (exception, stackTrace) {
+            // Handle image loading error silently
+          },
         ),
         SizedBox(width: 12.0),
         Text(
@@ -31,7 +35,6 @@ class ProfileNameRow extends StatelessWidget {
     );
   }
 }
-
 
 // import 'package:flutter/material.dart';
 

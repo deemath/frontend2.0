@@ -52,15 +52,6 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
   Future<void> _initUserIdAndFetch() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     String? id = authProvider.user?.id;
-    if (id == null) {
-      // Try loading from SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      final userDataString = prefs.getString('user_data');
-      if (userDataString != null) {
-        final userData = jsonDecode(userDataString);
-        id = userData['id'] as String?;
-      }
-    }
     setState(() {
       userId = id;
     });

@@ -165,7 +165,7 @@ class _UserProfilePageState extends State<UserProfilePage>
               );
             },
             onPostTap: (postId) {
-              final String? id = postId?.toString();
+              final String? id = postId.toString();
               if (id != null && id.isNotEmpty) {
                 Navigator.push(
                   context,
@@ -241,7 +241,7 @@ class _UserProfilePageState extends State<UserProfilePage>
                   profileImage: profile!.profileImage,
                   postsList: posts,
                   onPostTap: (postId) {
-                    final String? id = postId?.toString();
+                    final String? id = postId.toString();
                     if (id != null && id.isNotEmpty) {
                       Navigator.push(
                         context,

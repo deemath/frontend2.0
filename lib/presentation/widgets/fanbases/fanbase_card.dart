@@ -26,7 +26,9 @@ class FanbaseCard extends StatelessWidget {
 
   String truncateText(String text, int maxLength, {bool addEllipsis = true}) {
     if (text.length <= maxLength) return text;
-    return addEllipsis ? '${text.substring(0, maxLength)}...' : text.substring(0, maxLength);
+    return addEllipsis
+        ? '${text.substring(0, maxLength)}...'
+        : text.substring(0, maxLength);
   }
 
   @override
@@ -54,13 +56,15 @@ class FanbaseCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ProfileNameRow(
-                  profileImageUrl: profileImageUrl,
-                  fanbaseName: truncateText(fanbaseName, 20),
+                  profileImageUrl:
+                      profileImageUrl ?? 'https://via.placeholder.com/150',
+                  fanbaseName: truncateText(fanbaseName, 15),
                 ),
                 OutlinedButton(
                   onPressed: onJoin,
                   style: OutlinedButton.styleFrom(
-                    backgroundColor: isJoined ? Colors.transparent : Colors.purple,
+                    backgroundColor:
+                        isJoined ? Colors.transparent : Colors.purple,
                     foregroundColor: isJoined ? theme.onPrimary : Colors.white,
                     side: const BorderSide(color: Colors.purple),
                     shape: RoundedRectangleBorder(
