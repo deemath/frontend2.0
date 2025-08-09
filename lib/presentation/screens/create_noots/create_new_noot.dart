@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/common/musicplayer_bar.dart';
 import '../../../data/services/song_post_service.dart';
 import 'create_noot_preview.dart';
+import '../../widgets/create_post/button.dart';
 
 class CreateNewNootPage extends StatefulWidget {
   final Map<String, dynamic> track;
@@ -54,7 +55,7 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(result['message']),
-              backgroundColor: Colors.green,
+              backgroundColor: const Color(0xFF8E08EF),
             ),
           );
           // Navigate back to home screen
@@ -179,63 +180,12 @@ class _CreateNewNootPageState extends State<CreateNewNootPage> {
           const Spacer(),
           // Updated button section with Preview and Share buttons
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: Row(
-              children: [
-                // Preview Button
-                Expanded(
-                  child: SizedBox(
-                    height: 56,
-                    child: OutlinedButton(
-                      onPressed: _showPreview,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF8E08EF),
-                        side: const BorderSide(
-                          color: Color(0xFF8E08EF),
-                          width: 2,
-                        ),
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.bold, 
-                          fontSize: 18
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Preview'),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                // Share Button
-                Expanded(
-                  child: SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _createPost,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8E08EF),
-                        foregroundColor: Colors.white,
-                        textStyle: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text('Share'),
-                    ),
-                  ),
-                ),
-              ],
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: PreviewShareButtonRow(
+              onPreview: _showPreview,
+              onShare: _createPost,
+              isLoading: _isLoading,
+              shareText: 'Post',
             ),
           ),
         ],
