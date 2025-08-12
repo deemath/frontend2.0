@@ -27,7 +27,6 @@ class FeedWidget extends StatefulWidget {
   final ItemScrollController? itemScrollController;
   final ItemPositionsListener? itemPositionsListener;
 
-
   const FeedWidget({
     Key? key,
     this.posts,
@@ -41,14 +40,11 @@ class FeedWidget extends StatefulWidget {
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
     this.onUserTap,
-
     this.shrinkWrap = false,
     this.physics,
-
     this.initialIndex = 0,
     this.itemScrollController,
     this.itemPositionsListener,
-
   }) : super(key: key);
 
   @override

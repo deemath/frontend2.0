@@ -9,12 +9,12 @@ import '../../../data/models/profile_model.dart';
 
 class ProfileFeedScreen extends StatefulWidget {
   final String userId;
-  final String initialPostId;
+  final String? initialPostId; // Make this nullable
 
   const ProfileFeedScreen({
     Key? key,
     required this.userId,
-    required this.initialPostId,
+    this.initialPostId, // Remove required keyword
   }) : super(key: key);
 
   @override
@@ -59,8 +59,12 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
         }
       } catch (_) {}
 
-      int initialIndex = posts.indexWhere((p) => p.id == widget.initialPostId);
-      if (initialIndex == -1) initialIndex = 0;
+      // Handle the case where initialPostId might be null
+      int initialIndex = 0;
+      if (widget.initialPostId != null && widget.initialPostId!.isNotEmpty) {
+        initialIndex = posts.indexWhere((p) => p.id == widget.initialPostId);
+        if (initialIndex == -1) initialIndex = 0;
+      }
 
       // Patch username if missing and copyWith is available
       final postsWithUsername = posts.map((post) {

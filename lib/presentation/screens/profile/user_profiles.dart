@@ -10,7 +10,7 @@ import 'tabs/tagged_posts_tab.dart';
 import 'my_profile.dart';
 import 'followers_list.dart';
 import 'following_list.dart';
-import 'profile_feed_screen.dart';
+import 'profile_feed_screen.dart'; // Add this import for navigation
 
 class UserProfilePage extends StatefulWidget {
   final String userId;
@@ -165,14 +165,14 @@ class _UserProfilePageState extends State<UserProfilePage>
               );
             },
             onPostTap: (postId) {
-              final String? id = postId?.toString();
-              if (id != null && id.isNotEmpty) {
+              // Navigate to profile feed screen when post is tapped
+              if (postId != null && postId.isNotEmpty) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ProfileFeedScreen(
-                      userId: profile!.userId,
-                      initialPostId: id,
+                      userId: widget.userId,
+                      initialPostId: postId,
                     ),
                   ),
                 );
@@ -241,14 +241,14 @@ class _UserProfilePageState extends State<UserProfilePage>
                   profileImage: profile!.profileImage,
                   postsList: posts,
                   onPostTap: (postId) {
-                    final String? id = postId?.toString();
-                    if (id != null && id.isNotEmpty) {
+                    // Navigate to profile feed screen when post is tapped
+                    if (postId != null && postId.isNotEmpty) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ProfileFeedScreen(
-                            userId: profile!.userId,
-                            initialPostId: id,
+                            userId: widget.userId,
+                            initialPostId: postId,
                           ),
                         ),
                       );
