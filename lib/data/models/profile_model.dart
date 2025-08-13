@@ -2,6 +2,7 @@ class ProfileModel {
   final String id;
   final String userId;
   final String username;
+  final String userType;
   final String fullName;
   final String profileImage;
   final String bio;
@@ -14,6 +15,7 @@ class ProfileModel {
     required this.id,
     required this.userId,
     required this.username,
+    required this.userType,
     required this.fullName,
     required this.profileImage,
     required this.bio,
@@ -49,6 +51,7 @@ class ProfileModel {
       id: json['_id'] ?? '',
       userId: json['userId'] ?? '',
       username: json['username'] ?? '',
+      userType: json['userType'] ?? 'public',
       fullName: json['fullName'] ?? '',
       profileImage: json['profileImage'] ?? '',
       bio: json['bio'] ?? '',
