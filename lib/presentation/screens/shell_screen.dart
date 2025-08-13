@@ -33,7 +33,7 @@ class _ShellScreenState extends State<ShellScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: NootAppBar(),
+      appBar: const NootAppBar(),
       body: Column(
         children: [
           // Currently, only the HomeScreen is managed here

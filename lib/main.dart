@@ -1,26 +1,5 @@
-/* Note:
-SafeArea should be applied inside each screen's Scaffold body (e.g., HomeScreen, CreatePostPage)
-to prevent UI from being obscured by device notches, status bars, or system UI elements.
-
-class ExampleScreen extends StatelessWidget {
-  const ExampleScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Text('Hello, SafeArea!'),
-        ),
-      ),
-    );
-  }
-}
-
-*/
-
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'presentation/screens/shell_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
@@ -28,21 +7,16 @@ import 'presentation/screens/auth/signup_screen.dart';
 import 'presentation/screens/auth/link_spotify_screen.dart';
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
-import 'data/services/spotify_service.dart';
+// import 'data/services/spotify_service.dart';
 import 'data/services/auth_service.dart';
-import 'core/constants/app_constants.dart';
+// import 'core/constants/app_constants.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/providers/auth_provider.dart';
-// import 'presentation/screens/fanbase/fanbase.dart';
 import 'presentation/screens/profile/my_profile.dart';
-// import 'package:frontend/presentation/screens/search/search_feed_screen.dart';
-// import 'presentation/screens/demopost/demo.dart';
 import 'presentation/screens/search/search_feed_screen.dart';
-// import 'presentation/widgets/song_post/feed.dart';
-//import 'presentation/screens/show_all_posts_screen.dart';
 import 'presentation/screens/fanbase/fanbase_details.dart';
 import 'presentation/screens/splash_screen.dart'; // Import the SplashScreen
-import 'presentation/screens/shell_screen2.dart';
+import '/presentation/screens/fanbase/fanbase.dart';
 import 'presentation/screens/request/request.dart';
 
 void main() async {
@@ -88,9 +62,9 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
-      home: SplashScreen(
-        nextScreen: const ShellScreen(), // Show this when authenticated
-        authScreen: const LoginScreen(), // Show this when not authenticated
+      home: const SplashScreen(
+        nextScreen: ShellScreen(), // Show this when authenticated
+        authScreen: LoginScreen(), // Show this when not authenticated
       ),
       onGenerateRoute: (settings) {
         // Route protection logic
@@ -103,7 +77,7 @@ class MyApp extends StatelessWidget {
         if (protectedRoutes.contains(settings.name) && !isAuthenticated) {
           return MaterialPageRoute(
             builder: (_) => const LoginScreen(),
-            settings: RouteSettings(name: '/login'),
+            settings: const RouteSettings(name: '/login'),
           );
         }
 
@@ -127,20 +101,20 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const SignupScreen());
           case '/create':
             return MaterialPageRoute(
-              builder: (_) => CreatePostPage(),
+              builder: (_) => const CreatePostPage(),
             );
           case '/fanbases':
-            return MaterialPageRoute(builder: (_) => const ShellScreen2());
+            return MaterialPageRoute(builder: (_) => const FanbasePage());
           case '/profile':
-            return MaterialPageRoute(builder: (_) => NormalUserProfilePage());
+            return MaterialPageRoute(builder: (_) => const NormalUserProfilePage());
           case '/search':
-            return MaterialPageRoute(builder: (_) => SearchFeedScreen());
+            return MaterialPageRoute(builder: (_) => const SearchFeedScreen());
           // case '/demodespost':
           //   return MaterialPageRoute(builder: (_) => HomeScreen2());
           // case '/feed':
           //   return MaterialPageRoute(builder: (_) => FeedPage());
           case '/request':
-            return MaterialPageRoute(builder: (_) => RequestScreen());
+            return MaterialPageRoute(builder: (_) => const RequestScreen());
           case '/link-account':
             return MaterialPageRoute(builder: (_) => const LinkSpotifyScreen());
           default:
