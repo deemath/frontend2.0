@@ -29,10 +29,11 @@ class Fanbase {
   final String? fanbasePhotoUrl;
   final int numLikes;
   final List<String> likedUserIds;
+  final bool isLiked; 
   final int numPosts;
   final List<String> postIds;
   final List<String> joinedUserIds;
-  final bool isJoined; // Add this field
+  final bool isJoined;
   final int numShares;
   final DateTime createdAt;
   final Creator createdBy;
@@ -44,10 +45,11 @@ class Fanbase {
     this.fanbasePhotoUrl,
     required this.numLikes,
     required this.likedUserIds,
+    required this.isLiked, 
     required this.numPosts,
     required this.postIds,
     required this.joinedUserIds,
-    required this.isJoined, // Add to constructor
+    required this.isJoined, 
     required this.numShares,
     required this.createdAt,
     required this.createdBy,
@@ -65,6 +67,7 @@ class Fanbase {
       fanbasePhotoUrl: json['fanbasePhotoUrl'],
       numLikes: json['numberOfLikes'] ?? 0,
       likedUserIds: List<String>.from(json['likedUserIds'] ?? []),
+      isLiked: json['isJoined'] ?? false, 
       numPosts: json['numberOfPosts'] ?? 0,
       postIds: List<String>.from(json['postIds'] ?? []),
       joinedUserIds: List<String>.from(json['joinedUserIds'] ?? []),
@@ -85,6 +88,7 @@ class Fanbase {
       if (fanbasePhotoUrl != null) 'fanbasePhotoUrl': fanbasePhotoUrl,
       'numberOfLikes': numLikes,
       'likedUserIds': likedUserIds,
+      'isLiked': isJoined, 
       'numberOfPosts': numPosts,
       'postIds': postIds,
       'joinedUserIds': joinedUserIds,

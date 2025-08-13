@@ -20,7 +20,8 @@ class FanbaseCard extends StatefulWidget {
 
 class _FanbaseCardState extends State<FanbaseCard> {
   late Fanbase _fanbase;
-  bool _isLoading = false;
+  bool _isJoinLoading = false;
+  bool _isLikeLoading = false;
 
   @override
   void initState() {
@@ -31,8 +32,6 @@ class _FanbaseCardState extends State<FanbaseCard> {
   @override
   void didUpdateWidget(covariant FanbaseCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // This is still important to keep the card's state in sync
-    // if the parent list refreshes for any other reason.
     if (widget.initialFanbase != oldWidget.initialFanbase) {
       setState(() {
         _fanbase = widget.initialFanbase;
@@ -47,39 +46,63 @@ class _FanbaseCardState extends State<FanbaseCard> {
         : text.substring(0, maxLength);
   }
 
-  /// Handles toggling the join status by trusting the backend response.
+  /// Handles toggling the join status
   Future<void> _handleJoin() async {
-    if (_isLoading) return;
+    if (_isJoinLoading) return;
 
-    setState(() => _isLoading = true);
+    setState(() => _isJoinLoading = true);
 
     try {
-      // Call the service and wait for the definitive response
       final updatedFanbase =
           await FanbaseService.joinFanbase(_fanbase.id, context);
 
       print('Updated fanbase: ${updatedFanbase.toJson()}');
 
-      // Trust the backend's response to update the state
       if (mounted) {
         setState(() {
           _fanbase = updatedFanbase;
         });
       }
-
-      // Only notify parent on success, or remove this line entirely
-      // widget.onJoinStateChanged();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: ${e.toString()}')),
         );
       }
-      // Notify parent only on error to refresh the list
       widget.onJoinStateChanged();
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _isJoinLoading = false);
+      }
+    }
+  }
+
+  /// Handles toggling the like status
+  Future<void> _handleLike() async {
+    if (_isLikeLoading) return;
+
+    setState(() => _isLikeLoading = true);
+
+    try {
+      final updatedFanbase =
+          await FanbaseService.likeFanbase(_fanbase.id, context);
+
+      print('Updated fanbase (like): ${updatedFanbase.toJson()}');
+
+      if (mounted) {
+        setState(() {
+          _fanbase = updatedFanbase;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error liking fanbase: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLikeLoading = false);
       }
     }
   }
@@ -124,7 +147,7 @@ class _FanbaseCardState extends State<FanbaseCard> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
-                  child: _isLoading
+                  child: _isJoinLoading
                       ? SizedBox(
                           width: 16,
                           height: 16,
@@ -160,6 +183,9 @@ class _FanbaseCardState extends State<FanbaseCard> {
             FanbaseInterations(
               numLikes: _fanbase.numLikes,
               numPosts: _fanbase.numPosts,
+              isLiked: _fanbase.isLiked,
+              isLikeLoading: _isLikeLoading,
+              onLikeTap: _handleLike,
             ),
           ],
         ),

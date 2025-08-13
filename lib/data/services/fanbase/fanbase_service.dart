@@ -123,9 +123,33 @@ class FanbaseService {
     } on DioException catch (e) {
       final errorMessage = e.response?.data?['message'] ?? e.message;
       throw Exception('Failed to update join status: $errorMessage');
-      
+
     } catch (e) {
       throw Exception('Failed to update join status: $e');
+    }
+  }
+
+  static Future<Fanbase> likeFanbase(
+      String fanbaseId, BuildContext context) async {
+    try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final dio = authService.dio;
+
+      final response = await dio.post('/fanbase/$fanbaseId/like');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return Fanbase.fromJson(response.data);
+      } else {
+        throw Exception(
+            'Failed to update like status: ${response.statusMessage}');
+      }
+
+    } on DioException catch (e) {
+      final errorMessage = e.response?.data?['message'] ?? e.message;
+      throw Exception('Failed to update like status: $errorMessage');
+
+    } catch (e) {
+      throw Exception('Failed to update like status: $e');
     }
   }
 }
