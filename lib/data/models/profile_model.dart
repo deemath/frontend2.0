@@ -84,28 +84,29 @@ class ProfileModel {
 
 class EditProfileModel {
   final String username;
-  final String bio;
-  final String profileImage;
   final String email;
-  final String fullName; // Added
-  final String userType; // Added
+  final String fullName;
+  final String profileImage;
+  final String bio;
+  final String userType; // Add userType to the edit profile model
 
   EditProfileModel({
     required this.username,
-    required this.bio,
-    required this.profileImage,
     required this.email,
-    required this.fullName, // Added
-    required this.userType, // Added
+    required this.fullName,
+    required this.profileImage,
+    required this.bio,
+    this.userType = 'public', // Default to public
   });
 
   Map<String, dynamic> toJson() {
     return {
       'username': username,
-      'bio': bio,
+      'email': email,
+      'fullName': fullName,
       'profileImage': profileImage,
-      'fullName': fullName, // Added
-      'userType': userType, // Added
+      'bio': bio,
+      'userType': userType,
     };
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+// ...existing code...
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../data/models/profile_model.dart';
 import '../../../../data/services/profile_service.dart';
@@ -38,7 +37,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.loadUserDataFromSharedPreferences();
       _fetchProfile();
     });
   }
@@ -48,6 +49,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final userId = Provider.of<AuthProvider>(context, listen: false).user?.id;
     if (userId == null) {
       setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not logged in')),
+      );
       return;
     }
     final result = await _service.getUserProfile(userId);
@@ -56,12 +60,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     // ignore: avoid_print
     print('Profile fetch result: $result');
 
-    if (result['success'] == false) {
+    if (result['success'] == false || result['data'] == null) {
       setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? 'Failed to load profile')),
+      );
       return;
     }
     final data = result['data'];
-    // No need to check for 'profile' key here, as service already extracts it
+    // Defensive: check for required fields
     _usernameController.text = data['username'] ?? '';
     _bioController.text = data['bio'] ?? '';
     _emailController.text = data['email'] ?? '';
@@ -126,6 +133,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: AppBar(
         title: const Text('Edit Profile'),
         backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Profile',
+            onPressed: () {
+              _fetchProfile();
+            },
+          ),
+        ],
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
