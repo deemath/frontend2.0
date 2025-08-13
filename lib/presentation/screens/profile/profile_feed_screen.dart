@@ -64,6 +64,8 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
       if (widget.initialPostId != null && widget.initialPostId!.isNotEmpty) {
         initialIndex = posts.indexWhere((p) => p.id == widget.initialPostId);
         if (initialIndex == -1) initialIndex = 0;
+        print("Initial post ID: ${widget.initialPostId}");
+        print("Found at index: $initialIndex");
       }
 
       // Patch username if missing and copyWith is available
@@ -83,8 +85,13 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
 
       // Scroll to the tapped post after the first frame using scrollable_positioned_list
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_itemScrollController.isAttached && initialIndex > 0) {
-          _itemScrollController.jumpTo(index: initialIndex);
+        if (_itemScrollController.isAttached && _initialIndex > 0) {
+          print("Scrolling to index: $_initialIndex");
+          try {
+            _itemScrollController.jumpTo(index: _initialIndex);
+          } catch (e) {
+            print("Error scrolling: $e");
+          }
         }
       });
     } catch (e) {
@@ -110,6 +117,22 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
             child: Text(_error!, style: const TextStyle(color: Colors.white))),
       );
     }
+
+    // Ensure scrolling to initial position happens after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_itemScrollController.isAttached && _initialIndex > 0) {
+        try {
+          _itemScrollController.scrollTo(
+            index: _initialIndex,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        } catch (e) {
+          print("Error scrolling: $e");
+        }
+      }
+    });
+
     return Scaffold(
       appBar: NootAppBar(),
       body: FeedWidget(

@@ -146,6 +146,14 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     final result = await _songPostService.likePost(post.id, currentUserId);
+    if (result['success']) {
+      if (post.userId != null) {
+        await _songPostService.addRecentlyLikedUser(
+          currentUserId,
+          post.userId!,
+        );
+      }
+    }
     if (!result['success']) {
       setState(() {
         if (post.likedByMe) {

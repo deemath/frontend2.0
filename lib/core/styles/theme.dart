@@ -5,7 +5,7 @@ class AppTheme {
     return ThemeData(
       brightness: Brightness.light,
       scaffoldBackgroundColor: Colors.white,
-      // primaryColor: Colors.green,
+      fontFamily: 'Comfortaa', // This sets Comfortaa as default for ALL text
       colorScheme: ColorScheme.fromSeed(
         primary: Colors.white,
         onPrimary: Colors.black,
@@ -13,7 +13,7 @@ class AppTheme {
         seedColor: Colors.green,
         brightness: Brightness.light,
       ),
-      // Add more customizations if needed
+      // Remove redundant textTheme - fontFamily above handles it
     );
   }
 
@@ -21,7 +21,7 @@ class AppTheme {
     return ThemeData(
       brightness: Brightness.dark,
       scaffoldBackgroundColor: Colors.black,
-      // primaryColor: Colors.green,
+      fontFamily: 'Comfortaa', // This sets Comfortaa as default for ALL text
       colorScheme: ColorScheme.fromSeed(
         primary: Colors.black,
         onPrimary: Colors.white,
@@ -29,6 +29,7 @@ class AppTheme {
         seedColor: Colors.green,
         brightness: Brightness.dark,
       ),
+      // Remove redundant textTheme - fontFamily above handles it
     );
   }
 }

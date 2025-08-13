@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/chat_model.dart';
+import '../../../data/services/chat_service.dart';
 import 'chat_screen.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -10,63 +13,60 @@ class ChatListScreen extends StatefulWidget {
 }
 
 class _ChatListScreenState extends State<ChatListScreen> {
-  // Sample data
-  List<Chat> chats = [
-    Chat(
-      id: '1',
-      user: ChatUser(
-        id: '1',
-        name: 'Bumblebee',
-        profileImage: 'assets/images/hehe.png',
-        isOnline: true,
-        lastSeen: 'Online',
-      ),
-      lastMessage: Message(
-        id: '1',
-        senderId: '1',
-        text: 'Hey! Check out this new song 🎵',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
-        isMe: false,
-      ),
-      unreadCount: 2,
-    ),
-    Chat(
-      id: '2',
-      user: ChatUser(
-        id: '2',
-        name: 'Tashini',
-        profileImage: 'assets/images/hehe.png',
-        isOnline: false,
-        lastSeen: '1h ago',
-      ),
-      lastMessage: Message(
-        id: '2',
-        senderId: '2',
-        text: 'Thanks for sharing that playlist!',
-        timestamp: DateTime.now().subtract(const Duration(hours: 1)),
-        isMe: false,
-      ),
-      unreadCount: 0,
-    ),
-    Chat(
-      id: '3',
-      user: ChatUser(
-        id: '3',
-        name: 'Nethmi',
-        profileImage: 'assets/images/hehe.png',
-        isOnline: true,
-        lastSeen: 'Online',
-      ),
-      lastMessage: Message(
-        id: '3',
-        senderId: 'me',
-        text: 'Did you listen to that new album?',
-        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        isMe: true,
-      ),
-      unreadCount: 0,
-    ),
-  ];
+  final ChatService _chatService = ChatService();
+  List<Chat> chats = [];
+  bool _isLoading = true;
+  String? _error;
+  String? currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserIdAndChats();
+  }
+
+  Future<void> _loadUserIdAndChats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userDataString = prefs.getString('user_data');
+    final userData = userDataString != null
+        ? jsonDecode(userDataString)
+        : {'id': '685fb750cc084ba7e0ef8533'}; // Fallback for testing
+    setState(() {
+      currentUserId = userData['id'];
+    });
+    await _loadChats();
+  }
+
+  Future<void> _loadChats() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      final result = await _chatService.getUserChats();
+      
+      if (result['success']) {
+        final List<dynamic> chatsData = result['data'];
+        final chatList = chatsData.map((json) => Chat.fromJson(json, currentUserId!)).toList();
+        
+        setState(() {
+          chats = chatList;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _error = result['message'];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Error loading chats: $e';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +90,13 @@ class _ChatListScreenState extends State<ChatListScreen> {
               color: Theme.of(context).colorScheme.onPrimary,
             ),
             onPressed: () {},
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.refresh,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+            onPressed: _loadChats,
           ),
         ],
       ),
@@ -126,26 +133,74 @@ class _ChatListScreenState extends State<ChatListScreen> {
             
             // Chat list
             Expanded(
-              child: ListView.builder(
-                itemCount: chats.length,
-                itemBuilder: (context, index) {
-                  final chat = chats[index];
-                  return ChatListItem(
-                    chat: chat,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatScreen(chat: chat),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
+              child: _buildContent(),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: Theme.of(context).colorScheme.onPrimary, size: 48),
+            const SizedBox(height: 16),
+            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadChats,
+              child: const Text('Try Again'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (chats.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.chat, color: Theme.of(context).colorScheme.onPrimary, size: 48),
+            const SizedBox(height: 16),
+            Text('No chats yet', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 18)),
+            Text('Start a conversation!', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadChats,
+      child: ListView.builder(
+        itemCount: chats.length,
+        itemBuilder: (context, index) {
+          final chat = chats[index];
+          return ChatListItem(
+            chat: chat,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatScreen(
+                    chat: chat,
+                    currentUserId: currentUserId!,
+                  ),
+                ),
+              ).then((_) => _loadChats()); // Refresh when coming back
+            },
+          );
+        },
       ),
     );
   }
@@ -173,7 +228,11 @@ class ChatListItem extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundImage: AssetImage(chat.user.profileImage),
+                  backgroundImage: chat.user.profileImage != null && chat.user.profileImage!.isNotEmpty
+                      ? (chat.user.profileImage!.startsWith('http')
+                          ? NetworkImage(chat.user.profileImage!) as ImageProvider
+                          : AssetImage(chat.user.profileImage!))
+                      : const AssetImage('assets/images/hehe.png'),
                 ),
                 if (chat.user.isOnline)
                   Positioned(
@@ -206,20 +265,21 @@ class ChatListItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        chat.user.name,
+                        chat.user.username,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(
-                        _formatTime(chat.lastMessage.timestamp),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontSize: 12,
+                      if (chat.lastMessage != null)
+                        Text(
+                          _formatTime(chat.lastMessage!.timestamp),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                   
@@ -229,7 +289,7 @@ class ChatListItem extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          chat.lastMessage.text,
+                          chat.lastMessage?.text ?? 'Start a conversation',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.secondary,
                             fontSize: 14,

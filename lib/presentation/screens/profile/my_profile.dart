@@ -1,8 +1,8 @@
 // import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart'; // Uncomment this
+import 'dart:convert'; // Uncomment this
 import 'tabs/album_art_posts_tab.dart';
 import 'tabs/description_posts_tab.dart';
 import 'tabs/tagged_posts_tab.dart';
@@ -62,21 +62,43 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
   }
 
   Future<void> _initUserIdAndFetch() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    String? id = authProvider.user?.id;
-    if (id == null) {
-      // Try loading from SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      final userDataString = prefs.getString('user_data');
-      if (userDataString != null) {
-        final userData = jsonDecode(userDataString);
-        id = userData['id'] as String?;
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      String? id = authProvider.user?.id;
+
+      // Add debug print
+      print("AuthProvider user ID: $id");
+
+      // If ID is null, try to get it from SharedPreferences directly
+      if (id == null) {
+        final prefs = await SharedPreferences.getInstance();
+        final userDataString = prefs.getString('user_data');
+        print("SharedPrefs user_data: $userDataString");
+
+        if (userDataString != null) {
+          final userData = jsonDecode(userDataString);
+          id = userData['id'] as String?;
+          print("Extracted ID from SharedPrefs: $id");
+        }
       }
+
+      setState(() {
+        userId = id;
+      });
+
+      if (userId == null) {
+        print("WARNING: User ID is still null after all attempts");
+      } else {
+        print("User ID set: $userId");
+      }
+
+      _fetchProfileData();
+    } catch (e) {
+      print("Error in _initUserIdAndFetch: $e");
+      setState(() {
+        isLoading = false;
+      });
     }
-    setState(() {
-      userId = id;
-    });
-    _fetchProfileData();
   }
 
   Future<void> _fetchProfileData() async {

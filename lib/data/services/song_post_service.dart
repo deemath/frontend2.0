@@ -217,4 +217,32 @@ class SongPostService {
       };
     }
   }
+
+  Future<Map<String, dynamic>> addRecentlyLikedUser(
+    String userId, String likedUserId) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/recently-liked-users'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'userId': userId,
+        'likedUserId': likedUserId,
+      }),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return {'success': true, 'message': 'Interaction recorded'};
+    } else {
+      final errorData = jsonDecode(response.body);
+      return {
+        'success': false,
+        'message': errorData['error'] ?? errorData['message'] ?? 'Failed to record interaction',
+      };
+    }
+  } catch (e) {
+    return {
+      'success': false,
+      'message': 'Network error: $e',
+    };
+  }
+}
 } 
