@@ -5,9 +5,8 @@ import 'package:provider/provider.dart';
 import '../../core/providers/auth_provider.dart';
 
 class SongPostService {
-  
   final String baseUrl = 'http://localhost:3000';
-  
+
   Future<Map<String, dynamic>> createPost({
     required String trackId,
     required String songName,
@@ -19,7 +18,7 @@ class SongPostService {
       // Get user data from shared preferences
       final prefs = await SharedPreferences.getInstance();
       final userDataString = prefs.getString('user_data');
-      
+
       // Check if user is logged in
       if (userDataString == null) {
         return {
@@ -27,9 +26,9 @@ class SongPostService {
           'message': 'User not logged in. Please log in to create a post.',
         };
       }
-      
+
       final userData = jsonDecode(userDataString);
-      
+
       // Validate that we have the required user data
       if (userData['id'] == null || userData['name'] == null) {
         return {
@@ -37,7 +36,7 @@ class SongPostService {
           'message': 'Invalid user data. Please log in again.',
         };
       }
-      
+
       final response = await http.post(
         Uri.parse('$baseUrl/song-posts'),
         headers: {
@@ -49,7 +48,7 @@ class SongPostService {
           'artists': artists,
           'albumImage': albumImage,
           'caption': caption,
-          'userId': userData['id'], 
+          'userId': userData['id'],
         }),
       );
 
@@ -64,7 +63,9 @@ class SongPostService {
         final errorData = jsonDecode(response.body);
         return {
           'success': false,
-          'message': errorData['error'] ?? errorData['message'] ?? 'Failed to create post',
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to create post',
         };
       }
     } catch (e) {
@@ -78,7 +79,7 @@ class SongPostService {
   Future<Map<String, dynamic>> getAllPosts() async {
     try {
       //print('Fetching all posts from: $baseUrl');
-      
+
       final response = await http.get(
         Uri.parse(baseUrl),
         headers: {
@@ -91,7 +92,7 @@ class SongPostService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        
+
         // Ensure data is a list
         if (data is List) {
           //print('Successfully fetched ${data.length} posts from all users');
@@ -112,7 +113,9 @@ class SongPostService {
         final errorData = jsonDecode(response.body);
         return {
           'success': false,
-          'message': errorData['error'] ?? errorData['message'] ?? 'Failed to retrieve posts',
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to retrieve posts',
         };
       }
     } catch (e) {
@@ -163,7 +166,8 @@ class SongPostService {
     return jsonDecode(response.body);
   }
 
-  Future<Map<String, dynamic>> addComment(String postId, String userId, String username, String text) async {
+  Future<Map<String, dynamic>> addComment(
+      String postId, String userId, String username, String text) async {
     final response = await http.post(
       Uri.parse('$baseUrl/song-posts/$postId/comment'),
       headers: {'Content-Type': 'application/json'},
@@ -172,7 +176,8 @@ class SongPostService {
     return jsonDecode(response.body);
   }
 
-  Future<Map<String, dynamic>> likeComment(String postId, String commentId, String userId) async {
+  Future<Map<String, dynamic>> likeComment(
+      String postId, String commentId, String userId) async {
     final response = await http.post(
       Uri.parse('$baseUrl/song-posts/$postId/comment/$commentId/like'),
       headers: {'Content-Type': 'application/json'},
@@ -219,30 +224,81 @@ class SongPostService {
   }
 
   Future<Map<String, dynamic>> addRecentlyLikedUser(
-    String userId, String likedUserId) async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/recently-liked-users'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'userId': userId,
-        'likedUserId': likedUserId,
-      }),
-    );
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return {'success': true, 'message': 'Interaction recorded'};
-    } else {
-      final errorData = jsonDecode(response.body);
+      String userId, String likedUserId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/recently-liked-users'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'userId': userId,
+          'likedUserId': likedUserId,
+        }),
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return {'success': true, 'message': 'Interaction recorded'};
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to record interaction',
+        };
+      }
+    } catch (e) {
       return {
         'success': false,
-        'message': errorData['error'] ?? errorData['message'] ?? 'Failed to record interaction',
+        'message': 'Network error: $e',
       };
     }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'Network error: $e',
-    };
+  }
+
+  Future<Map<String, dynamic>> deletePost(String postId) async {
+    try {
+      // Get user data from shared preferences for authentication
+      final prefs = await SharedPreferences.getInstance();
+      final userDataString = prefs.getString('user_data');
+
+      if (userDataString == null) {
+        return {
+          'success': false,
+          'message': 'User not logged in. Please log in to delete post.',
+        };
+      }
+
+      final userData = jsonDecode(userDataString);
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/song-posts/$postId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'userId': userData['id'], // Send userId for authorization
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': true,
+          'data': data,
+          'message': 'Post deleted successfully',
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to delete post',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
   }
 }
-} 
