@@ -64,14 +64,16 @@ class _FanbasePageState extends State<FanbasePage> {
           itemBuilder: (context, index) {
             final fanbase = fanbases[index];
             return FanbaseCard(
-              fanbaseId: fanbase.id,
-              profileImageUrl: fanbase.fanbasePhotoUrl ?? '',
-              fanbaseName: fanbase.fanbaseName,
-              topic: fanbase.fanbaseTopic,
-              numLikes: fanbase.numLikes,
-              numPosts: fanbase.numPosts,
-              isJoined: false,
-              onJoin: () {},
+              // fanbaseId: fanbase.id,
+              // profileImageUrl: fanbase.fanbasePhotoUrl ?? '',
+              // fanbaseName: fanbase.fanbaseName,
+              // topic: fanbase.fanbaseTopic,
+              // numLikes: fanbase.numLikes,
+              // numPosts: fanbase.numPosts,
+              // isJoined: false,
+              // onJoin: () {},
+              onJoinStateChanged: _loadFanbases,
+              initialFanbase: fanbase,
             );
           },
         );

@@ -31,6 +31,8 @@ class Fanbase {
   final List<String> likedUserIds;
   final int numPosts;
   final List<String> postIds;
+  final List<String> joinedUserIds;
+  final bool isJoined; // Add this field
   final int numShares;
   final DateTime createdAt;
   final Creator createdBy;
@@ -44,6 +46,8 @@ class Fanbase {
     required this.likedUserIds,
     required this.numPosts,
     required this.postIds,
+    required this.joinedUserIds,
+    required this.isJoined, // Add to constructor
     required this.numShares,
     required this.createdAt,
     required this.createdBy,
@@ -63,6 +67,8 @@ class Fanbase {
       likedUserIds: List<String>.from(json['likedUserIds'] ?? []),
       numPosts: json['numberOfPosts'] ?? 0,
       postIds: List<String>.from(json['postIds'] ?? []),
+      joinedUserIds: List<String>.from(json['joinedUserIds'] ?? []),
+      isJoined: json['isJoined'] ?? false, 
       numShares: json['numberOfShares'] ?? 0,
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       createdBy: json['createdBy'] != null
@@ -81,6 +87,8 @@ class Fanbase {
       'likedUserIds': likedUserIds,
       'numberOfPosts': numPosts,
       'postIds': postIds,
+      'joinedUserIds': joinedUserIds,
+      'isJoined': isJoined,
       'numberOfShares': numShares,
       'createdAt': createdAt.toIso8601String(),
       'createdBy': createdBy.toJson(),
