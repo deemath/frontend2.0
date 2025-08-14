@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../widgets/auth/custom_text_form_field.dart';
 import '../../widgets/auth/custom_button.dart';
 import '../../../core/utils/temp_storage.dart';
+import '../../../data/services/auth_service.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -18,6 +20,7 @@ class _SignupScreenState extends State<SignupScreen> {
       TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  String? _emailError;
 
   @override
   void dispose() {
@@ -28,18 +31,59 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  bool _validateInputs() {
-    // Have a function to call backend and check if email is valid
+  Future<bool> _validateInputs() async {
+    final authService = context.read<AuthService>();
+
+    // Check if email is already registered
+    final email = _emailController.text.trim();
+    if (email.isNotEmpty) {
+      final isEmailTaken = await authService.isEmailRegistered(email);
+      if (isEmailTaken) {
+        setState(() {
+          _emailError = 'This email is already registered';
+        });
+
+        // Show error message to user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('This email is already registered'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return false;
+      }
+    }
+
+    // Clear any previous email error
+    setState(() {
+      _emailError = null;
+    });
+
     return true;
   }
 
   void handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
-    if (!_validateInputs()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final isValid = await _validateInputs();
+    if (!isValid) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
 
     // Store credentials temporarily in secure storage
     TempStorage.store('signup_email', _emailController.text.trim());
     TempStorage.store('signup_password', _passwordController.text);
+
+    setState(() {
+      _isLoading = false;
+    });
 
     // Navigate to username screen without sensitive data
     Navigator.pushNamed(context, '/username');
@@ -81,7 +125,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   // App Logo
                   Padding(
                     padding:
-                        EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
+                        EdgeInsets.only(left: 20.0, bottom: 40.0, top: 20.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Image.asset(
@@ -111,7 +155,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.0),
                     child: Text(
-                      'Create an account by filling the info below. We never share your info without consent.',
+                      'Create an account by filling the info below.',
                       style: TextStyle(
                         color: Colors.grey,
                         fontSize: 14,
