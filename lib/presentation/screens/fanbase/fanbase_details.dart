@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 // import 'package:frontend/presentation/screens/demopost/des_post_home.dart';
-import 'package:frontend/data/models/fanbase/fanbase_model.dart';
-import 'package:frontend/data/services/fanbase/fanbase_service.dart';
+import 'package:frontend/data/models/fanbase_model.dart';
+import 'package:frontend/data/services/fanbase_service.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:frontend/presentation/widgets/fanbasepost/fanbase_post_feed.dart';
+import 'package:frontend/presentation/screens/fanbasePost/fanbasePost_creation_screen.dart';
 
 import '../../widgets/common/bottom_bar.dart';
 
@@ -116,9 +117,19 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
                     ),
                     // Create Post Button
                     OutlinedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FanbasePostCreationScreen(
+                              fanbaseId: _fanbase!.id,
+                              fanbaseName: _fanbase!.fanbaseName,
+                            ),
+                          ),
+                        );
+                      },
                       icon: const Icon(LucideIcons.plus, size: 16),
-                      label: const Text("Create Post"),
+                      label: const Text(" Post"),
                       style: OutlinedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -176,9 +187,10 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
 
               // ======= Post Feed =======
               Expanded(
-                child: FeedWidget(),
+                child: FanbasePostFeedWidget(
+                  fanbaseId: _fanbase!.id,
+                ),
               ),
-
             ],
           );
         },
