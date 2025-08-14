@@ -1,0 +1,64 @@
+TERMS AND CONDITIONS
+
+Last updated: August 14, 2025
+
+Welcome to Noot! These terms and conditions outline the rules and regulations for the use of Noot's mobile application.
+
+1. ACCEPTANCE OF TERMS
+By accessing and using this application, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+
+2. USER ACCOUNTS
+- You must provide accurate and complete information when creating an account
+- You are responsible for maintaining the confidentiality of your account credentials
+- You must notify us immediately of any unauthorized use of your account
+
+3. PRIVACY POLICY
+Your privacy is important to us. Our Privacy Policy explains how we collect, use, and protect your information when you use our service. By using our service, you agree to the collection and use of information in accordance with our Privacy Policy.
+
+4. DATA USAGE AND SPOTIFY INTEGRATION
+- Noot integrates with Spotify to enhance your music discovery experience
+- We may access your Spotify listening history and preferences with your consent
+- Your music data is used to provide personalized recommendations and social features
+- We do not share your personal music data with third parties without your consent
+
+5. COMMUNITY GUIDELINES
+- Be respectful to other users in all interactions
+- Do not post offensive, harmful, or inappropriate content
+- Do not spam or engage in harassment of other users
+- Respect intellectual property rights and copyright laws
+- Do not attempt to hack, exploit, or disrupt the service
+
+6. INTELLECTUAL PROPERTY
+- All content and materials on Noot are protected by intellectual property laws
+- You retain ownership of content you create and share on the platform
+- By posting content, you grant Noot a license to use, display, and distribute your content
+- You may not use our trademarks, logos, or copyrighted material without permission
+
+7. PROHIBITED ACTIVITIES
+Users are prohibited from:
+- Using the service for illegal purposes
+- Uploading malicious software or code
+- Attempting to gain unauthorized access to other accounts
+- Creating multiple accounts to circumvent restrictions
+- Selling or transferring your account to others
+
+8. SERVICE AVAILABILITY
+- We strive to maintain service availability but cannot guarantee 100% uptime
+- We may temporarily suspend service for maintenance or updates
+- We reserve the right to modify or discontinue features with notice
+
+9. LIMITATION OF LIABILITY
+Noot shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the service.
+
+10. MODIFICATIONS TO TERMS
+We reserve the right to modify these terms at any time. Users will be notified of significant changes, and continued use of the service constitutes acceptance of modified terms.
+
+11. TERMINATION
+We may terminate or suspend your account immediately, without prior notice, for conduct that we believe violates these terms or is harmful to other users or our service.
+
+12. CONTACT INFORMATION
+If you have any questions about these Terms and Conditions, please contact us at:
+Email: <...>
+Website: <...>
+
+By clicking "Complete Registration" below, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.

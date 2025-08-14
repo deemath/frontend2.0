@@ -38,7 +38,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   share_plus: ^7.2.1
   url_launcher: ^6.2.1
-  uni_links: ^0.5.1
+  # uni_links: ^0.5.1
   intl: ^0.18.1
   scrollable_positioned_list: ^0.3.8
   image_picker: ^1.1.0
@@ -84,6 +84,7 @@ flutter:
     - assets/images/song.png
     - assets/backgrounds/black-and-green-background.jpg
     - assets/backgrounds/purple-black-painting.jpg
+    - assets/texts/terms_and_conditions.txt
 
   # Add Comfortaa font family
   fonts:
