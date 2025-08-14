@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import '../../screens/profile/user_profiles.dart'; // Import for navigation
 
 class UserSearchResults extends StatelessWidget {
   final List<dynamic> users;
@@ -38,8 +38,12 @@ class UserSearchResults extends StatelessWidget {
       itemCount: users.length,
       itemBuilder: (context, index) {
         final user = users[index];
-        final userImage = user['userImage'] ?? 'assets/images/profile_picture.jpg';
+        final userImage =
+            user['userImage'] ?? 'assets/images/profile_picture.jpg';
         final isNetworkImage = userImage.startsWith('http');
+        final userId = user['id'] ??
+            user['_id'] ??
+            user['userId']; // Get user ID from available fields
 
         return ListTile(
           leading: CircleAvatar(
@@ -48,13 +52,33 @@ class UserSearchResults extends StatelessWidget {
                 : AssetImage(userImage) as ImageProvider,
           ),
           title: Text(user['name'] ?? 'No name'),
-          subtitle: Text('@${user['name']?.toLowerCase().replaceAll(' ', '') ?? 'username'}'),
+          subtitle: Text(
+              '@${user['name']?.toLowerCase().replaceAll(' ', '') ?? 'username'}'),
           trailing: ElevatedButton(
             onPressed: () {
               // Handle follow action
             },
             child: const Text('Follow'),
           ),
+          onTap: () {
+            if (userId != null) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => UserProfilePage(
+                    userId: userId,
+                  ),
+                ),
+              );
+            } else {
+              // Show a snackbar if the user ID is not available
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Cannot view profile: User ID not available'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+          },
         );
       },
     );

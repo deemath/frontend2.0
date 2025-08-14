@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'post_options_menu.dart';
 
 // ================= SongControlWidget =================
 class SongControlWidget extends StatefulWidget {
@@ -249,14 +250,22 @@ class UserDetailWidget extends StatelessWidget {
   final Map<String, dynamic>? details;
   final String? username;
   final String? userImage;
-  final VoidCallback? onUsernameTap; // <-- Add this
+  final String? userId; // Add userId parameter
+  final String? currentUserId; // Add currentUserId parameter
+  final VoidCallback? onUsernameTap;
+  final VoidCallback? onOptionsTap;
+  final bool isOwnPost;
 
   const UserDetailWidget({
     super.key,
     this.details,
     this.username,
     this.userImage,
-    this.onUsernameTap, // <-- Add this
+    this.userId, // Add userId parameter
+    this.currentUserId, // Add currentUserId parameter
+    this.onUsernameTap,
+    this.onOptionsTap,
+    this.isOwnPost = false,
   });
 
   @override
@@ -295,7 +304,7 @@ class UserDetailWidget extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
-                  onTap: onUsernameTap, // <-- Make username clickable
+                  onTap: onUsernameTap,
                   child: AutoSizeText(
                     username ?? 'Unknown User',
                     style: TextStyle(
@@ -308,6 +317,64 @@ class UserDetailWidget extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+            ),
+            // Push options icon to the far right
+            const SizedBox(width: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () {
+                  // Instead of using a local function that might ignore passed values,
+                  // always use the callback if provided
+                  if (onOptionsTap != null) {
+                    onOptionsTap!();
+                  } else {
+                    // Only fallback to direct menu if callback not provided
+                    PostOptionsMenu.show(
+                      context,
+                      postUserId: userId, // Pass userId
+                      currentUserId: currentUserId, // Pass currentUserId
+                      isOwnPost: isOwnPost,
+                      onCopyLink: () {
+                        print('Copy link pressed for user: $username');
+                      },
+                      onSavePost: () {
+                        print('Save post pressed for user: $username');
+                      },
+                      onUnfollow: () {
+                        print('Unfollow pressed for user: $username');
+                      },
+                      onReport: () {
+                        print('Report pressed for user: $username');
+                      },
+                      onEdit: isOwnPost
+                          ? () {
+                              print('Edit post pressed for user: $username');
+                            }
+                          : null,
+                      onDelete: isOwnPost
+                          ? () {
+                              print('Delete post pressed for user: $username');
+                            }
+                          : null,
+                      onHide: isOwnPost
+                          ? () {
+                              print('Hide post pressed for user: $username');
+                            }
+                          : null,
+                    );
+                  }
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Icon(
+                    Icons.more_vert,
+                    color: textColor,
+                    size: 22,
                   ),
                 ),
               ),
@@ -517,21 +584,29 @@ class FooterWidget extends StatelessWidget {
 class HeaderWidget extends StatelessWidget {
   final String? username;
   final String? userImage;
+  final String? userId; // Add userId parameter
+  final String? currentUserId; // Add currentUserId parameter
   final String? trackId;
   final bool isPlaying;
   final bool isCurrentTrack;
   final VoidCallback? onPlayPause;
-  final VoidCallback? onUsernameTap; // <-- Add this
+  final VoidCallback? onUsernameTap;
+  final VoidCallback? onOptionsTap;
+  final bool isOwnPost;
 
   const HeaderWidget({
     super.key,
     this.username,
     this.userImage,
+    this.userId, // Add userId parameter
+    this.currentUserId, // Add currentUserId parameter
     this.trackId,
     this.isPlaying = false,
     this.isCurrentTrack = false,
     this.onPlayPause,
-    this.onUsernameTap, // <-- Add this
+    this.onUsernameTap,
+    this.onOptionsTap,
+    this.isOwnPost = false,
   });
 
   @override
@@ -543,7 +618,11 @@ class HeaderWidget extends StatelessWidget {
           UserDetailWidget(
             username: username,
             userImage: userImage,
-            onUsernameTap: onUsernameTap, // <-- Pass callback
+            userId: userId, // Pass userId
+            currentUserId: currentUserId, // Pass currentUserId
+            onUsernameTap: onUsernameTap,
+            onOptionsTap: onOptionsTap,
+            isOwnPost: isOwnPost,
           ),
           SongControlWidget(
             trackId: trackId,
@@ -580,74 +659,88 @@ class DemoContentWidget extends StatelessWidget {
 
 // ================= Post Widget =================
 class Post extends StatelessWidget {
-  final String? trackId;
-  final String? songName;
-  final String? artists;
-  final String? albumImage;
+  final String trackId;
+  final String songName;
+  final String artists;
+  final String albumImage;
   final String? caption;
   final String username;
-  final String? userImage;
+  final String? userId;
+  final String? currentUserId; // Add currentUserId parameter
+  final String userImage;
 
   final VoidCallback? onLike;
   final VoidCallback? onComment;
-  final VoidCallback? onShare;
   final VoidCallback? onPlayPause;
+  final VoidCallback? onShare;
+  final VoidCallback? onMoreOptions;
   final VoidCallback? onUsernameTap;
   final bool isLiked;
   final bool isPlaying;
   final bool isCurrentTrack;
-  final int likeCount;
-  final int commentCount;
+  final int? likeCount;
+  final int? commentCount;
+  final bool isOwnPost;
 
   const Post({
     super.key,
-    this.trackId,
-    this.songName,
-    this.artists,
-    this.albumImage,
+    required this.trackId,
+    required this.songName,
+    required this.artists,
+    required this.albumImage,
     this.caption,
     required this.username,
-    this.userImage,
+    this.userId,
+    this.currentUserId, // Add currentUserId parameter
+    required this.userImage,
     this.onLike,
     this.onComment,
-    this.onShare,
     this.onPlayPause,
+    this.onShare,
+    this.onMoreOptions,
     this.onUsernameTap,
     this.isLiked = false,
     this.isPlaying = false,
     this.isCurrentTrack = false,
-    this.likeCount = 0,
-    this.commentCount = 0,
+    this.likeCount,
+    this.commentCount,
+    this.isOwnPost = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          HeaderWidget(
-            username: username,
-            userImage: userImage,
-            trackId: trackId,
-            isPlaying: isPlaying,
-            isCurrentTrack: isCurrentTrack,
-            onPlayPause: onPlayPause,
-            onUsernameTap: onUsernameTap, // <-- Pass callback
-          ),
-          PostArtWidget(albumImage: albumImage),
-          FooterWidget(
-            songName: songName,
-            artists: artists,
-            //caption: caption,
-            onLike: onLike,
-            onComment: onComment,
-            onShare: onShare,
-            isLiked: isLiked,
-            likeCount: likeCount,
-            commentCount: commentCount,
-          ),
-        ],
-      ),
+    // Directly calculate isOwnPost if not provided
+    final bool calculatedIsOwnPost = isOwnPost ||
+        (userId != null && currentUserId != null && userId == currentUserId);
+
+    return Column(
+      children: [
+        HeaderWidget(
+          username: username,
+          userImage: userImage,
+          userId: userId, // Pass userId
+          currentUserId: currentUserId, // Pass currentUserId
+          trackId: trackId,
+          isPlaying: isPlaying,
+          isCurrentTrack: isCurrentTrack,
+          onPlayPause: onPlayPause,
+          onUsernameTap: onUsernameTap,
+          onOptionsTap: onMoreOptions,
+          isOwnPost: calculatedIsOwnPost, // Pass calculated value
+        ),
+        PostArtWidget(albumImage: albumImage),
+        FooterWidget(
+          songName: songName,
+          artists: artists,
+          // caption: caption,
+          onLike: onLike,
+          onComment: onComment,
+          onShare: onShare,
+          isLiked: isLiked,
+          likeCount: likeCount ?? 0,
+          commentCount: commentCount ?? 0,
+        ),
+      ],
     );
   }
 }

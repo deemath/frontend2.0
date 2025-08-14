@@ -16,7 +16,16 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
   String bio = '';
   String profileImage = '';
   String fullName = '';
+  String userType = 'public'; // Default user type
   bool isLoading = false;
+
+  // Define profile type options
+  final List<Map<String, String>> _profileTypes = [
+    {'value': 'public', 'label': 'Public'},
+    {'value': 'private', 'label': 'Private'},
+    {'value': 'artist', 'label': 'Artist'},
+    {'value': 'business', 'label': 'Business'},
+  ];
 
   Future<void> _submitProfile() async {
     if (!_formKey.currentState!.validate()) return;
@@ -38,6 +47,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
       'bio': bio,
       'profileImage': profileImage,
       'fullName': fullName,
+      'userType': userType, // Include user type in the creation
     });
     setState(() {
       isLoading = false;
@@ -152,6 +162,48 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                 validator: (value) => value == null || value.trim().isEmpty
                     ? 'Profile image URL is required'
                     : null,
+              ),
+              const SizedBox(height: 24),
+              // Add profile type dropdown
+              Container(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.white),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Profile Type',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButton<String>(
+                      value: userType,
+                      isExpanded: true,
+                      dropdownColor: Colors.black87,
+                      style: const TextStyle(color: Colors.white),
+                      underline: Container(), // Remove the default underline
+                      onChanged: (newValue) {
+                        setState(() {
+                          userType = newValue!;
+                        });
+                      },
+                      items:
+                          _profileTypes.map<DropdownMenuItem<String>>((type) {
+                        return DropdownMenuItem<String>(
+                          value: type['value'],
+                          child: Text(
+                            type['label']!,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 32),
               ElevatedButton(

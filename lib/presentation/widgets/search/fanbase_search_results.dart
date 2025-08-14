@@ -36,14 +36,18 @@ class FanbaseSearchResults extends StatelessWidget {
       itemBuilder: (context, index) {
         final fanbase = fanbases[index];
         return FanbaseCard(
-          fanbaseId: fanbase['id'],
-          fanbaseName: fanbase['name'] ?? 'Unknown Fanbase',
-          topic: fanbase['topic'] ?? 'No topic',
-          profileImageUrl: fanbase['fanbasePhotoUrl'] ?? 'assets/images/hehe.png',
-          numLikes: fanbase['numberOfLikes'] ?? 0,
-          numPosts: fanbase['numberOfPosts'] ?? 0,
-          isJoined: false, // TODO: Implement isJoined logic
-          onJoin: () {}, // TODO: Implement onJoin logic
+          // fanbaseId: fanbase['id'],
+          // fanbaseName: fanbase['name'] ?? 'Unknown Fanbase',
+          // topic: fanbase['topic'] ?? 'No topic',
+          // profileImageUrl: fanbase['fanbasePhotoUrl'] ?? 'assets/images/hehe.png',
+          // numLikes: fanbase['numberOfLikes'] ?? 0,
+          // numPosts: fanbase['numberOfPosts'] ?? 0,
+          // isJoined: false, // TODO: Implement isJoined logic
+          // onJoin: () {}, // TODO: Implement onJoin logic
+          onJoinStateChanged: () {
+            // TODO: Implement onJoinStateChanged logic
+          },
+          initialFanbase: fanbase,
         );
       },
     );

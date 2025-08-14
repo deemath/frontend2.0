@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'dart:math';
+// import 'dart:math';
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
 import 'tabs/album_art_posts_tab.dart';
@@ -10,7 +10,7 @@ import 'tabs/tagged_posts_tab.dart';
 import 'my_profile.dart';
 import 'followers_list.dart';
 import 'following_list.dart';
-import 'profile_feed_screen.dart';
+import 'profile_feed_screen.dart'; // Add this import for navigation
 
 class UserProfilePage extends StatefulWidget {
   final String userId;
@@ -29,6 +29,8 @@ class _UserProfilePageState extends State<UserProfilePage>
   bool isLoading = true;
   String? loggedUserId;
   int postCount = 0;
+  bool isPrivateProfile = false;
+  bool isFollowingUser = false;
 
   @override
   void initState() {
@@ -58,6 +60,18 @@ class _UserProfilePageState extends State<UserProfilePage>
     final profileService = ProfileService();
     final profileResult = await profileService.getUserProfile(widget.userId);
     final postsResult = await profileService.getUserPosts(widget.userId);
+
+    // Convert raw post data to proper objects with IDs
+    final formattedPosts = postsResult.map((post) {
+      // Make sure each post has an id property
+      if (post is Map<String, dynamic> &&
+          !post.containsKey('id') &&
+          post.containsKey('_id')) {
+        post['id'] = post['_id']; // Ensure id exists if only _id is present
+      }
+      return post;
+    }).toList();
+
     final albumImagesResult =
         await profileService.getUserAlbumImages(widget.userId);
 
@@ -70,11 +84,25 @@ class _UserProfilePageState extends State<UserProfilePage>
     }
 
     if (profileResult['success'] == true && profileResult['data'] != null) {
+      final profileData = ProfileModel.fromJson(profileResult['data']);
+
+      // Check if profile is private
+      final bool isPrivate = profileData.userType == 'private';
+
+      // Check if logged user follows this user
+      bool follows = false;
+      if (loggedUserId != null &&
+          profileData.followers.contains(loggedUserId)) {
+        follows = true;
+      }
+
       setState(() {
-        profile = ProfileModel.fromJson(profileResult['data']);
-        posts = postsResult;
+        profile = profileData;
+        posts = formattedPosts; // Use the formatted posts
         albumImages = albumImagesResult;
         postCount = fetchedPostCount;
+        isPrivateProfile = isPrivate;
+        isFollowingUser = follows;
         isLoading = false;
       });
     } else {
@@ -165,17 +193,42 @@ class _UserProfilePageState extends State<UserProfilePage>
               );
             },
             onPostTap: (postId) {
-              final String? id = postId.toString();
-              if (id != null && id.isNotEmpty) {
+              // Debug
+              print("Header section - Tapped post ID: $postId");
+
+              // If postId is null, try to extract it from the posts list
+              String? validPostId = postId;
+              if (validPostId == null || validPostId.isEmpty) {
+                // Try to get the first post ID as fallback
+                if (posts.isNotEmpty) {
+                  final firstPost = posts[0];
+                  if (firstPost is Map<String, dynamic>) {
+                    validPostId =
+                        (firstPost['id'] ?? firstPost['_id'])?.toString();
+                  } else if (firstPost != null) {
+                    // Handle Post object if applicable
+                    try {
+                      validPostId = firstPost.id?.toString();
+                    } catch (e) {
+                      print("Error extracting ID: $e");
+                    }
+                  }
+                }
+              }
+
+              if (validPostId != null && validPostId.isNotEmpty) {
+                print("Header - Navigating to post ID: $validPostId");
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ProfileFeedScreen(
-                      userId: profile!.userId,
-                      initialPostId: id,
+                      userId: widget.userId,
+                      initialPostId: validPostId,
                     ),
                   ),
                 );
+              } else {
+                print("Header - Cannot navigate: invalid post ID");
               }
             },
           ),
@@ -192,9 +245,9 @@ class _UserProfilePageState extends State<UserProfilePage>
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.white),
                   ),
-                  child: const Text(
-                    'Following',
-                    style: TextStyle(color: Colors.white),
+                  child: Text(
+                    isFollowingUser ? 'Following' : 'Follow',
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -213,53 +266,120 @@ class _UserProfilePageState extends State<UserProfilePage>
               ],
             ),
           ),
-          Container(
-            color: Colors.black,
-            child: TabBar(
-              controller: _tabController,
-              indicatorColor: Colors.white,
-              tabs: const [
-                Tab(icon: Icon(Icons.grid_on)),
-                Tab(icon: Icon(Icons.description)),
-                Tab(icon: Icon(Icons.person_pin)),
-              ],
+
+          // Only show tabs if the profile is not private or if the user follows this profile
+          if (!isPrivateProfile || isFollowingUser) ...[
+            Container(
+              color: Colors.black,
+              child: TabBar(
+                controller: _tabController,
+                indicatorColor: Colors.white,
+                tabs: const [
+                  Tab(icon: Icon(Icons.grid_on)),
+                  Tab(icon: Icon(Icons.description)),
+                  Tab(icon: Icon(Icons.person_pin)),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                AlbumArtPostsTab(
-                  username: profile!.username,
-                  fullName: profile!.fullName,
-                  posts: postCount,
-                  followers: profile!.followers.length,
-                  following: profile!.following.length,
-                  albumImages: albumImages,
-                  description: profile!.bio,
-                  showGrid: true,
-                  profileImage: profile!.profileImage,
-                  postsList: posts,
-                  onPostTap: (postId) {
-                    final String? id = postId.toString();
-                    if (id != null && id.isNotEmpty) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProfileFeedScreen(
-                            userId: profile!.userId,
-                            initialPostId: id,
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  AlbumArtPostsTab(
+                    username: profile!.username,
+                    fullName: profile!.fullName,
+                    posts: postCount,
+                    followers: profile!.followers.length,
+                    following: profile!.following.length,
+                    albumImages: albumImages,
+                    description: profile!.bio,
+                    showGrid: true,
+                    profileImage: profile!.profileImage,
+                    postsList: posts,
+                    onPostTap: (postId) {
+                      // Add debug print
+                      print("Tapped post ID: $postId");
+
+                      // Debug the post that was tapped
+                      final int index = posts.indexWhere((post) {
+                        if (post is Map<String, dynamic>) {
+                          return post['id'] == postId || post['_id'] == postId;
+                        } else if (post.runtimeType
+                            .toString()
+                            .contains('Post')) {
+                          // Handle if it's a Post object
+                          return post.id == postId;
+                        }
+                        return false;
+                      });
+
+                      if (index != -1) {
+                        print("Found post at index: $index");
+                        final post = posts[index];
+                        print(
+                            "Post data: ${post is Map ? post['id'] : 'object'}");
+                      } else {
+                        print("Post not found in list!");
+                      }
+
+                      // Ensure postId is valid and convert if needed
+                      if (postId != null && postId.isNotEmpty) {
+                        // Ensure post ID is being passed correctly
+                        final String validPostId = postId.toString();
+                        print("Navigating to post ID: $validPostId");
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProfileFeedScreen(
+                              userId: widget.userId,
+                              initialPostId: validPostId,
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                const DescriptionPostsTab(),
-                const TaggedPostsTab(),
-              ],
+                        );
+                      }
+                    },
+                  ),
+                  const DescriptionPostsTab(),
+                  const TaggedPostsTab(),
+                ],
+              ),
             ),
-          ),
+          ] else
+            // Show private account message when profile is private and user doesn't follow
+            const Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.lock,
+                      color: Colors.white,
+                      size: 64,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'This Account is Private',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Follow this account to see their posts',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
       backgroundColor: Colors.black,

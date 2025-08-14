@@ -1,28 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/data/models/fanbase/fanbase_model.dart';
+import 'package:frontend/data/services/fanbase/fanbase_service.dart';
 import './fanbase_interations.dart';
 import './fanbase_profilebar.dart';
 
-class FanbaseCard extends StatelessWidget {
-  final int numLikes;
-  final int numPosts;
-  final String profileImageUrl;
-  final String fanbaseName;
-  final String topic;
-  final String fanbaseId;
-  final bool isJoined;
-  final VoidCallback onJoin;
+class FanbaseCard extends StatefulWidget {
+  final Fanbase initialFanbase;
+  final VoidCallback onJoinStateChanged;
 
   const FanbaseCard({
     super.key,
-    required this.numLikes,
-    required this.numPosts,
-    required this.profileImageUrl,
-    required this.fanbaseName,
-    required this.topic,
-    required this.fanbaseId,
-    required this.isJoined,
-    required this.onJoin,
+    required this.initialFanbase,
+    required this.onJoinStateChanged,
   });
+
+  @override
+  State<FanbaseCard> createState() => _FanbaseCardState();
+}
+
+class _FanbaseCardState extends State<FanbaseCard> {
+  late Fanbase _fanbase;
+  bool _isJoinLoading = false;
+  bool _isLikeLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fanbase = widget.initialFanbase;
+  }
+
+  @override
+  void didUpdateWidget(covariant FanbaseCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialFanbase != oldWidget.initialFanbase) {
+      setState(() {
+        _fanbase = widget.initialFanbase;
+      });
+    }
+  }
 
   String truncateText(String text, int maxLength, {bool addEllipsis = true}) {
     if (text.length <= maxLength) return text;
@@ -31,12 +46,73 @@ class FanbaseCard extends StatelessWidget {
         : text.substring(0, maxLength);
   }
 
+  /// Handles toggling the join status
+  Future<void> _handleJoin() async {
+    if (_isJoinLoading) return;
+
+    setState(() => _isJoinLoading = true);
+
+    try {
+      final updatedFanbase =
+          await FanbaseService.joinFanbase(_fanbase.id, context);
+
+      print('Updated fanbase: ${updatedFanbase.toJson()}');
+
+      if (mounted) {
+        setState(() {
+          _fanbase = updatedFanbase;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+      widget.onJoinStateChanged();
+    } finally {
+      if (mounted) {
+        setState(() => _isJoinLoading = false);
+      }
+    }
+  }
+
+  /// Handles toggling the like status
+  Future<void> _handleLike() async {
+    if (_isLikeLoading) return;
+
+    setState(() => _isLikeLoading = true);
+
+    try {
+      final updatedFanbase =
+          await FanbaseService.likeFanbase(_fanbase.id, context);
+
+      print('Updated fanbase (like): ${updatedFanbase.toJson()}');
+
+      if (mounted) {
+        setState(() {
+          _fanbase = updatedFanbase;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error liking fanbase: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLikeLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).colorScheme;
 
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/fanbase/$fanbaseId'),
+      onTap: () => Navigator.pushNamed(context, '/fanbase/${_fanbase.id}'),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         padding: const EdgeInsets.all(12.0),
@@ -56,23 +132,33 @@ class FanbaseCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ProfileNameRow(
-                  profileImageUrl:
-                      profileImageUrl ?? 'https://via.placeholder.com/150',
-                  fanbaseName: truncateText(fanbaseName, 15),
+                  profileImageUrl: _fanbase.fanbasePhotoUrl ?? '',
+                  fanbaseName: truncateText(_fanbase.fanbaseName, 15),
                 ),
                 OutlinedButton(
-                  onPressed: onJoin,
+                  onPressed: _handleJoin,
                   style: OutlinedButton.styleFrom(
                     backgroundColor:
-                        isJoined ? Colors.transparent : Colors.purple,
-                    foregroundColor: isJoined ? theme.onPrimary : Colors.white,
+                        _fanbase.isJoined ? Colors.white : Colors.purple,
+                    foregroundColor:
+                        _fanbase.isJoined ? Colors.purple : Colors.white,
                     side: const BorderSide(color: Colors.purple),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    // padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   ),
-                  child: Text(isJoined ? 'Joined' : 'Join'),
+                  child: _isJoinLoading
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              _fanbase.isJoined ? Colors.purple : Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text(_fanbase.isJoined ? 'Joined' : 'Join'),
                 ),
               ],
             ),
@@ -82,9 +168,8 @@ class FanbaseCard extends StatelessWidget {
             /// Topic
             Container(
               width: double.infinity,
-              // padding: const EdgeInsets.all(16.0),
               child: Text(
-                truncateText(topic, 55),
+                truncateText(_fanbase.fanbaseTopic, 55),
                 style: TextStyle(
                   color: theme.onPrimary,
                   fontSize: 14.5,
@@ -96,8 +181,11 @@ class FanbaseCard extends StatelessWidget {
 
             /// Interaction stats
             FanbaseInterations(
-              numLikes: numLikes,
-              numPosts: numPosts,
+              numLikes: _fanbase.numLikes,
+              numPosts: _fanbase.numPosts,
+              isLiked: _fanbase.isLiked,
+              isLikeLoading: _isLikeLoading,
+              onLikeTap: _handleLike,
             ),
           ],
         ),
