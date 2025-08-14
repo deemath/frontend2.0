@@ -2,6 +2,7 @@ class ProfileModel {
   final String id;
   final String userId;
   final String username;
+  final String userType;
   final String fullName;
   final String profileImage;
   final String bio;
@@ -14,6 +15,7 @@ class ProfileModel {
     required this.id,
     required this.userId,
     required this.username,
+    required this.userType,
     required this.fullName,
     required this.profileImage,
     required this.bio,
@@ -49,6 +51,7 @@ class ProfileModel {
       id: json['_id'] ?? '',
       userId: json['userId'] ?? '',
       username: json['username'] ?? '',
+      userType: json['userType'] ?? 'public',
       fullName: json['fullName'] ?? '',
       profileImage: json['profileImage'] ?? '',
       bio: json['bio'] ?? '',
@@ -67,6 +70,7 @@ class ProfileModel {
       '_id': id,
       'userId': userId,
       'username': username,
+      'userType': userType,
       'fullName': fullName,
       'profileImage': profileImage,
       'bio': bio,
@@ -80,25 +84,29 @@ class ProfileModel {
 
 class EditProfileModel {
   final String username;
-  final String bio;
-  final String profileImage;
   final String email;
-  final String fullName; // Added
+  final String fullName;
+  final String profileImage;
+  final String bio;
+  final String userType; // Add userType to the edit profile model
 
   EditProfileModel({
     required this.username,
-    required this.bio,
-    required this.profileImage,
     required this.email,
-    required this.fullName, // Added
+    required this.fullName,
+    required this.profileImage,
+    required this.bio,
+    this.userType = 'public', // Default to public
   });
 
   Map<String, dynamic> toJson() {
     return {
       'username': username,
-      'bio': bio,
+      'email': email,
+      'fullName': fullName,
       'profileImage': profileImage,
-      'fullName': fullName, // Added
+      'bio': bio,
+      'userType': userType,
     };
   }
 }
