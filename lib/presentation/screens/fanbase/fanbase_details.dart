@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/data/models/fanbase/fanbase_model.dart';
 import 'package:frontend/data/services/fanbase/fanbase_service.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:frontend/presentation/widgets/despost/des_post_feed.dart';
+import 'package:frontend/presentation/widgets/fanbasepost/fanbase_post_feed.dart';
+
+import '../../widgets/common/bottom_bar.dart';
 
 class FanbaseDetailScreen extends StatefulWidget {
   final String fanbaseId;
@@ -16,12 +18,45 @@ class FanbaseDetailScreen extends StatefulWidget {
 
 class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
   late Future<Fanbase> _fanbaseFuture;
-  bool isJoined = false;
+  Fanbase? _fanbase; // Store the current fanbase state
+  bool _isLoading = false; // Loading state for join button
 
   @override
   void initState() {
     super.initState();
     _fanbaseFuture = FanbaseService.getFanbaseById(widget.fanbaseId, context);
+  }
+
+  /// Handles toggling the join status by trusting the backend response.
+  Future<void> _handleJoin() async {
+    if (_isLoading || _fanbase == null) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Call the service and wait for the definitive response
+      final updatedFanbase =
+          await FanbaseService.joinFanbase(_fanbase!.id, context);
+
+      print('Updated fanbase: ${updatedFanbase.toJson()}');
+
+      // Trust the backend's response to update the state
+      if (mounted) {
+        setState(() {
+          _fanbase = updatedFanbase;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -40,7 +75,10 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
             return const Center(child: Text('Error loading fanbase'));
           }
 
-          final fanbase = snapshot.data!;
+          // Initialize _fanbase when data is first loaded
+          if (_fanbase == null) {
+            _fanbase = snapshot.data!;
+          }
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,7 +96,7 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
                   children: [
                     // Profile Image and Name
                     CircleAvatar(
-                      backgroundImage: NetworkImage(fanbase.fanbasePhotoUrl ??
+                      backgroundImage: NetworkImage(_fanbase!.fanbasePhotoUrl ??
                           'https://via.placeholder.com/150'),
                       radius: 24,
                       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -69,7 +107,7 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        fanbase.fanbaseName,
+                        _fanbase!.fanbaseName,
                         style:
                             Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   color: Theme.of(context).colorScheme.primary,
@@ -92,19 +130,31 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
                     SizedBox(
                       width: 100, // Fixed width
                       child: OutlinedButton(
-                        onPressed: () => setState(() => isJoined = !isJoined),
+                        onPressed: _handleJoin,
                         style: OutlinedButton.styleFrom(
                           backgroundColor:
-                              isJoined ? Colors.transparent : Colors.purple,
-                          foregroundColor: isJoined
-                              ? Theme.of(context).colorScheme.primary
-                              : Colors.white,
+                              _fanbase!.isJoined ? Colors.white : Colors.purple,
+                          foregroundColor:
+                              _fanbase!.isJoined ? Colors.purple : Colors.white,
                           side: const BorderSide(color: Colors.purple),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                        child: Text(isJoined ? 'Joined' : 'Join'),
+                        child: _isLoading
+                            ? SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    _fanbase!.isJoined
+                                        ? Colors.purple
+                                        : Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(_fanbase!.isJoined ? 'Joined' : 'Join'),
                       ),
                     ),
                   ],
@@ -117,7 +167,7 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  fanbase.fanbaseTopic,
+                  _fanbase!.fanbaseTopic,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
@@ -126,10 +176,12 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
 
               // ======= Post Feed =======
               const Expanded(child: FeedWidget()),
+
             ],
           );
         },
       ),
+      bottomNavigationBar: const BottomBar(),
     );
   }
 }
