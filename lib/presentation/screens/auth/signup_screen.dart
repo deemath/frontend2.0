@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/auth/custom_text_form_field.dart';
 import '../../widgets/auth/custom_button.dart';
+import '../../widgets/auth/custom_snack_bar.dart';
 import '../../../core/utils/temp_storage.dart';
 import '../../../data/services/auth_service.dart';
 
@@ -43,12 +44,12 @@ class _SignupScreenState extends State<SignupScreen> {
           _emailError = 'This email is already registered';
         });
 
-        // Show error message to user
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('This email is already registered'),
-            backgroundColor: Colors.red,
-          ),
+        // Show error message to user using CustomSnackBar
+        CustomSnackBar.show(
+          context,
+          title: 'Error',
+          text: 'This email is already registered',
+          type: SnackBarType.destructive,
         );
         return false;
       }
