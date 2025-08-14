@@ -156,7 +156,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.0),
                     child: Text(
-                      'Create an account by filling the info below.',
+                      'Start your journey of rediscovering music socially',
                       style: TextStyle(
                         color: Colors.grey,
                         fontSize: 14,

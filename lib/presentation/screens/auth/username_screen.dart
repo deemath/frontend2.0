@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../data/services/auth_service.dart';
 import '../../widgets/auth/custom_text_form_field.dart';
 import '../../widgets/auth/custom_button.dart';
+import '../../widgets/auth/custom_snack_bar.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/utils/temp_storage.dart';
 
@@ -17,6 +18,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  String? _usernameError;
 
   @override
   void dispose() {
@@ -27,63 +29,62 @@ class _UsernameScreenState extends State<UsernameScreen> {
     super.dispose();
   }
 
+  Future<bool> _validateUsername() async {
+    final authService = context.read<AuthService>();
+
+    // Check if username is already registered
+    final username = _usernameController.text.trim();
+    if (username.isNotEmpty) {
+      final isUsernameTaken = await authService.isUsernameRegistered(username);
+      if (isUsernameTaken) {
+        setState(() {
+          _usernameError = 'This username is already taken';
+        });
+
+        // Show error message to user using CustomSnackBar
+        CustomSnackBar.show(
+          context,
+          title: 'Error',
+          text: 'This username is already taken',
+          type: SnackBarType.destructive,
+        );
+        return false;
+      }
+    }
+
+    // Clear any previous username error
+    setState(() {
+      _usernameError = null;
+    });
+
+    return true;
+  }
+
   void handleContinue() async {
     if (!_formKey.currentState!.validate()) return;
-
-    // Get credentials from temporary storage
-    final email = TempStorage.get<String>('signup_email');
-    final password = TempStorage.get<String>('signup_password');
-
-    if (email == null || password == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Session expired. Please try again.')),
-      );
-      Navigator.pushReplacementNamed(context, '/signup');
-      return;
-    }
 
     setState(() {
       _isLoading = true;
     });
 
-    try {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final response = await authService.register(
-        email,
-        _usernameController.text.trim(),
-        password,
-      );
-
-      // Clear sensitive data after use
-      TempStorage.remove('signup_email');
-      TempStorage.remove('signup_password');
-
-      if (response['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Registration successful! Please login.')),
-        );
-        // Check if user is authenticated in auth provider
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        if (authProvider.isAuthenticated) {
-          Navigator.pushNamed(context, '/link-account');
-        } else {
-          Navigator.pushNamed(context, '/login');
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Registration failed')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration failed. Please try again.')),
-      );
-    } finally {
+    // Validate username availability
+    final isUsernameValid = await _validateUsername();
+    if (!isUsernameValid) {
       setState(() {
         _isLoading = false;
       });
+      return;
     }
+
+    // Save username to temporary storage
+    TempStorage.store('signup_username', _usernameController.text.trim());
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    // Navigate to terms and service screen
+    Navigator.pushNamed(context, '/terms');
   }
 
   @override
@@ -121,7 +122,8 @@ class _UsernameScreenState extends State<UsernameScreen> {
                 children: [
                   // App Logo
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 40.0),
+                    padding:
+                        EdgeInsets.only(left: 20.0, bottom: 40.0, top: 20.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Image.asset(
@@ -132,14 +134,17 @@ class _UsernameScreenState extends State<UsernameScreen> {
                   ),
 
                   // Title
-                  const Text(
-                    'Enter Username',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Text(
+                      'Enter Username',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.left,
                     ),
-                    textAlign: TextAlign.left,
                   ),
 
                   const SizedBox(height: 16),
@@ -148,7 +153,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.0),
                     child: Text(
-                      'Pick something that defines you. Make it unique, like your collection of rubber ducks or your ability to burn water.',
+                      'Pick something that defines you. Make it unique!',
                       style: TextStyle(
                         color: Colors.grey,
                         fontSize: 14,
@@ -185,7 +190,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
                     child: CustomButton(
                       onPressed: handleContinue,
                       isLoading: _isLoading,
-                      text: 'Complete Registration',
+                      text: 'Continue',
                     ),
                   ),
 
