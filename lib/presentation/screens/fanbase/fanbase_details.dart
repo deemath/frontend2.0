@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/data/models/fanbase/fanbase_model.dart';
 import 'package:frontend/data/services/fanbase/fanbase_service.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:frontend/presentation/widgets/despost/des_post_feed.dart';
+import 'package:frontend/presentation/widgets/fanbasepost/fanbase_post_feed.dart';
+
+import '../../widgets/common/bottom_bar.dart';
 
 class FanbaseDetailScreen extends StatefulWidget {
   final String fanbaseId;
@@ -173,11 +175,13 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
               const SizedBox(height: 24),
 
               // ======= Post Feed =======
-              // const Expanded(child: FeedWidget()),
+              const Expanded(child: FeedWidget()),
+
             ],
           );
         },
       ),
+      bottomNavigationBar: const BottomBar(),
     );
   }
 }
