@@ -442,8 +442,12 @@ class _HomeScreenState extends State<HomeScreen> {
       onThoughtComment: (ThoughtsPost post) {}, // TODO: implement
       currentlyPlayingTrackId: _currentlyPlayingTrackId,
       isPlaying: _isPlaying,
-      currentUserId: userId,
+<<<<<<< HEAD
+      currentUserId: userId, // Pass the currentUserId
+=======
+      currentUserId: null,
       onPostOptions: _handlePostOptions,
+>>>>>>> 7ce30fe (add thought posts to the fanbase and show thoughts posts in the home feed)
       onUserTap: (String userId) {
         Navigator.push(
           context,
@@ -451,45 +455,6 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context) => UserProfilePage(userId: userId),
           ),
         );
-      },
-      onHidePost: (data_model.Post post) async {
-        print('[DEBUG] onHidePost called for post ID: ${post.id}');
-        try {
-          final result = await _songPostService.hidePost(post.id);
-          print('[DEBUG] hidePost backend result: $result');
-          if (result['success'] == true || result['hidden'] == true) {
-            setState(() {
-              final before = _feedItems.length;
-              _feedItems.removeWhere((item) => item.songPost?.id == post.id);
-              final after = _feedItems.length;
-              print('[DEBUG] _feedItems length before: $before, after: $after');
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Post hidden successfully'), backgroundColor: Colors.purple),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(result['message'] ?? 'Failed to hide post')),
-            );
-          }
-        } catch (e) {
-          print('[DEBUG] Exception in onHidePost: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error hiding post: $e')),
-          );
-        }
-      },
-      onEditPost: (data_model.Post post) async {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => EditPostScreen(post: post),
-          ),
-        );
-        if (result == true) {
-          // Refresh the feed after successful edit
-          _loadPosts();
-        }
       },
     );
 

@@ -349,7 +349,9 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
               const SizedBox(height: 24),
 
               // ======= Post Feed =======
-              const Expanded(child: FeedWidget()),
+              Expanded(
+                child: FeedWidget(),
+              ),
 
             ],
           );
