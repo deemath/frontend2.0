@@ -372,6 +372,8 @@ class _HomeScreenState extends State<HomeScreen> {
       onThoughtComment: (ThoughtsPost post) {}, // TODO: implement
       currentlyPlayingTrackId: _currentlyPlayingTrackId,
       isPlaying: _isPlaying,
+      currentUserId: null,
+      onPostOptions: _handlePostOptions,
       onUserTap: (String userId) {
         Navigator.push(
           context,
@@ -380,7 +382,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
-      onPostOptions: _handlePostOptions,
     );
 
     // When in shell mode, only render the content without navigation elements

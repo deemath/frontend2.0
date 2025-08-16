@@ -272,10 +272,9 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
         onSongShare: (_) {},
         currentlyPlayingTrackId: null,
         isPlaying: false,
-        currentUserId: _currentUserId, // Pass the currentUserId
+        currentUserId: _currentUserId, 
         onUserTap: (_) {},
-        onPostOptions: _handlePostOptions, // Add this line
-        // Use scrollable_positioned_list controllers
+        onPostOptions: _handlePostOptions, 
         itemScrollController: _itemScrollController,
         itemPositionsListener: _itemPositionsListener,
         initialIndex: _initialIndex,
