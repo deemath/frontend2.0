@@ -3,6 +3,10 @@ import '../widgets/home/header_bar.dart';
 import '/presentation/widgets/common/bottom_bar.dart';
 import '../widgets/home/feed_widget.dart';
 import '../../data/models/post_model.dart' as data_model;
+import '../../data/models/feed_item.dart';
+import '../../data/models/thoughts_model.dart';
+import '../../data/services/thoughts_service.dart';
+import '../widgets/thoughts/thoughts_feed_card.dart';
 import '../../data/services/song_post_service.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,8 +34,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final SongPostService _songPostService = SongPostService();
+  final ThoughtsService _thoughtsService = ThoughtsService();
 
-  List<data_model.Post> _posts = [];
+  List<FeedItem> _feedItems = [];
   bool _isLoading = true;
   String? _error;
   String? _currentlyPlayingTrackId;
@@ -78,34 +83,42 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      final result = await _songPostService.getFollowerPosts(userId!);
-      //print('Follower posts loading result: $result');
+      final songResult = await _songPostService.getFollowerPosts(userId!);
+      final thoughtsResult = await _thoughtsService.getFollowerThoughts(userId!);
+      //print('Fetched thoughtsResult: ' + thoughtsResult.toString());
 
-      if (result['success']) {
-        final List<dynamic> postsData = result['data'];
-        //print('Received ${postsData.length} follower posts');
+      List<FeedItem> feedItems = [];
 
+      if (songResult['success']) {
+        final List<dynamic> postsData = songResult['data'];
         final posts = postsData.map((json) {
           final post = data_model.Post.fromJson(json);
           post.likedByMe =
               (json['likedBy'] as List<dynamic>?)?.contains(userId) ?? false;
-          print(
-              'Post from user: ${post.username}, liked by me: ${post.likedByMe}');
-          return post;
-        }).toList();
-
-        setState(() {
-          _posts = posts;
-          _isLoading = false;
+          return FeedItem.song(post);
         });
-
-        //print('Successfully loaded ${posts.length} follower posts');
-      } else {
-        setState(() {
-          _error = result['message'];
-          _isLoading = false;
-        });
+        feedItems.addAll(posts);
       }
+
+      if (thoughtsResult['success']) {
+        final List<dynamic> thoughtsData = thoughtsResult['data'];
+        //print('Parsed thoughtsData: ' + thoughtsData.toString());
+        final thoughtsPosts = thoughtsData.map((json) {
+          final post = ThoughtsPost.fromJson(json);
+          //print('Parsed ThoughtsPost: ' + post.toString());
+          return FeedItem.thought(post);
+        });
+        feedItems.addAll(thoughtsPosts);
+      }
+
+
+      // Sort all by createdAt, newest first
+      feedItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      setState(() {
+        _feedItems = feedItems;
+        _isLoading = false;
+      });
     } catch (e) {
       print('Error in _loadPosts: $e');
       setState(() {
@@ -123,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final userData = userDataString != null
           ? jsonDecode(userDataString)
           : {'id': '685fb750cc084ba7e0ef8533'}; // Fallback for testing
-      currentUserId = userData['id']; // Use 'id' instead of '_id'
+      currentUserId = userData['id']; 
     }
     if (currentUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -200,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
               setState(() {
                 post.comments = updatedComments;
               });
-              return updatedComments; // <-- return the updated comments
+              return updatedComments; 
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -208,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               );
-              return post.comments; // fallback to current comments
+              return post.comments; 
             }
           },
           postId: post.id,
@@ -286,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      // Handle error silently
+      
     }
   }
 
@@ -313,19 +326,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Content with backend data
+    
     Widget content = FeedWidget(
-      posts: _posts,
+      feedItems: _feedItems,
       isLoading: _isLoading,
       error: _error,
       onRefresh: _loadPosts,
-      onLike: _handleLike,
-      onComment: _handleComment,
-      onPlay: _handlePlay,
-      onShare: _handleShare,
+      onSongLike: (data_model.Post post) => _handleLike(post),
+      onSongComment: (data_model.Post post) => _handleComment(post),
+      onSongPlay: (data_model.Post post) => _handlePlay(post),
+      onSongShare: (data_model.Post post) => _handleShare(post),
+      onThoughtLike: (ThoughtsPost post) {}, // TODO: implement
+      onThoughtComment: (ThoughtsPost post) {}, // TODO: implement
       currentlyPlayingTrackId: _currentlyPlayingTrackId,
       isPlaying: _isPlaying,
-      // --- Add this callback ---
       onUserTap: (String userId) {
         Navigator.push(
           context,

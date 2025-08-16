@@ -1,5 +1,6 @@
 // import 'package:flutter/material.dart';
 // import 'package:frontend/data/models/fanbase/fanbase_model.dart';
+import 'package:frontend/data/models/feed_item.dart';
 // import 'package:frontend/data/services/fanbase/fanbase_service.dart';
 // import 'package:frontend/presentation/screens/demopost/des_post_home.dart';
 // import 'package:lucide_icons/lucide_icons.dart';
@@ -284,6 +285,7 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
 
               // ======= Post Feed =======
               const Expanded(child: FeedWidget()),
+
             ],
           );
         },

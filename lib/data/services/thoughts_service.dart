@@ -2,18 +2,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ThoughtsPostService {
+class ThoughtsService {
   final String baseUrl = 'http://localhost:3000';
 
   // Create a new thoughts post
   Future<Map<String, dynamic>> createThoughts({
-    required String thoughtsText,
-    String? coverImage,
+    required String text,
     String? songName,
     String? artistName,
-    String? trackId,
-    bool? inAFanbase,
-    String? fanbaseID,
   }) async {
     try {
       // Get user data from shared preferences 
@@ -31,7 +27,7 @@ class ThoughtsPostService {
       final userData = jsonDecode(userDataString);
       
       // Validate that we have the required user data
-      if (userData['id'] == null || userData['name'] == null) {
+      if (userData['id'] == null) {
         return {
           'success': false,
           'message': 'Invalid user data. Please log in again.',
@@ -45,13 +41,9 @@ class ThoughtsPostService {
         },
         body: jsonEncode({
           'userId': userData['id'],
-          'thoughtsText': thoughtsText,
-          if (coverImage != null) 'coverImage': coverImage,
+          'text': text,
           if (songName != null) 'songName': songName,
           if (artistName != null) 'artistName': artistName,
-          if (trackId != null) 'trackId': trackId,
-          'inAFanbase': inAFanbase ?? false,
-          'FanbaseID': fanbaseID,
         }),
       );
 
@@ -77,37 +69,64 @@ class ThoughtsPostService {
     }
   }
 
-  // Get all thoughts posts
-  Future<List<Map<String, dynamic>>> getAllThoughts() async {
+  // Helper to robustly check 'success' field
+  bool isSuccess(dynamic val) {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/thoughts'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return List<Map<String, dynamic>>.from(data);
+      if (val is bool) return val;
+      if (val is int) return val == 1;
+      if (val is double) return val == 1.0;
+      if (val is String) {
+        final lower = val.toLowerCase();
+        return lower == 'true' || lower == '1';
       }
-      return [];
+      final str = val.toString().toLowerCase();
+      return str == 'true' || str == '1';
     } catch (e) {
-      print('Error fetching thoughts: $e');
-      return [];
+      print('isSuccess type check error: $e');
+      return false;
     }
   }
 
-  // Get thoughts by user ID
-  Future<List<Map<String, dynamic>>> getThoughtsByUser(String userId) async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/thoughts/user/$userId'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return List<Map<String, dynamic>>.from(data);
+  // Get thoughts posts from followers
+  Future<Map<String, dynamic>> getFollowerThoughts(String userId) async {
+  try {
+    final response = await http.get(
+      Uri.parse('$baseUrl/thoughts/followers/$userId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    print('Raw response.body: ${response.body}');
+    final decoded = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      if (decoded is List) {
+        // Backend returned a raw array
+        return {
+          'success': true,
+          'data': decoded,
+          'message': 'Follower thoughts posts retrieved successfully',
+        };
+      } else if (decoded is Map && isSuccess(decoded['success'])) {
+        // Backend returned an object with success/data
+        return {
+          'success': true,
+          'data': decoded['data'],
+          'message': 'Follower thoughts posts retrieved successfully',
+        };
       }
-      return [];
-    } catch (e) {
-      print('Error fetching user thoughts: $e');
-      return [];
     }
+    return {
+      'success': false,
+      'message': 'Failed to retrieve follower thoughts posts',
+    };
+  } catch (e) {
+    print('Error fetching follower thoughts posts: $e');
+    return {
+      'success': false,
+      'message': 'Network error: $e',
+    };
   }
+}
 
-  // Like a thoughts post
+  // Like/unlike a thoughts post
   Future<bool> likeThoughts(String postId, String userId) async {
     try {
       final response = await http.post(

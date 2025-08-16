@@ -7,15 +7,21 @@ import '../song_post/post_shape.dart';
 import '../../../data/models/post_model.dart' as data_model;
 
 /// A feed widget that displays song posts
+import '../../../data/models/feed_item.dart';
+import '../../../data/models/thoughts_model.dart';
+import '../thoughts/thoughts_feed_card.dart';
+
 class FeedWidget extends StatefulWidget {
-  final List<data_model.Post>? posts;
+  final List<FeedItem>? feedItems;
   final bool isLoading;
   final String? error;
   final VoidCallback? onRefresh;
-  final Function(data_model.Post)? onLike;
-  final Function(data_model.Post)? onComment;
-  final Function(data_model.Post)? onPlay;
-  final Function(data_model.Post)? onShare;
+  final Function(data_model.Post)? onSongLike;
+  final Function(data_model.Post)? onSongComment;
+  final Function(data_model.Post)? onSongPlay;
+  final Function(data_model.Post)? onSongShare;
+  final Function(ThoughtsPost)? onThoughtLike;
+  final Function(ThoughtsPost)? onThoughtComment;
   final String? currentlyPlayingTrackId;
   final bool isPlaying;
   final void Function(String userId)? onUserTap;
@@ -27,28 +33,26 @@ class FeedWidget extends StatefulWidget {
   final ItemScrollController? itemScrollController;
   final ItemPositionsListener? itemPositionsListener;
 
-
   const FeedWidget({
     Key? key,
-    this.posts,
+    this.feedItems,
     this.isLoading = false,
     this.error,
     this.onRefresh,
-    this.onLike,
-    this.onComment,
-    this.onPlay,
-    this.onShare,
+    this.onSongLike,
+    this.onSongComment,
+    this.onSongPlay,
+    this.onSongShare,
+    this.onThoughtLike,
+    this.onThoughtComment,
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
     this.onUserTap,
-
     this.shrinkWrap = false,
     this.physics,
-
     this.initialIndex = 0,
     this.itemScrollController,
     this.itemPositionsListener,
-
   }) : super(key: key);
 
   @override
@@ -82,8 +86,8 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   void _jumpToInitialIndex() {
     if (widget.initialIndex > 0 &&
-        widget.posts != null &&
-        widget.posts!.isNotEmpty &&
+        widget.feedItems != null &&
+        widget.feedItems!.isNotEmpty &&
         _itemScrollController.isAttached) {
       _itemScrollController.jumpTo(index: widget.initialIndex);
     }
@@ -92,7 +96,7 @@ class _FeedWidgetState extends State<FeedWidget> {
   @override
   void didUpdateWidget(FeedWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.posts != widget.posts) {
+    if (oldWidget.feedItems != widget.feedItems) {
       _extractColorsFromAlbumImages();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _jumpToInitialIndex();
@@ -102,57 +106,59 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   // Method to extract dark colors from album images
   Future<void> _extractColorsFromAlbumImages() async {
-    if (widget.posts == null) return;
+    if (widget.feedItems == null) return;
 
-    for (final post in widget.posts!) {
-      final albumImageUrl = post.albumImage;
-      if (albumImageUrl == null || albumImageUrl.isEmpty) continue;
+    for (final item in widget.feedItems!) {
+      if (item.type == FeedItemType.song && item.songPost != null) {
+        final albumImageUrl = item.songPost!.albumImage;
+        if (albumImageUrl == null || albumImageUrl.isEmpty) continue;
+        if (!_extractedColors.containsKey(albumImageUrl)) {
+          try {
+            final PaletteGenerator paletteGenerator =
+                await PaletteGenerator.fromImageProvider(
+              NetworkImage(albumImageUrl),
+              size: Size(50, 50), // Smaller size for faster processing
+              maximumColorCount: 5, // Extract up to 10 colors
+            );
 
-      if (!_extractedColors.containsKey(albumImageUrl)) {
-        try {
-          final PaletteGenerator paletteGenerator =
-              await PaletteGenerator.fromImageProvider(
-            NetworkImage(albumImageUrl),
-            size: Size(50, 50), // Smaller size for faster processing
-            maximumColorCount: 5, // Extract up to 10 colors
-          );
+            // Try to get the dark muted color first, then fall back to other options
+            Color? extractedColor = paletteGenerator.darkMutedColor?.color;
 
-          // Try to get the dark muted color first, then fall back to other options
-          Color? extractedColor = paletteGenerator.darkMutedColor?.color;
-
-          // If no dark muted color, try dark vibrant or just the dominant color
-          if (extractedColor == null) {
-            extractedColor = paletteGenerator.darkVibrantColor?.color;
+            // If no dark muted color, try dark vibrant or just the dominant color
             if (extractedColor == null) {
-              extractedColor = paletteGenerator.dominantColor?.color;
+              extractedColor = paletteGenerator.darkVibrantColor?.color;
+              if (extractedColor == null) {
+                extractedColor = paletteGenerator.dominantColor?.color;
+              }
             }
-          }
 
-          // If color was extracted, store it, otherwise use default
-          if (extractedColor != null) {
-            // Ensure the color is dark enough
-            if (_isDarkEnough(extractedColor)) {
-              setState(() {
-                _extractedColors[albumImageUrl] = extractedColor!;
-              });
+            // If color was extracted, store it, otherwise use default
+            if (extractedColor != null) {
+              // Ensure the color is dark enough
+              if (_isDarkEnough(extractedColor)) {
+                setState(() {
+                  _extractedColors[albumImageUrl] = extractedColor!;
+                });
+              } else {
+                // Darken the color if it's not dark enough
+                setState(() {
+                  _extractedColors[albumImageUrl] = _darkenColor(extractedColor!);
+                });
+              }
             } else {
-              // Darken the color if it's not dark enough
               setState(() {
-                _extractedColors[albumImageUrl] = _darkenColor(extractedColor!);
+                _extractedColors[albumImageUrl] = _defaultColor;
               });
             }
-          } else {
+          } catch (e) {
+            print('Error extracting color from $albumImageUrl: $e');
             setState(() {
               _extractedColors[albumImageUrl] = _defaultColor;
             });
           }
-        } catch (e) {
-          print('Error extracting color from $albumImageUrl: $e');
-          setState(() {
-            _extractedColors[albumImageUrl] = _defaultColor;
-          });
         }
       }
+      // Skip if not a song post
     }
   }
 
@@ -180,8 +186,6 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // print('FeedWidget build - isLoading: ${widget.isLoading}, posts count: ${widget.posts?.length ?? 0}');
-
     if (widget.isLoading) {
       return const Center(
         child: CircularProgressIndicator(
@@ -216,8 +220,7 @@ class _FeedWidgetState extends State<FeedWidget> {
       );
     }
 
-    if (widget.posts == null || widget.posts!.isEmpty) {
-      // print('FeedWidget: No posts to display');
+    if (widget.feedItems == null || widget.feedItems!.isEmpty) {
       return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -225,16 +228,14 @@ class _FeedWidgetState extends State<FeedWidget> {
             Icon(Icons.music_note, color: Colors.white, size: 48),
             SizedBox(height: 16),
             Text('No posts yet', style: TextStyle(fontSize: 18)),
-            Text('Be the first to share your favorite music!'),
+            Text('Be the first to share your favorite music or thoughts!'),
           ],
         ),
       );
     }
 
-    // print('FeedWidget: Displaying ${widget.posts!.length} posts from all users');
     return RefreshIndicator(
       onRefresh: () async {
-        //print('FeedWidget: Pull to refresh triggered');
         if (widget.onRefresh != null) {
           widget.onRefresh!();
         }
@@ -244,17 +245,35 @@ class _FeedWidgetState extends State<FeedWidget> {
         physics: widget.physics,
         itemScrollController: widget.itemScrollController,
         itemPositionsListener: widget.itemPositionsListener,
-        itemCount: widget.posts!.length,
+        itemCount: widget.feedItems!.length,
         itemBuilder: (context, index) {
-          final post = widget.posts![index];
-          // print('FeedWidget: Building post ${index + 1}/${widget.posts!.length} from user: ${post.username}');
-          return _buildPostItem(post);
+          final item = widget.feedItems![index];
+          return _buildFeedItem(item);
         },
       ),
     );
   }
 
-  Widget _buildPostItem(data_model.Post post) {
+  Widget _buildFeedItem(FeedItem item) {
+    print('Building FeedItem of type: ' + item.type.toString() + ', data: ' + item.toString());
+    if (item.type == FeedItemType.song && item.songPost != null) {
+      return _buildSongPostItem(item.songPost!);
+    } else if (item.type == FeedItemType.thought && item.thoughtsPost != null) {
+      return ThoughtsFeedCard(
+        post: item.thoughtsPost!,
+        onLike: widget.onThoughtLike != null
+            ? () => widget.onThoughtLike!(item.thoughtsPost!)
+            : null,
+        onComment: widget.onThoughtComment != null
+            ? () => widget.onThoughtComment!(item.thoughtsPost!)
+            : null,
+        onUserTap: widget.onUserTap,
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildSongPostItem(data_model.Post post) {
     // Define the aspect ratio for consistency
     const postAspectRatio = 490 / 595;
 
@@ -287,23 +306,23 @@ class _FeedWidgetState extends State<FeedWidget> {
                   userImage:
                       'assets/images/profile_picture.jpg', // Default profile image
                   onLike: () {
-                    if (widget.onLike != null) {
-                      widget.onLike!(post);
+                    if (widget.onSongLike != null) {
+                      widget.onSongLike!(post);
                     }
                   },
                   onComment: () {
-                    if (widget.onComment != null) {
-                      widget.onComment!(post);
+                    if (widget.onSongComment != null) {
+                      widget.onSongComment!(post);
                     }
                   },
                   onPlayPause: () {
-                    if (widget.onPlay != null) {
-                      widget.onPlay!(post);
+                    if (widget.onSongPlay != null) {
+                      widget.onSongPlay!(post);
                     }
                   },
                   onShare: () {
-                    if (widget.onShare != null) {
-                      widget.onShare!(post);
+                    if (widget.onSongShare != null) {
+                      widget.onSongShare!(post);
                     }
                   },
                   isLiked: post.likedByMe,
