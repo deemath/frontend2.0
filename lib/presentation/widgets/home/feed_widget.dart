@@ -25,6 +25,9 @@ class FeedWidget extends StatefulWidget {
   final bool isPlaying;
   final void Function(String userId)? onUserTap;
 
+  final String? currentUserId;
+  final Function? onPostOptions;
+
   final bool shrinkWrap;
   final ScrollPhysics? physics;
 
@@ -48,6 +51,8 @@ class FeedWidget extends StatefulWidget {
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
     this.onUserTap,
+    this.currentUserId,
+    this.onPostOptions,
     this.shrinkWrap = false,
     this.physics,
     this.initialIndex = 0,
