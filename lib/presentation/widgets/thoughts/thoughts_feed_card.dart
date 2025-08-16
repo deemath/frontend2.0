@@ -53,55 +53,6 @@ class ThoughtsFeedCard extends StatelessWidget {
               post.text,
               style: const TextStyle(fontSize: 16),
             ),
-            if (post.songName != null && post.songName!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (post.artistName != null && post.artistName!.isNotEmpty) ...[
-                    Icon(Icons.music_note, size: 20, color: Colors.deepPurple),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        '${post.songName} - ${post.artistName}',
-                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ] else ...[
-                    Icon(Icons.music_note, size: 20, color: Colors.deepPurple),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        post.songName!,
-                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ]
-                ],
-              ),
-            ],
-            if (post.coverImage != null && post.coverImage!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  post.coverImage!,
-                  height: 120,
-                  width: 120,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: Colors.grey[300],
-                    height: 120,
-                    width: 120,
-                    child: const Icon(Icons.broken_image, size: 40),
-                  ),
-                ),
-              ),
-            ],
             const SizedBox(height: 12),
             Row(
               children: [

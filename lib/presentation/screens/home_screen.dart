@@ -7,6 +7,10 @@ import '../../data/models/feed_item.dart';
 import '../../data/models/thoughts_model.dart';
 import '../../data/services/thoughts_service.dart';
 import '../widgets/thoughts/thoughts_feed_card.dart';
+import '../../data/models/feed_item.dart';
+import '../../data/models/thoughts_model.dart';
+import '../../data/services/thoughts_service.dart';
+import '../widgets/thoughts/thoughts_feed_card.dart';
 import '../../data/services/song_post_service.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,7 +41,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final SongPostService _songPostService = SongPostService();
   final ThoughtsService _thoughtsService = ThoughtsService();
+  final ThoughtsService _thoughtsService = ThoughtsService();
 
+  List<FeedItem> _feedItems = [];
   List<FeedItem> _feedItems = [];
   bool _isLoading = true;
   String? _error;
@@ -88,9 +94,15 @@ class _HomeScreenState extends State<HomeScreen> {
       final songResult = await _songPostService.getFollowerPosts(userId!);
       final thoughtsResult = await _thoughtsService.getFollowerThoughts(userId!);
       //print('Fetched thoughtsResult: ' + thoughtsResult.toString());
+      final songResult = await _songPostService.getFollowerPosts(userId!);
+      final thoughtsResult = await _thoughtsService.getFollowerThoughts(userId!);
+      //print('Fetched thoughtsResult: ' + thoughtsResult.toString());
 
       List<FeedItem> feedItems = [];
+      List<FeedItem> feedItems = [];
 
+      if (songResult['success']) {
+        final List<dynamic> postsData = songResult['data'];
       if (songResult['success']) {
         final List<dynamic> postsData = songResult['data'];
         final posts = postsData.map((json) {
@@ -98,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
           post.likedByMe =
               (json['likedBy'] as List<dynamic>?)?.contains(userId) ?? false;
           return FeedItem.song(post);
-        }).where((item) => item.songPost == null || item.songPost!.isHidden == 0);
+        });
         feedItems.addAll(posts);
       }
 
@@ -110,6 +122,17 @@ class _HomeScreenState extends State<HomeScreen> {
           //print('Parsed ThoughtsPost: ' + post.toString());
           return FeedItem.thought(post);
         });
+        feedItems.addAll(thoughtsPosts);
+      }
+
+
+      // Sort all by createdAt, newest first
+      feedItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      setState(() {
+        _feedItems = feedItems;
+        _isLoading = false;
+      });
         feedItems.addAll(thoughtsPosts);
       }
 
@@ -138,6 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final userData = userDataString != null
           ? jsonDecode(userDataString)
           : {'id': '685fb750cc084ba7e0ef8533'}; // Fallback for testing
+      currentUserId = userData['id']; 
       currentUserId = userData['id']; 
     }
     if (currentUserId == null) {
@@ -217,6 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 post.comments = updatedComments;
               });
               return updatedComments; 
+              return updatedComments; 
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -224,6 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               );
+              return post.comments; 
               return post.comments; 
             }
           },
@@ -302,6 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
+      
       
     }
   }
@@ -394,11 +421,19 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     
+    
     Widget content = FeedWidget(
+      feedItems: _feedItems,
       feedItems: _feedItems,
       isLoading: _isLoading,
       error: _error,
       onRefresh: _loadPosts,
+      onSongLike: (data_model.Post post) => _handleLike(post),
+      onSongComment: (data_model.Post post) => _handleComment(post),
+      onSongPlay: (data_model.Post post) => _handlePlay(post),
+      onSongShare: (data_model.Post post) => _handleShare(post),
+      onThoughtLike: (ThoughtsPost post) {}, // TODO: implement
+      onThoughtComment: (ThoughtsPost post) {}, // TODO: implement
       onSongLike: (data_model.Post post) => _handleLike(post),
       onSongComment: (data_model.Post post) => _handleComment(post),
       onSongPlay: (data_model.Post post) => _handlePlay(post),

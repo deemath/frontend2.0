@@ -5,6 +5,8 @@ import 'dart:async';
 import '/data/services/spotify_service.dart';
 import '../../../data/models/fanbase/fanbase_model.dart';
 import '../../../data/services/fanbase/fanbase_service.dart';
+import '../../../data/models/fanbase/fanbase_model.dart';
+import '../../../data/services/fanbase/fanbase_service.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../data/services/description_post_service.dart';
 import '../../widgets/create_post/button.dart';
@@ -43,9 +45,17 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
 
   // Selected fanbase for post
   Fanbase? _selectedFanbase;
+
+  // Selected fanbase for post
+  Fanbase? _selectedFanbase;
   
   // Selected cover image URL
   String? _selectedCoverImage;
+
+  // Selected song and artist
+  String? _selectedSongName;
+  String? _selectedArtistName;
+  String? _selectedTrackId;
 
   // Selected song and artist
   String? _selectedSongName;
@@ -158,6 +168,11 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
         trackId: _selectedTrackId,
         inAFanbase: _selectedFanbase != null,
         fanbaseID: _selectedFanbase?.id,
+        songName: _selectedSongName,
+        artistName: _selectedArtistName,
+        trackId: _selectedTrackId,
+        inAFanbase: _selectedFanbase != null,
+        fanbaseID: _selectedFanbase?.id,
       );
       
       if (mounted) {
@@ -208,10 +223,12 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
   }
 
   void _showFanbaseNamesDialog() async {
+  void _showFanbaseNamesDialog() async {
     final thoughtsText = _thoughtsController.text.trim();
     if (thoughtsText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          content: Text('Please write your thoughts before selecting fanbase'),
           content: Text('Please write your thoughts before selecting fanbase'),
           backgroundColor: Colors.red,
         ),
@@ -222,11 +239,12 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
     showDialog(
       context: context,
       barrierDismissible: true,
+      barrierDismissible: true,
       builder: (BuildContext context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
         return FutureBuilder<List<Fanbase>>(
-          future: FanbaseService.getAllFanbases(context),
+          future: FanbaseService.getAllFanbases(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
@@ -391,6 +409,60 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
   Widget _buildHeader(ColorScheme colorScheme) {
     return Column(
       children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.purpleAccent.withOpacity(0.9),
+                    Colors.deepPurple.withOpacity(0.8),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.purpleAccent.withOpacity(0.3),
+                    blurRadius: 16,
+                    spreadRadius: 2,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.lightbulb_outline,
+              size: 54,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  color: Colors.deepPurple.withOpacity(0.4),
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            Positioned(
+              bottom: 14,
+              right: 18,
+              child: Icon(
+                Icons.music_note_rounded,
+                size: 32,
+                color: Colors.purpleAccent.shade100,
+                shadows: [
+                  Shadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+            ),
+          ],
         Stack(
           alignment: Alignment.center,
           children: [
@@ -632,6 +704,11 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
               ? (track['artists'] as List).join(', ')
               : track['artists']?.toString();
           _selectedTrackId = track['id'];
+          _selectedSongName = track['name'];
+          _selectedArtistName = (track['artists'] is List)
+              ? (track['artists'] as List).join(', ')
+              : track['artists']?.toString();
+          _selectedTrackId = track['id'];
           _showImageSearch = false;
           _searchController.clear();
           _searchResults = null;
@@ -772,7 +849,11 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
               PreviewShareButtonRow(
                 onPreview: _showFanbaseNamesDialog,
                 onShare: _isShareLoading ? null : _shareThoughts,
+                onPreview: _showFanbaseNamesDialog,
+                onShare: _isShareLoading ? null : _shareThoughts,
                 isLoading: _isShareLoading,
+                previewText: _selectedFanbase?.fanbaseName ?? 'Add to Fanbase',
+                shareText: 'Share',
                 previewText: _selectedFanbase?.fanbaseName ?? 'Add to Fanbase',
                 shareText: 'Share',
               ),
