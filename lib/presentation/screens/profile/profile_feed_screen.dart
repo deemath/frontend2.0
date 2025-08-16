@@ -4,6 +4,7 @@ import '../../widgets/common/bottom_bar.dart';
 import '../../widgets/home/feed_widget.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../../data/models/post_model.dart' as data_model;
+import '../../../data/models/feed_item.dart';
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
 import '../../../data/services/song_post_service.dart';
@@ -261,14 +262,14 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
     return Scaffold(
       appBar: NootAppBar(),
       body: FeedWidget(
-        posts: _posts,
+        feedItems: _posts.map((p) => FeedItem.song(p)).toList(),
         isLoading: false,
         error: null,
         onRefresh: _loadProfilePosts,
-        onLike: (_) {},
-        onComment: (_) {},
-        onPlay: (_) {},
-        onShare: (_) {},
+        onSongLike: (_) {},
+        onSongComment: (_) {},
+        onSongPlay: (_) {},
+        onSongShare: (_) {},
         currentlyPlayingTrackId: null,
         isPlaying: false,
         currentUserId: _currentUserId, // Pass the currentUserId
