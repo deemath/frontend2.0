@@ -14,8 +14,13 @@ class ChatListScreen extends StatefulWidget {
 
 class _ChatListScreenState extends State<ChatListScreen> {
   final ChatService _chatService = ChatService();
+  final TextEditingController _searchController = TextEditingController();
+  
   List<Chat> chats = [];
+  List<SearchUser> searchResults = [];
   bool _isLoading = true;
+  bool _isSearching = false;
+  bool _showSearchResults = false;
   String? _error;
   String? currentUserId;
 
@@ -23,6 +28,25 @@ class _ChatListScreenState extends State<ChatListScreen> {
   void initState() {
     super.initState();
     _loadUserIdAndChats();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_searchController.text.isEmpty) {
+      setState(() {
+        _showSearchResults = false;
+        searchResults.clear();
+      });
+    } else {
+      _searchUsers(_searchController.text);
+    }
   }
 
   Future<void> _loadUserIdAndChats() async {
@@ -68,6 +92,91 @@ class _ChatListScreenState extends State<ChatListScreen> {
     }
   }
 
+  Future<void> _searchUsers(String query) async {
+    if (query.trim().isEmpty) return;
+
+    setState(() {
+      _isSearching = true;
+    });
+
+    try {
+      final result = await _chatService.searchUsers(query.trim());
+      
+      if (result['success']) {
+        final List<dynamic> usersData = result['data'];
+        final userList = usersData
+            .where((user) => user['_id'] != currentUserId) // Exclude current user
+            .map((json) => SearchUser.fromJson(json))
+            .toList();
+        
+        setState(() {
+          searchResults = userList;
+          _showSearchResults = true;
+          _isSearching = false;
+        });
+      } else {
+        setState(() {
+          searchResults = [];
+          _showSearchResults = true;
+          _isSearching = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        searchResults = [];
+        _showSearchResults = true;
+        _isSearching = false;
+      });
+    }
+  }
+
+  Future<void> _startChat(SearchUser user) async {
+    try {
+      final result = await _chatService.createChat(user.id);
+      
+      if (result['success']) {
+        final chatData = result['data'];
+        final newChat = Chat.fromJson(chatData, currentUserId!);
+        
+        // Clear search and refresh chats
+        _searchController.clear();
+        setState(() {
+          _showSearchResults = false;
+          searchResults.clear();
+        });
+        
+        // Navigate to chat screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(
+              chat: newChat,
+              currentUserId: currentUserId!,
+            ),
+          ),
+        ).then((_) => _loadChats());
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message']),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error starting chat: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,17 +195,13 @@ class _ChatListScreenState extends State<ChatListScreen> {
         actions: [
           IconButton(
             icon: Icon(
-              Icons.edit_square,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(
               Icons.refresh,
               color: Theme.of(context).colorScheme.onPrimary,
             ),
-            onPressed: _loadChats,
+            onPressed: () {
+              _searchController.clear();
+              _loadChats();
+            },
           ),
         ],
       ),
@@ -112,8 +217,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: TextField(
+                  controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Search messages...',
+                    hintText: 'Search users...',
                     hintStyle: TextStyle(
                       color: Theme.of(context).colorScheme.secondary,
                     ),
@@ -121,6 +227,17 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       Icons.search,
                       color: Theme.of(context).colorScheme.secondary,
                     ),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.clear,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                            onPressed: () {
+                              _searchController.clear();
+                            },
+                          )
+                        : null,
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(vertical: 15),
                   ),
@@ -131,9 +248,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
               ),
             ),
             
-            // Chat list
+            // Content area
             Expanded(
-              child: _buildContent(),
+              child: _showSearchResults ? _buildSearchResults() : _buildChatList(),
             ),
           ],
         ),
@@ -141,7 +258,40 @@ class _ChatListScreenState extends State<ChatListScreen> {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildSearchResults() {
+    if (_isSearching) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
+    }
+
+    if (searchResults.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.person_search, color: Theme.of(context).colorScheme.onPrimary, size: 48),
+            const SizedBox(height: 16),
+            Text('No users found', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 18)),
+            Text('Try a different username', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: searchResults.length,
+      itemBuilder: (context, index) {
+        final user = searchResults[index];
+        return SearchUserItem(
+          user: user,
+          onStartChat: () => _startChat(user),
+        );
+      },
+    );
+  }
+
+  Widget _buildChatList() {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: Colors.white),
@@ -174,7 +324,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             Icon(Icons.chat, color: Theme.of(context).colorScheme.onPrimary, size: 48),
             const SizedBox(height: 16),
             Text('No chats yet', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 18)),
-            Text('Start a conversation!', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+            Text('Search for users to start chatting!', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
           ],
         ),
       );
@@ -197,10 +347,85 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     currentUserId: currentUserId!,
                   ),
                 ),
-              ).then((_) => _loadChats()); // Refresh when coming back
+              ).then((_) => _loadChats());
             },
           );
         },
+      ),
+    );
+  }
+}
+
+class SearchUserItem extends StatelessWidget {
+  final SearchUser user;
+  final VoidCallback onStartChat;
+
+  const SearchUserItem({
+    super.key,
+    required this.user,
+    required this.onStartChat,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onStartChat,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundImage: user.profileImage != null && user.profileImage!.isNotEmpty
+                  ? (user.profileImage!.startsWith('http')
+                      ? NetworkImage(user.profileImage!) as ImageProvider
+                      : AssetImage(user.profileImage!))
+                  : const AssetImage('assets/images/hehe.png'),
+            ),
+            
+            const SizedBox(width: 16),
+            
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.username,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (user.email.isNotEmpty)
+                    Text(
+                      user.email,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'Start Chat',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -256,7 +481,6 @@ class ChatListItem extends StatelessWidget {
             
             const SizedBox(width: 16),
             
-            // Chat details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
