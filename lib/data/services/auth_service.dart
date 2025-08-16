@@ -180,4 +180,38 @@ class AuthService {
 
   // Get authenticated Dio instance for API calls
   Dio get dio => _tokenManager.authenticatedDio;
+
+  // Check if email is already registered
+  Future<bool> isEmailRegistered(String email) async {
+    try {
+      final response = await _tokenManager.unauthenticatedDio.get(
+        '/user/isEmailRegistered/$email',
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['isRegistered'] ?? false;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Error checking email registration: $e');
+      return false;
+    }
+  }
+
+  // Check if username is already registered
+  Future<bool> isUsernameRegistered(String username) async {
+    try {
+      final response = await _tokenManager.unauthenticatedDio.get(
+        '/user/isUsernameRegistered/$username',
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['isRegistered'] ?? false;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Error checking username registration: $e');
+      return false;
+    }
+  }
 }

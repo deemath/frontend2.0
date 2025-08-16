@@ -281,6 +281,16 @@ class _FeedWidgetState extends State<FeedWidget> {
     final albumImageUrl = post.albumImage ?? '';
     final backgroundColor = _extractedColors[albumImageUrl] ?? _defaultColor;
 
+    // Check if the post belongs to the current user
+    final bool isOwnPost = post.userId != null &&
+        widget.currentUserId != null &&
+        post.userId == widget.currentUserId;
+
+    print(
+        'FeedWidget - Building post from user: ${post.username}, userId: ${post.userId}');
+    print('FeedWidget - Current userId: ${widget.currentUserId}');
+    print('FeedWidget - isOwnPost: $isOwnPost');
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Column(
@@ -303,8 +313,10 @@ class _FeedWidgetState extends State<FeedWidget> {
                   albumImage: post.albumImage ?? '',
                   caption: post.caption ?? '',
                   username: post.username ?? '',
-                  userImage:
-                      'assets/images/profile_picture.jpg', // Default profile image
+                  userId: post.userId,
+                  currentUserId: widget.currentUserId, // Pass currentUserId
+                  userImage: 'assets/images/profile_picture.jpg',
+                  isOwnPost: isOwnPost, // Pass isOwnPost
                   onLike: () {
                     if (widget.onSongLike != null) {
                       widget.onSongLike!(post);

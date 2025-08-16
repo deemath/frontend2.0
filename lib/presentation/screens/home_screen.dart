@@ -16,6 +16,7 @@ import 'package:dio/dio.dart';
 import '../widgets/song_post/comment.dart';
 import 'package:share_plus/share_plus.dart';
 import './profile/user_profiles.dart';
+import '../widgets/song_post/post_options_menu.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? accessToken;
@@ -207,9 +208,10 @@ class _HomeScreenState extends State<HomeScreen> {
             final result = await _songPostService.addComment(
                 post.id, userData['id'], userData['name'], text);
             if (result['success']) {
-              final updatedComments = (result['data']['comments'] as List<dynamic>)
-                  .map((c) => data_model.Comment.fromJson(c))
-                  .toList();
+              final updatedComments =
+                  (result['data']['comments'] as List<dynamic>)
+                      .map((c) => data_model.Comment.fromJson(c))
+                      .toList();
               setState(() {
                 post.comments = updatedComments;
               });
@@ -309,6 +311,36 @@ class _HomeScreenState extends State<HomeScreen> {
     Share.share(shareText, subject: 'Music from Noot');
   }
 
+  void _handlePostOptions(data_model.Post post) {
+    print('HomeScreen _handlePostOptions - Post ID: ${post.id}');
+    print('HomeScreen _handlePostOptions - Post User ID: ${post.userId}');
+    print('HomeScreen _handlePostOptions - Current User ID: $userId');
+
+    // Check if either ID is null or empty
+    if (post.userId == null || post.userId!.isEmpty) {
+      print('WARNING: Post userId is null or empty');
+    }
+    if (userId == null || userId!.isEmpty) {
+      print('WARNING: Current userId is null or empty');
+    }
+
+    bool isUsersOwnPost = false;
+    if (post.userId != null && userId != null) {
+      isUsersOwnPost = post.userId == userId;
+      print('Calculated isUsersOwnPost: $isUsersOwnPost');
+    } else {
+      print('Cannot determine if post is user\'s own due to null IDs');
+    }
+
+    PostOptionsMenu.show(
+      context,
+      postUserId: post.userId,
+      currentUserId: userId,
+      isOwnPost: isUsersOwnPost, // Explicitly set based on our calculation
+      // ...existing code...
+    );
+  }
+
   String _formatTimestamp(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
@@ -348,6 +380,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
+      onPostOptions: _handlePostOptions,
     );
 
     // When in shell mode, only render the content without navigation elements
