@@ -320,20 +320,9 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
         currentlyPlayingTrackId: null,
         isPlaying: false,
         currentUserId: _currentUserId, 
+        currentUserId: _currentUserId, 
         onUserTap: (_) {},
-        onPostOptions: _handlePostOptions,
-        onEditPost: (data_model.Post post) async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => EditPostScreen(post: post),
-            ),
-          );
-          if (result == true) {
-            // Refresh the feed after successful edit
-            _loadProfilePosts();
-          }
-        },
+        onPostOptions: _handlePostOptions, 
         itemScrollController: _itemScrollController,
         itemPositionsListener: _itemPositionsListener,
         initialIndex: _initialIndex,

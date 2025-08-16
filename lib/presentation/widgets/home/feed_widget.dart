@@ -27,8 +27,11 @@ class FeedWidget extends StatefulWidget {
 
   final String? currentUserId;
   final Function? onPostOptions;
+<<<<<<< HEAD
   final Future<void> Function(data_model.Post post)? onHidePost;
   final Future<void> Function(data_model.Post post)? onEditPost; 
+=======
+>>>>>>> 81ccfac (add thought posts to the fanbase and show thoughts posts in the home feed)
 
   final bool shrinkWrap;
   final ScrollPhysics? physics;
@@ -55,8 +58,11 @@ class FeedWidget extends StatefulWidget {
     this.onUserTap,
     this.currentUserId,
     this.onPostOptions,
+<<<<<<< HEAD
     this.onHidePost,
     this.onEditPost,
+=======
+>>>>>>> 81ccfac (add thought posts to the fanbase and show thoughts posts in the home feed)
     this.shrinkWrap = false,
     this.physics,
     this.initialIndex = 0,

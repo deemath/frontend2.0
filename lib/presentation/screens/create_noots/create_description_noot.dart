@@ -244,7 +244,7 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
         return FutureBuilder<List<Fanbase>>(
-          future: FanbaseService.getAllFanbases(),
+          future: FanbaseService.getAllFanbases(context),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
