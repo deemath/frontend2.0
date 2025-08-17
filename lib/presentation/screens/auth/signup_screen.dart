@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../data/services/auth_service.dart';
 import '../../widgets/auth/custom_text_form_field.dart';
 import '../../widgets/auth/custom_button.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../widgets/auth/custom_snack_bar.dart';
+import '../../../core/utils/temp_storage.dart';
+import '../../../data/services/auth_service.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -20,6 +21,7 @@ class _SignupScreenState extends State<SignupScreen> {
       TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  String? _emailError;
 
   @override
   void dispose() {
@@ -30,54 +32,62 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  bool _validateInputs() {
-    if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
-      );
-      return false;
+  Future<bool> _validateInputs() async {
+    final authService = context.read<AuthService>();
+
+    // Check if email is already registered
+    final email = _emailController.text.trim();
+    if (email.isNotEmpty) {
+      final isEmailTaken = await authService.isEmailRegistered(email);
+      if (isEmailTaken) {
+        setState(() {
+          _emailError = 'This email is already registered';
+        });
+
+        // Show error message to user using CustomSnackBar
+        CustomSnackBar.show(
+          context,
+          title: 'Error',
+          text: 'This email is already registered',
+          type: SnackBarType.destructive,
+        );
+        return false;
+      }
     }
+
+    // Clear any previous email error
+    setState(() {
+      _emailError = null;
+    });
+
     return true;
   }
 
   void handleRegister() async {
-    if (!_validateInputs()) return;
+    if (!_formKey.currentState!.validate()) return;
+
     setState(() {
       _isLoading = true;
     });
-    try {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final response = await authService.register(
-        _emailController.text.trim(),
-        _usernameController.text.trim(),
-        _passwordController.text,
-      );
-      if (response['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Registration successful! Please login.')),
-        );
-        // Check if user is authenticated in auth provider
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        if (authProvider.isAuthenticated) {
-          Navigator.pushNamed(context, '/link-account');
-        } else {
-          Navigator.pushNamed(context, '/login');
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Registration failed')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration failed. Please try again.')),
-      );
-    } finally {
+
+    final isValid = await _validateInputs();
+    if (!isValid) {
       setState(() {
         _isLoading = false;
       });
+      return;
     }
+
+    // Store credentials temporarily in secure storage
+    TempStorage.store('signup_email', _emailController.text.trim());
+    TempStorage.store('signup_password', _passwordController.text);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    // Navigate to username screen without sensitive data
+    Navigator.pushNamed(context, '/username');
   }
 
   @override
@@ -115,12 +125,47 @@ class _SignupScreenState extends State<SignupScreen> {
                 children: [
                   // App Logo
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 40.0),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      height: 40,
+                    padding:
+                        EdgeInsets.only(left: 20.0, bottom: 40.0, top: 20.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        height: 40,
+                      ),
                     ),
                   ),
+
+                  // Title
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: const Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Description
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Text(
+                      'Start your journey of rediscovering music socially',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
 
                   // Email Field
                   Padding(
@@ -133,7 +178,10 @@ class _SignupScreenState extends State<SignupScreen> {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
                         }
-                        if (!value.contains('@')) {
+                        final emailRegex = RegExp(
+                            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+
+                        if (!emailRegex.hasMatch(value)) {
                           return 'Please enter a valid email';
                         }
                         return null;
@@ -141,24 +189,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
-
-                  // Username Field
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: CustomTextFormField(
-                      controller: _usernameController,
-                      hintText: 'Enter your username',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your username';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 6),
 
                   // Password Field
                   Padding(
@@ -179,7 +210,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 6),
 
                   // Confirm Password Field
                   Padding(
@@ -200,7 +231,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 32),
 
                   // Signup Button
                   Padding(

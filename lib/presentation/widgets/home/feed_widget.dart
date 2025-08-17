@@ -16,6 +16,7 @@ class FeedWidget extends StatefulWidget {
   final Function(data_model.Post)? onComment;
   final Function(data_model.Post)? onPlay;
   final Function(data_model.Post)? onShare;
+  final Function(data_model.Post)? onPostOptions; // Add this parameter
   final String? currentlyPlayingTrackId;
   final bool isPlaying;
   final void Function(String userId)? onUserTap;
@@ -27,6 +28,7 @@ class FeedWidget extends StatefulWidget {
   final ItemScrollController? itemScrollController;
   final ItemPositionsListener? itemPositionsListener;
 
+  final String? currentUserId; // Add currentUserId parameter
 
   const FeedWidget({
     Key? key,
@@ -38,17 +40,16 @@ class FeedWidget extends StatefulWidget {
     this.onComment,
     this.onPlay,
     this.onShare,
+    this.onPostOptions, // Add this parameter
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
     this.onUserTap,
-
     this.shrinkWrap = false,
     this.physics,
-
     this.initialIndex = 0,
     this.itemScrollController,
     this.itemPositionsListener,
-
+    this.currentUserId, // Add currentUserId parameter
   }) : super(key: key);
 
   @override
@@ -262,6 +263,16 @@ class _FeedWidgetState extends State<FeedWidget> {
     final albumImageUrl = post.albumImage ?? '';
     final backgroundColor = _extractedColors[albumImageUrl] ?? _defaultColor;
 
+    // Check if the post belongs to the current user
+    final bool isOwnPost = post.userId != null &&
+        widget.currentUserId != null &&
+        post.userId == widget.currentUserId;
+
+    print(
+        'FeedWidget - Building post from user: ${post.username}, userId: ${post.userId}');
+    print('FeedWidget - Current userId: ${widget.currentUserId}');
+    print('FeedWidget - isOwnPost: $isOwnPost');
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Column(
@@ -284,8 +295,10 @@ class _FeedWidgetState extends State<FeedWidget> {
                   albumImage: post.albumImage ?? '',
                   caption: post.caption ?? '',
                   username: post.username ?? '',
-                  userImage:
-                      'assets/images/profile_picture.jpg', // Default profile image
+                  userId: post.userId,
+                  currentUserId: widget.currentUserId, // Pass currentUserId
+                  userImage: 'assets/images/profile_picture.jpg',
+                  isOwnPost: isOwnPost, // Pass isOwnPost
                   onLike: () {
                     if (widget.onLike != null) {
                       widget.onLike!(post);
@@ -304,6 +317,11 @@ class _FeedWidgetState extends State<FeedWidget> {
                   onShare: () {
                     if (widget.onShare != null) {
                       widget.onShare!(post);
+                    }
+                  },
+                  onMoreOptions: () {
+                    if (widget.onPostOptions != null) {
+                      widget.onPostOptions!(post);
                     }
                   },
                   isLiked: post.likedByMe,

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'presentation/screens/shell_screen.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/auth/signup_screen.dart';
+import 'presentation/screens/auth/username_screen.dart';
+import 'presentation/screens/auth/terms_screen.dart';
 import 'presentation/screens/auth/link_spotify_screen.dart';
 import 'presentation/screens/create_noots/search_song.dart';
 import 'core/styles/theme.dart';
@@ -99,6 +101,10 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const LoginScreen());
           case '/signup':
             return MaterialPageRoute(builder: (_) => const SignupScreen());
+          case '/username':
+            return MaterialPageRoute(builder: (_) => const UsernameScreen());
+          case '/terms':
+            return MaterialPageRoute(builder: (_) => const TermsScreen());
           case '/create':
             return MaterialPageRoute(
               builder: (_) => const CreatePostPage(),
@@ -106,7 +112,8 @@ class MyApp extends StatelessWidget {
           case '/fanbases':
             return MaterialPageRoute(builder: (_) => const FanbasePage());
           case '/profile':
-            return MaterialPageRoute(builder: (_) => const NormalUserProfilePage());
+            return MaterialPageRoute(
+                builder: (_) => const NormalUserProfilePage());
           case '/search':
             return MaterialPageRoute(builder: (_) => const SearchFeedScreen());
           // case '/demodespost':

@@ -152,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 6),
 
                   // Password Field
                   Padding(
