@@ -16,11 +16,12 @@ class FeedWidget extends StatefulWidget {
   final bool isLoading;
   final String? error;
   final VoidCallback? onRefresh;
-  final Function(data_model.Post)? onLike;
-  final Function(data_model.Post)? onComment;
-  final Function(data_model.Post)? onPlay;
-  final Function(data_model.Post)? onShare;
-  final Function(data_model.Post)? onPostOptions; // Add this parameter
+  final Function(data_model.Post)? onSongLike;
+  final Function(data_model.Post)? onSongComment;
+  final Function(data_model.Post)? onSongPlay;
+  final Function(data_model.Post)? onSongShare;
+  final Function(ThoughtsPost)? onThoughtLike;
+  final Function(ThoughtsPost)? onThoughtComment;
   final String? currentlyPlayingTrackId;
   final bool isPlaying;
   final void Function(String userId)? onUserTap;
@@ -36,19 +37,18 @@ class FeedWidget extends StatefulWidget {
   final ItemScrollController? itemScrollController;
   final ItemPositionsListener? itemPositionsListener;
 
-  final String? currentUserId; // Add currentUserId parameter
-
   const FeedWidget({
     Key? key,
     this.feedItems,
     this.isLoading = false,
     this.error,
     this.onRefresh,
-    this.onLike,
-    this.onComment,
-    this.onPlay,
-    this.onShare,
-    this.onPostOptions, // Add this parameter
+    this.onSongLike,
+    this.onSongComment,
+    this.onSongPlay,
+    this.onSongShare,
+    this.onThoughtLike,
+    this.onThoughtComment,
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
     this.onUserTap,
@@ -60,7 +60,6 @@ class FeedWidget extends StatefulWidget {
     this.initialIndex = 0,
     this.itemScrollController,
     this.itemPositionsListener,
-    this.currentUserId, // Add currentUserId parameter
   }) : super(key: key);
 
   @override
@@ -343,13 +342,8 @@ class _FeedWidgetState extends State<FeedWidget> {
                     }
                   },
                   onShare: () {
-                    if (widget.onShare != null) {
-                      widget.onShare!(post);
-                    }
-                  },
-                  onMoreOptions: () {
-                    if (widget.onPostOptions != null) {
-                      widget.onPostOptions!(post);
+                    if (widget.onSongShare != null) {
+                      widget.onSongShare!(post);
                     }
                   },
                   onMoreOptions: widget.onPostOptions != null
