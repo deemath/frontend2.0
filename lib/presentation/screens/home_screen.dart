@@ -432,7 +432,6 @@ class _HomeScreenState extends State<HomeScreen> {
       isPlaying: _isPlaying,
       currentUserId: userId,
       onPostOptions: _handlePostOptions,
->>>>>>> 7ce30fe (add thought posts to the fanbase and show thoughts posts in the home feed)
       onUserTap: (String userId) {
         Navigator.push(
           context,
