@@ -285,6 +285,45 @@ class SongPostService {
     }
   }
 
+  Future<Map<String, dynamic>> updatePost({
+    required String postId,
+    String? caption,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/song-posts/$postId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          if (caption != null) 'caption': caption,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': data['success'] ?? true,
+          'data': data['data'],
+          'message': data['message'] ?? 'Post updated successfully',
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to update post',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
   Future<Map<String, dynamic>> hidePost(String postId) async {
     print('[DEBUG] hidePost called with postId: $postId');
     print('[DEBUG] Making API call to: $baseUrl/song-posts/$postId/hide');

@@ -10,6 +10,7 @@ import '../../../data/models/profile_model.dart';
 import '../../../data/services/song_post_service.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../widgets/song_post/post_options_menu.dart';
+import '../song_posts/update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -170,12 +171,18 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
       onReport: () {
         // Report functionality is handled inside PostOptionsMenu
       },
-      onEdit: () {
-        // Navigate to edit post screen
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Edit post functionality coming soon')),
+      onEdit: isUsersOwnPost ? () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditPostScreen(post: post),
+          ),
         );
-      },
+        if (result == true) {
+          // Refresh the feed after successful edit
+          _loadProfilePosts();
+        }
+      } : null,
       onDelete: () async {
         // Show confirmation dialog
         final confirm = await showDialog<bool>(
@@ -314,7 +321,19 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
         isPlaying: false,
         currentUserId: _currentUserId, 
         onUserTap: (_) {},
-        onPostOptions: _handlePostOptions, 
+        onPostOptions: _handlePostOptions,
+        onEditPost: (data_model.Post post) async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EditPostScreen(post: post),
+            ),
+          );
+          if (result == true) {
+            // Refresh the feed after successful edit
+            _loadProfilePosts();
+          }
+        },
         itemScrollController: _itemScrollController,
         itemPositionsListener: _itemPositionsListener,
         initialIndex: _initialIndex,

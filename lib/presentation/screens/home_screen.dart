@@ -17,6 +17,7 @@ import '../widgets/song_post/comment.dart';
 import 'package:share_plus/share_plus.dart';
 import './profile/user_profiles.dart';
 import '../widgets/song_post/post_options_menu.dart';
+import './song_posts/update.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? accessToken;
@@ -337,6 +338,18 @@ class _HomeScreenState extends State<HomeScreen> {
       postUserId: post.userId,
       currentUserId: userId,
       isOwnPost: isUsersOwnPost, 
+      onEdit: isUsersOwnPost ? () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditPostScreen(post: post),
+          ),
+        );
+        if (result == true) {
+          // Refresh the feed after successful edit
+          _loadPosts();
+        }
+      } : null,
       onDelete: () async {
         try {
           final result = await _songPostService.deletePost(post.id);
@@ -429,6 +442,18 @@ class _HomeScreenState extends State<HomeScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error hiding post: $e')),
           );
+        }
+      },
+      onEditPost: (data_model.Post post) async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditPostScreen(post: post),
+          ),
+        );
+        if (result == true) {
+          // Refresh the feed after successful edit
+          _loadPosts();
         }
       },
     );
