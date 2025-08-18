@@ -320,7 +320,6 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
         currentlyPlayingTrackId: null,
         isPlaying: false,
         currentUserId: _currentUserId, 
-        currentUserId: _currentUserId, 
         onUserTap: (_) {},
         onPostOptions: _handlePostOptions, 
         itemScrollController: _itemScrollController,

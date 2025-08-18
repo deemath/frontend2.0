@@ -37,26 +37,36 @@ class _EditPostScreenState extends State<EditPostScreen> {
 
     try {
       final result = await _songPostService.updatePost(
-        postId: widget.post.id,
-        caption: _captionController.text.trim().isEmpty ? null : _captionController.text.trim(),
+        widget.post.id,
+        _captionController.text.trim().isEmpty ? '' : _captionController.text.trim(),
       );
 
       if (result['success']) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result['message']),
-              backgroundColor: const Color(0xFF8E08EF),
-            ),
+          // Show success message
+          final snackBar = SnackBar(
+            content: Text(result['message'] ?? 'Post updated successfully'),
+            backgroundColor: const Color(0xFF8E08EF),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
           );
-          Navigator.of(context).pop(true); // Return true to indicate successful update
+          
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          
+          // Wait a bit for the SnackBar to show before navigating back
+          await Future.delayed(const Duration(milliseconds: 800));
+          if (mounted) {
+            Navigator.of(context).pop(true); // Return true to indicate successful update
+          }
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['message']),
+              content: Text(result['message'] ?? 'Failed to update post'),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
             ),
           );
         }
@@ -65,8 +75,10 @@ class _EditPostScreenState extends State<EditPostScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text('Error updating post: $e'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }

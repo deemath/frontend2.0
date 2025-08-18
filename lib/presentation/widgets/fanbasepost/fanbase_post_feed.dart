@@ -232,7 +232,6 @@ class _FanbasePostFeedWidgetState extends State<FanbasePostFeedWidget> {
 
     try {
       final updatedPost = await FanbasePostService.likeFanbasePost(
-        widget.fanbaseId,
         post.id,
         context,
       );

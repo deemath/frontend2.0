@@ -253,6 +253,52 @@ class SongPostService {
     }
   }
 
+  Future<Map<String, dynamic>> updatePost(
+    String postId,
+    String caption,
+  ) async {
+    try {
+      print('[DEBUG] Updating post with ID: $postId');
+      print('[DEBUG] New caption: $caption');
+      print('[DEBUG] Making PUT request to: $baseUrl/song-posts/$postId');
+      
+      final response = await http.put(
+        Uri.parse('$baseUrl/song-posts/$postId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'caption': caption,
+        }),
+      );
+      
+      print('[DEBUG] Response status: ${response.statusCode}');
+      print('[DEBUG] Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': true,
+          'data': data,
+          'message': 'Post updated successfully',
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to update post',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
   Future<Map<String, dynamic>> deletePost(String postId) async {
     try {
       final response = await http.delete(
@@ -265,8 +311,6 @@ class SongPostService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return {
-          'success': data['success'] ?? true,
-          'message': data['message'] ?? 'Post deleted successfully',
           'success': data['success'] ?? true,
           'message': data['message'] ?? 'Post deleted successfully',
         };

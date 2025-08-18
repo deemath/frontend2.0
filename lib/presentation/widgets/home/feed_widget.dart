@@ -34,6 +34,12 @@ class FeedWidget extends StatefulWidget {
   final int initialIndex;
   final ItemScrollController? itemScrollController;
   final ItemPositionsListener? itemPositionsListener;
+  final Function(data_model.Post)? onSongLike;
+  final Function(data_model.Post)? onSongComment;
+  final Function(data_model.Post)? onSongPlay;
+  final Function(ThoughtsPost)? onThoughtLike;
+  final Function(ThoughtsPost)? onThoughtComment;
+  final Function(data_model.Post)? onSongShare;
 
   const FeedWidget({
     Key? key,
@@ -56,6 +62,12 @@ class FeedWidget extends StatefulWidget {
     this.initialIndex = 0,
     this.itemScrollController,
     this.itemPositionsListener,
+    this.onSongLike,
+    this.onSongComment,
+    this.onSongPlay,
+    this.onSongShare,
+    this.onThoughtLike,
+    this.onThoughtComment,
   }) : super(key: key);
 
   @override
@@ -342,14 +354,6 @@ class _FeedWidgetState extends State<FeedWidget> {
                       widget.onShare!(post);
                     }
                   },
-                  onMoreOptions: () {
-                    if (widget.onPostOptions != null) {
-                      widget.onPostOptions!(post);
-                    }
-                  },
-                  onMoreOptions: widget.onPostOptions != null
-                      ? () => widget.onPostOptions!(post)
-                      : null,
                   onMoreOptions: widget.onPostOptions != null
                       ? () => widget.onPostOptions!(post)
                       : null,

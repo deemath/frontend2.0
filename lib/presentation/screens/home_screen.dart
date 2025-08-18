@@ -97,8 +97,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (songResult['success']) {
         final List<dynamic> postsData = songResult['data'];
-      if (songResult['success']) {
-        final List<dynamic> postsData = songResult['data'];
         final posts = postsData.map((json) {
           final post = data_model.Post.fromJson(json);
           post.likedByMe =
@@ -394,20 +392,12 @@ class _HomeScreenState extends State<HomeScreen> {
     
     Widget content = FeedWidget(
       feedItems: _feedItems,
-      feedItems: _feedItems,
       isLoading: _isLoading,
       error: _error,
       onRefresh: _loadPosts,
       onSongLike: (data_model.Post post) => _handleLike(post),
       onSongComment: (data_model.Post post) => _handleComment(post),
       onSongPlay: (data_model.Post post) => _handlePlay(post),
-      onSongShare: (data_model.Post post) => _handleShare(post),
-      onThoughtLike: (ThoughtsPost post) {}, // TODO: implement
-      onThoughtComment: (ThoughtsPost post) {}, // TODO: implement
-      onSongLike: (data_model.Post post) => _handleLike(post),
-      onSongComment: (data_model.Post post) => _handleComment(post),
-      onSongPlay: (data_model.Post post) => _handlePlay(post),
-      onSongShare: (data_model.Post post) => _handleShare(post),
       onThoughtLike: (ThoughtsPost post) {}, // TODO: implement
       onThoughtComment: (ThoughtsPost post) {}, // TODO: implement
       currentlyPlayingTrackId: _currentlyPlayingTrackId,
