@@ -234,6 +234,7 @@ class _FanbasePostFeedWidgetState extends State<FanbasePostFeedWidget> {
       final updatedPost = await FanbasePostService.likeFanbasePost(
         post.id,
         context,
+        fanbaseId: widget.fanbaseId,
       );
 
       // Update with actual response from server

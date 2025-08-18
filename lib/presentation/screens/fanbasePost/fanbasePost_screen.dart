@@ -86,6 +86,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
         widget.postId,
         commentText,
         context,
+        fanbaseId: widget.fanbaseId,
       );
 
       if (mounted) {
