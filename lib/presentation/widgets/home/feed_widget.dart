@@ -27,11 +27,7 @@ class FeedWidget extends StatefulWidget {
 
   final String? currentUserId;
   final Function? onPostOptions;
-<<<<<<< HEAD
-  final Future<void> Function(data_model.Post post)? onHidePost;
-  final Future<void> Function(data_model.Post post)? onEditPost; 
-=======
->>>>>>> 81ccfac (add thought posts to the fanbase and show thoughts posts in the home feed)
+  final Future<void> Function(data_model.Post post)? onHidePost; 
 
   final bool shrinkWrap;
   final ScrollPhysics? physics;
@@ -58,11 +54,7 @@ class FeedWidget extends StatefulWidget {
     this.onUserTap,
     this.currentUserId,
     this.onPostOptions,
-<<<<<<< HEAD
     this.onHidePost,
-    this.onEditPost,
-=======
->>>>>>> 81ccfac (add thought posts to the fanbase and show thoughts posts in the home feed)
     this.shrinkWrap = false,
     this.physics,
     this.initialIndex = 0,
@@ -302,6 +294,7 @@ class _FeedWidgetState extends State<FeedWidget> {
         widget.currentUserId != null &&
         post.userId == widget.currentUserId;
     print('[DEBUG] FeedWidget._buildSongPostItem: post.userId=${post.userId}, currentUserId=${widget.currentUserId}, isOwnPost=$isOwnPost');
+    print('[DEBUG] FeedWidget._buildSongPostItem: post.userId=${post.userId}, currentUserId=${widget.currentUserId}, isOwnPost=$isOwnPost');
 
     print(
         'FeedWidget - Building post from user: ${post.username}, userId: ${post.userId}');
@@ -362,6 +355,9 @@ class _FeedWidgetState extends State<FeedWidget> {
                   onMoreOptions: widget.onPostOptions != null
                       ? () => widget.onPostOptions!(post)
                       : null,
+                  onMoreOptions: widget.onPostOptions != null
+                      ? () => widget.onPostOptions!(post)
+                      : null,
                   isLiked: post.likedByMe,
                   isPlaying: widget.isPlaying,
                   isCurrentTrack:
@@ -380,9 +376,6 @@ class _FeedWidgetState extends State<FeedWidget> {
                     print('[DEBUG] FeedWidget: onHide callback triggered for post ID: ${post.id}');
                     await widget.onHidePost!(post);
                     setState(() {});
-                  } : null,
-                  onEdit: isOwnPost && widget.onEditPost != null ? () async {
-                    await widget.onEditPost!(post);
                   } : null,
                   // likeCount and commentCount intentionally omitted for home/feed
                 ),
