@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'dart:ui';
 
 class PostOptionsMenu {
   static void show(
@@ -18,6 +19,8 @@ class PostOptionsMenu {
     // Debug output to understand the values
     print(
         'PostOptionsMenu - postUserId: $postUserId, currentUserId: $currentUserId');
+    print('PostOptionsMenu - isOwnPost: $isOwnPost');
+    print('PostOptionsMenu - onHide callback is ${onHide != null ? "NOT NULL" : "NULL"}');
 
     // Enhanced logic to determine if post belongs to current user
     bool isCurrentUserPost;
@@ -82,6 +85,7 @@ class PostOptionsMenu {
                 ListTile(
                   leading: Icon(LucideIcons.pencil, color: textColor),
                   title: Text('Edit post', style: TextStyle(color: textColor)),
+
                   onTap: () {
                     Navigator.pop(context);
                     if (onEdit != null) onEdit();
@@ -102,8 +106,15 @@ class PostOptionsMenu {
                   leading: Icon(LucideIcons.eyeOff, color: textColor),
                   title: Text('Hide post', style: TextStyle(color: textColor)),
                   onTap: () {
+                    print('[DEBUG] PostOptionsMenu: Hide post tapped');
+                    print('[DEBUG] PostOptionsMenu: onHide callback is ${onHide != null ? "NOT NULL" : "NULL"}');
                     Navigator.pop(context);
-                    if (onHide != null) onHide();
+                    if (onHide != null) {
+                      print('[DEBUG] PostOptionsMenu: Calling onHide callback');
+                      onHide();
+                    } else {
+                      print('[DEBUG] PostOptionsMenu: onHide callback is null, not calling');
+                    }
                   },
                 ),
               ] else ...[

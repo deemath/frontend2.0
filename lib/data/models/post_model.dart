@@ -29,6 +29,7 @@ class Comment {
 
   Map<String, dynamic> toJson() => {
         '_id': id,
+        '_id': id,
         'userId': userId,
         'username': username,
         'text': text,
@@ -39,6 +40,7 @@ class Comment {
 }
 
 class Post {
+  final int isHidden; // 0 = visible, 1 = hidden
   final String id;
   final String trackId;
   final String songName;
@@ -57,6 +59,7 @@ class Post {
 
   Post({
     required this.id,
+    required this.isHidden,
     required this.trackId,
     required this.songName,
     required this.artists,
@@ -76,6 +79,7 @@ class Post {
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       id: json['_id'] ?? '',
+      isHidden: json['isHidden'] ?? 0,
       trackId: json['trackId'] ?? '',
       songName: json['songName'] ?? '',
       artists: json['artists'] ?? '',
@@ -107,6 +111,7 @@ class Post {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
+      'isHidden': isHidden,
       'trackId': trackId,
       'songName': songName,
       'artists': artists,
@@ -121,10 +126,12 @@ class Post {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
+
   }
 
   Post copyWith({
     String? id,
+    int? isHidden,
     String? trackId,
     String? songName,
     String? artists,
@@ -142,6 +149,7 @@ class Post {
   }) {
     return Post(
       id: id ?? this.id,
+      isHidden: isHidden ?? this.isHidden,
       trackId: trackId ?? this.trackId,
       songName: songName ?? this.songName,
       artists: artists ?? this.artists,

@@ -10,6 +10,7 @@ class ThoughtsPost {
   List<ThoughtsComment> comments;
   String? songName;
   String? artistName;
+  String? coverImage;
 
   ThoughtsPost({
     required this.id,
@@ -23,6 +24,7 @@ class ThoughtsPost {
     required this.comments,
     this.songName,
     this.artistName,
+    this.coverImage,
   });
 
   factory ThoughtsPost.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class ThoughtsPost {
         .toList() ?? [],
     songName: json['songName'],
     artistName: json['artistName'],
+    coverImage: json['coverImage'],
   );
 }
 
@@ -56,6 +59,7 @@ class ThoughtsPost {
       'comments': comments.map((c) => c.toJson()).toList(),
       'songName': songName,
       'artistName': artistName,
+      'coverImage': coverImage,
     };
   }
 }

@@ -255,35 +255,18 @@ class SongPostService {
 
   Future<Map<String, dynamic>> deletePost(String postId) async {
     try {
-      // Get user data from shared preferences for authentication
-      final prefs = await SharedPreferences.getInstance();
-      final userDataString = prefs.getString('user_data');
-
-      if (userDataString == null) {
-        return {
-          'success': false,
-          'message': 'User not logged in. Please log in to delete post.',
-        };
-      }
-
-      final userData = jsonDecode(userDataString);
-
       final response = await http.delete(
         Uri.parse('$baseUrl/song-posts/$postId'),
         headers: {
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'userId': userData['id'], // Send userId for authorization
-        }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return {
-          'success': true,
-          'data': data,
-          'message': 'Post deleted successfully',
+          'success': data['success'] ?? true,
+          'message': data['message'] ?? 'Post deleted successfully',
         };
       } else {
         final errorData = jsonDecode(response.body);
@@ -301,4 +284,41 @@ class SongPostService {
       };
     }
   }
+
+  Future<Map<String, dynamic>> hidePost(String postId) async {
+    print('[DEBUG] hidePost called with postId: $postId');
+    print('[DEBUG] Making API call to: $baseUrl/song-posts/$postId/hide');
+    
+    try {
+      final response = await http.patch(
+        Uri.parse('$baseUrl/song-posts/$postId/hide'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      
+      print('[DEBUG] API response status: ${response.statusCode}');
+      print('[DEBUG] API response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': data['success'] ?? true,
+          'message': data['message'] ?? 'Post hidden successfully',
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to hide post',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
 }
+
