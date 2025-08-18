@@ -21,32 +21,49 @@ class CustomTextFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44,
-      child: Center(
-        child: TextFormField(
-          controller: controller,
-          obscureText: obscureText,
-          validator: validator,
-          keyboardType: keyboardType,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
-            hintText: hintText,
-            hintStyle: const TextStyle(color: Color(0xFF9E9E9E), fontSize: 14),
-            fillColor: const Color(0xFF212121),
-            filled: true,
-            border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15.0)),
-              borderSide: BorderSide(color: Color(0xFF424242)),
-            ),
-            enabledBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15.0)),
-              borderSide: BorderSide(color: Color(0xFF424242)),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(30.0)),
-              borderSide: BorderSide(color: Colors.purple),
-            ),
+      height: 70, // Increased height to accommodate error text
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        validator: validator,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Color(0xFF9E9E9E), fontSize: 14),
+          fillColor: const Color(0xFF212121),
+          filled: true,
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+            borderSide: BorderSide(color: Color(0xFF424242)),
+          ),
+          enabledBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+            borderSide: BorderSide(color: Color(0xFF424242)),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(30.0)),
+            borderSide: BorderSide(color: Colors.purple),
+          ),
+          errorBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+            borderSide: BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(30.0)),
+            borderSide: BorderSide(color: Colors.red),
+          ),
+          errorStyle: const TextStyle(
+            color: Colors.red,
+            fontSize: 12,
+            height: 1.2,
+          ),
+          helperText: ' ', // Reserve space even when no error
+          helperStyle: const TextStyle(
+            height: 0.5,
+            fontSize: 12,
           ),
         ),
       ),
