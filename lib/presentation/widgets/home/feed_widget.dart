@@ -27,7 +27,8 @@ class FeedWidget extends StatefulWidget {
 
   final String? currentUserId;
   final Function? onPostOptions;
-  final Future<void> Function(data_model.Post post)? onHidePost; 
+  final Future<void> Function(data_model.Post post)? onHidePost;
+  final Future<void> Function(data_model.Post post)? onEditPost; 
 
   final bool shrinkWrap;
   final ScrollPhysics? physics;
@@ -55,6 +56,7 @@ class FeedWidget extends StatefulWidget {
     this.currentUserId,
     this.onPostOptions,
     this.onHidePost,
+    this.onEditPost,
     this.shrinkWrap = false,
     this.physics,
     this.initialIndex = 0,
@@ -372,6 +374,9 @@ class _FeedWidgetState extends State<FeedWidget> {
                     print('[DEBUG] FeedWidget: onHide callback triggered for post ID: ${post.id}');
                     await widget.onHidePost!(post);
                     setState(() {});
+                  } : null,
+                  onEdit: isOwnPost && widget.onEditPost != null ? () async {
+                    await widget.onEditPost!(post);
                   } : null,
                   // likeCount and commentCount intentionally omitted for home/feed
                 ),

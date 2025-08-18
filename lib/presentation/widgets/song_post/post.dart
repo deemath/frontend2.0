@@ -256,6 +256,7 @@ class UserDetailWidget extends StatelessWidget {
   final VoidCallback? onOptionsTap;
   final VoidCallback? onDelete;
   final VoidCallback? onHide;
+  final VoidCallback? onEdit;
   final bool isOwnPost;
 
   const UserDetailWidget({
@@ -269,6 +270,7 @@ class UserDetailWidget extends StatelessWidget {
     this.onOptionsTap,
     this.onDelete,
     this.onHide,
+    this.onEdit,
     this.isOwnPost = false,
   });
 
@@ -354,11 +356,7 @@ class UserDetailWidget extends StatelessWidget {
                       onReport: () {
                         print('Report pressed for user: $username');
                       },
-                      onEdit: isOwnPost
-                          ? () {
-                              print('Edit post pressed for user: $username');
-                            }
-                          : null,
+                      onEdit: isOwnPost ? onEdit : null,
                       onDelete: isOwnPost
                           ? onDelete
                           : null,
@@ -593,6 +591,7 @@ class HeaderWidget extends StatelessWidget {
   final VoidCallback? onDelete;
   final bool isOwnPost;
   final VoidCallback? onHide;
+  final VoidCallback? onEdit;
 
   const HeaderWidget({
     super.key,
@@ -609,6 +608,7 @@ class HeaderWidget extends StatelessWidget {
     this.onDelete, 
     this.isOwnPost = false,
     this.onHide,
+    this.onEdit,
   });
 
   @override
@@ -627,6 +627,7 @@ class HeaderWidget extends StatelessWidget {
             onDelete: onDelete,
             isOwnPost: isOwnPost,
             onHide: onHide != null ? () { print('[DEBUG] HeaderWidget: onHide called'); onHide!(); } : null,
+            onEdit: onEdit,
           ),
           SongControlWidget(
             trackId: trackId,
@@ -681,6 +682,7 @@ class Post extends StatelessWidget {
   final VoidCallback? onUsernameTap;
   final VoidCallback? onDelete;
   final VoidCallback? onHide;
+  final VoidCallback? onEdit;
   final bool isLiked;
   final bool isPlaying;
   final bool isCurrentTrack;
@@ -707,6 +709,7 @@ class Post extends StatelessWidget {
     this.onUsernameTap,
     this.onDelete,
     this.onHide,
+    this.onEdit,
     this.isLiked = false,
     this.isPlaying = false,
     this.isCurrentTrack = false,
@@ -737,7 +740,8 @@ class Post extends StatelessWidget {
           onOptionsTap: onMoreOptions,
           onDelete: onDelete,
           isOwnPost: calculatedIsOwnPost, 
-          onHide: onHide, // Pass onHide to HeaderWidget
+          onHide: onHide, 
+          onEdit: onEdit, 
         ),
         PostArtWidget(albumImage: albumImage),
         FooterWidget(
