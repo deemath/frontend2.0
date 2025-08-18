@@ -166,8 +166,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/data/models/fanbase_model.dart';
 import 'package:frontend/data/services/fanbase_service.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:frontend/presentation/widgets/fanbasepost/fanbase_post_feed.dart';
 import 'package:frontend/presentation/screens/fanbasePost/fanbasePost_creation_screen.dart';
+import '../../widgets/fanbasepost/fanbase_post_feed.dart';
 
 import '../../widgets/common/bottom_bar.dart';
 
@@ -350,7 +350,9 @@ class _FanbaseDetailScreenState extends State<FanbaseDetailScreen> {
 
               // ======= Post Feed =======
               Expanded(
-                child: FeedWidget(),
+                child: FanbasePostFeedWidget(
+                  fanbaseId: _fanbase!.id,
+                ),
               ),
 
             ],

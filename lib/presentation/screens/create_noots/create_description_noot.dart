@@ -48,6 +48,9 @@ class _CreateDescriptionNootPageState extends State<CreateDescriptionNootPage> {
 
   // Selected fanbase for post
   Fanbase? _selectedFanbase;
+
+  // Selected fanbase for post
+  Fanbase? _selectedFanbase;
   
   // Selected cover image URL
   String? _selectedCoverImage;
