@@ -20,13 +20,12 @@ class FeedWidget extends StatefulWidget {
   final Function(data_model.Post)? onComment;
   final Function(data_model.Post)? onPlay;
   final Function(data_model.Post)? onShare;
-  final Function(data_model.Post)? onPostOptions; // Add this parameter
+  final Function(data_model.Post)? onPostOptions;
   final String? currentlyPlayingTrackId;
   final bool isPlaying;
   final void Function(String userId)? onUserTap;
 
   final String? currentUserId;
-  final Function? onPostOptions;
   final Future<void> Function(data_model.Post post)? onHidePost; 
 
   final bool shrinkWrap;
@@ -35,8 +34,6 @@ class FeedWidget extends StatefulWidget {
   final int initialIndex;
   final ItemScrollController? itemScrollController;
   final ItemPositionsListener? itemPositionsListener;
-
-  final String? currentUserId; // Add currentUserId parameter
 
   const FeedWidget({
     Key? key,
@@ -48,19 +45,17 @@ class FeedWidget extends StatefulWidget {
     this.onComment,
     this.onPlay,
     this.onShare,
-    this.onPostOptions, // Add this parameter
+    this.onPostOptions,
     this.currentlyPlayingTrackId,
     this.isPlaying = false,
     this.onUserTap,
     this.currentUserId,
-    this.onPostOptions,
     this.onHidePost,
     this.shrinkWrap = false,
     this.physics,
     this.initialIndex = 0,
     this.itemScrollController,
     this.itemPositionsListener,
-    this.currentUserId, // Add currentUserId parameter
   }) : super(key: key);
 
   @override

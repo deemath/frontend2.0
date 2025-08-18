@@ -164,12 +164,6 @@ class FanbasePostService {
   }
 }
 
-import 'package:provider/provider.dart';
-import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
-import '../models/fanbase_post_model.dart';
-import 'auth_service.dart';
-
 class FanbasePostService {
   final String baseUrl = 'http://localhost:3000';
 

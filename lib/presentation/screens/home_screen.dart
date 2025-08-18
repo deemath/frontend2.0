@@ -41,9 +41,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final SongPostService _songPostService = SongPostService();
   final ThoughtsService _thoughtsService = ThoughtsService();
-  final ThoughtsService _thoughtsService = ThoughtsService();
 
-  List<FeedItem> _feedItems = [];
   List<FeedItem> _feedItems = [];
   bool _isLoading = true;
   String? _error;
@@ -94,11 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final songResult = await _songPostService.getFollowerPosts(userId!);
       final thoughtsResult = await _thoughtsService.getFollowerThoughts(userId!);
       //print('Fetched thoughtsResult: ' + thoughtsResult.toString());
-      final songResult = await _songPostService.getFollowerPosts(userId!);
-      final thoughtsResult = await _thoughtsService.getFollowerThoughts(userId!);
-      //print('Fetched thoughtsResult: ' + thoughtsResult.toString());
 
-      List<FeedItem> feedItems = [];
       List<FeedItem> feedItems = [];
 
       if (songResult['success']) {
@@ -133,17 +127,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _feedItems = feedItems;
         _isLoading = false;
       });
-        feedItems.addAll(thoughtsPosts);
-      }
-
-
-      // Sort all by createdAt, newest first
-      feedItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      setState(() {
-        _feedItems = feedItems;
-        _isLoading = false;
-      });
     } catch (e) {
       print('Error in _loadPosts: $e');
       setState(() {
@@ -161,8 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final userData = userDataString != null
           ? jsonDecode(userDataString)
           : {'id': '685fb750cc084ba7e0ef8533'}; // Fallback for testing
-      currentUserId = userData['id']; 
-      currentUserId = userData['id']; 
+      currentUserId = userData['id'];
     }
     if (currentUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
