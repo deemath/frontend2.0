@@ -1,21 +1,11 @@
-// import 'dart:convert';
-// import 'package:http/http.dart' as http;
-// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-// import '../../core/providers/auth_provider.dart';
 import '../models/fanbase_post_model.dart';
 import 'auth_service.dart';
 
 class FanbasePostService {
   final String baseUrl = 'http://localhost:3000';
-
-  // Add these methods to the existing FanbaseService class:
-
-// Add import at the top
-
-// Add these methods to the existing FanbaseService class:
 
   // Create a fanbase post
   static Future<FanbasePost> createFanbasePost({
@@ -78,19 +68,37 @@ class FanbasePostService {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data['posts'] ?? response.data;
-        return data.map((json) => FanbasePost.fromJson(json)).toList();
+
+        // Add debug logging here
+        print('=== FanbasePostService Debug ===');
+        print('Raw API response: ${response.data}');
+        print('Posts data: $data');
+
+        final posts = data.map((json) {
+          print('Processing post JSON: $json');
+          final post = FanbasePost.fromJson(json);
+          print(
+              'Parsed post - Comments: ${post.comments.length}, CommentsCount: ${post.commentsCount}');
+          return post;
+        }).toList();
+
+        return posts;
       } else {
         throw Exception('Failed to fetch posts');
       }
     } on DioException catch (e) {
+      print('DioException in getFanbasePosts: ${e.message}');
+      print('Response data: ${e.response?.data}');
       throw Exception('Failed to fetch posts: ${e.message}');
     } catch (e) {
+      print('General exception in getFanbasePosts: $e');
       throw Exception('Failed to fetch posts: $e');
     }
   }
 
   // Like/Unlike a fanbase post
   static Future<FanbasePost> likeFanbasePost(
+    String fanbaseId,
     String postId,
     BuildContext context,
   ) async {
@@ -98,7 +106,7 @@ class FanbasePostService {
       final authService = Provider.of<AuthService>(context, listen: false);
       final dio = authService.dio;
 
-      final response = await dio.post('/fanbase/posts/$postId/like');
+      final response = await dio.post('/fanbase/$fanbaseId/posts/$postId/like');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return FanbasePost.fromJson(response.data);
@@ -115,6 +123,7 @@ class FanbasePostService {
 
   // Add comment to a fanbase post
   static Future<FanbasePost> addComment(
+    String fanbaseId,
     String postId,
     String comment,
     BuildContext context,
@@ -123,7 +132,8 @@ class FanbasePostService {
       final authService = Provider.of<AuthService>(context, listen: false);
       final dio = authService.dio;
 
-      final response = await dio.post('/fanbase/posts/$postId/comment', data: {
+      final response =
+          await dio.post('/fanbase/$fanbaseId/posts/$postId/comment', data: {
         'comment': comment.trim(),
       });
 
