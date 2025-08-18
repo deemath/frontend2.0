@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
-import 'package:provider/provider.dart';
 import '../../../data/services/fanbase_post_service.dart';
 import '../../../data/models/fanbase_post_model.dart';
+import '../../screens/fanbasePost/fanbasePost_screen.dart';
 import 'widgets/fanbase_post_content_widget.dart';
 import './widgets/fanbase_post_bg_container.dart';
 
@@ -67,6 +67,19 @@ class _FanbasePostFeedWidgetState extends State<FanbasePostFeedWidget> {
         limit: 10,
       );
 
+      // Add debug logging here
+      print('=== FanbasePostFeed Debug ===');
+      print('Loaded ${posts.length} posts');
+      for (var i = 0; i < posts.length; i++) {
+        final post = posts[i];
+        print('Post $i:');
+        print('  ID: ${post.id}');
+        print('  Topic: ${post.topic}');
+        print('  Comments count: ${post.commentsCount}');
+        print('  Comments array length: ${post.comments.length}');
+        print('  Comments: ${post.comments.map((c) => c.comment).toList()}');
+      }
+
       if (mounted) {
         setState(() {
           _posts = posts;
@@ -79,6 +92,7 @@ class _FanbasePostFeedWidgetState extends State<FanbasePostFeedWidget> {
         _extractColorsFromAlbumImages();
       }
     } catch (e) {
+      print('Error loading posts: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -187,12 +201,43 @@ class _FanbasePostFeedWidgetState extends State<FanbasePostFeedWidget> {
   }
 
   Future<void> _handleLike(FanbasePost post) async {
+    // Optimistic update - update UI immediately
+    final originalPost = post;
+    final optimisticPost = FanbasePost(
+      id: post.id,
+      createdBy: post.createdBy,
+      topic: post.topic,
+      description: post.description,
+      spotifyTrackId: post.spotifyTrackId,
+      songName: post.songName,
+      artistName: post.artistName,
+      albumArt: post.albumArt,
+      likesCount: post.isLiked ? post.likesCount - 1 : post.likesCount + 1,
+      likeUserIds: post.likeUserIds,
+      commentsCount: post.commentsCount,
+      comments: post.comments,
+      fanbaseId: post.fanbaseId,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      isLiked: !post.isLiked,
+    );
+
+    // Update UI optimistically
+    setState(() {
+      final index = _posts.indexWhere((p) => p.id == post.id);
+      if (index != -1) {
+        _posts[index] = optimisticPost;
+      }
+    });
+
     try {
       final updatedPost = await FanbasePostService.likeFanbasePost(
+        widget.fanbaseId,
         post.id,
         context,
       );
 
+      // Update with actual response from server
       setState(() {
         final index = _posts.indexWhere((p) => p.id == post.id);
         if (index != -1) {
@@ -200,16 +245,78 @@ class _FanbasePostFeedWidgetState extends State<FanbasePostFeedWidget> {
         }
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error liking post: $e')),
-      );
+      // Revert optimistic update on error
+      setState(() {
+        final index = _posts.indexWhere((p) => p.id == post.id);
+        if (index != -1) {
+          _posts[index] = originalPost;
+        }
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error liking post: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
   Future<void> _handleComment(FanbasePost post) async {
-    // Navigate to post detail page or show comment dialog
-    // You can implement this based on your app's navigation structure
-    print('Comment on post: ${post.id}');
+    // Navigate to post detail page
+    final albumImageUrl = post.albumArt ?? '';
+    final backgroundColor = _extractedColors[albumImageUrl] ?? _defaultColor;
+
+    // Add debug logging here
+    print('=== _handleComment Debug ===');
+    print('Post ID: ${post.id}');
+    print('Post comments count: ${post.commentsCount}');
+    print('Post comments array length: ${post.comments.length}');
+    print('Raw comments: ${post.comments}');
+
+    final commentsToPass = post.comments
+        .map((comment) => {
+              'username': comment.userName,
+              'text': comment.comment,
+              'userId': comment.userId,
+              'likeCount': comment.likeCount.toString(),
+              'createdAt': comment.createdAt.toIso8601String(),
+            })
+        .toList();
+
+    print('Converted comments: $commentsToPass');
+
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => PostDetailPage(
+          postId: post.id,
+          trackId: post.spotifyTrackId ?? '',
+          songName: post.songName ?? '',
+          artists: post.artistName ?? '',
+          albumImage: post.albumArt ?? '',
+          comments: commentsToPass,
+          username: post.createdBy['userName'] ?? 'Unknown User',
+          userImage: 'assets/images/profile_picture.jpg',
+          title: post.topic,
+          description: post.description,
+          isLiked: post.isLiked,
+          isPlaying: false,
+          isCurrentTrack: false,
+          backgroundColor: backgroundColor,
+          fanbaseId: widget.fanbaseId,
+          likesCount: post.likesCount,
+          commentsCount: post.commentsCount,
+        ),
+      ),
+    );
+
+    // If a comment was added (result == true), refresh the posts to get updated counts
+    if (result == true) {
+      await _refreshPosts();
+    }
   }
 
   @override
@@ -313,6 +420,17 @@ class _FanbasePostFeedWidgetState extends State<FanbasePostFeedWidget> {
     final backgroundColor = _extractedColors[albumImageUrl] ?? _defaultColor;
     const double postAspectRatio = 490 / 223;
 
+    // Convert comments to the format expected by PostDetailPage
+    final commentsForPost = post.comments
+        .map((comment) => {
+              'username': comment.userName,
+              'text': comment.comment,
+              'userId': comment.userId,
+              'likeCount': comment.likeCount.toString(),
+              'createdAt': comment.createdAt.toIso8601String(),
+            })
+        .toList();
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Column(
@@ -334,17 +452,20 @@ class _FanbasePostFeedWidgetState extends State<FanbasePostFeedWidget> {
                   songName: post.songName ?? '',
                   artists: post.artistName ?? '',
                   albumImage: post.albumArt ?? '',
-                  caption: '', // Remove caption as it's not in the new model
+                  caption: '',
                   username: post.createdBy['userName'] ?? 'Unknown User',
                   userImage: 'assets/images/profile_picture.jpg',
                   descriptionTitle: post.topic,
                   description: post.description,
-                  onLike: () => _handleLike(post),
-                  onComment: () => _handleComment(post),
+                  comments: commentsForPost, // Add this line
+                  onLike: () => _handleLikeById(post.id),
+                  onComment: () => _handleCommentById(post.id),
                   isLiked: post.isLiked,
-                  isPlaying:
-                      false, // You can implement music playing logic here
+                  isPlaying: false,
                   backgroundColor: backgroundColor,
+                  likesCount: post.likesCount,
+                  commentsCount: post.commentsCount,
+                  fanbaseId: widget.fanbaseId,
                 ),
               ],
             ),
@@ -352,5 +473,20 @@ class _FanbasePostFeedWidgetState extends State<FanbasePostFeedWidget> {
         ],
       ),
     );
+  }
+
+  // New methods that find the post by ID
+  Future<void> _handleLikeById(String postId) async {
+    final post = _posts.firstWhere((p) => p.id == postId);
+    print('=== _handleLikeById Debug ===');
+    print('Found post ${post.id} with ${post.comments.length} comments');
+    await _handleLike(post);
+  }
+
+  Future<void> _handleCommentById(String postId) async {
+    final post = _posts.firstWhere((p) => p.id == postId);
+    print('=== _handleCommentById Debug ===');
+    print('Found post ${post.id} with ${post.comments.length} comments');
+    await _handleComment(post);
   }
 }
