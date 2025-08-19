@@ -258,6 +258,9 @@ class UserDetailWidget extends StatelessWidget {
   final VoidCallback? onHide;
   final VoidCallback? onEdit;
   final bool isOwnPost;
+  final VoidCallback? onSavePost;
+  final VoidCallback? onUnsavePost;
+  final bool isSaved;
 
   const UserDetailWidget({
     super.key,
@@ -272,6 +275,9 @@ class UserDetailWidget extends StatelessWidget {
     this.onHide,
     this.onEdit,
     this.isOwnPost = false,
+    this.onSavePost,
+    this.onUnsavePost,
+    this.isSaved = false,
   });
 
   @override
@@ -344,11 +350,15 @@ class UserDetailWidget extends StatelessWidget {
                       postUserId: userId, // Pass userId
                       currentUserId: currentUserId, // Pass currentUserId
                       isOwnPost: isOwnPost,
+                      isSaved: isSaved,
                       onCopyLink: () {
                         print('Copy link pressed for user: $username');
                       },
-                      onSavePost: () {
+                      onSavePost: onSavePost ?? () {
                         print('Save post pressed for user: $username');
+                      },
+                      onUnsavePost: onUnsavePost ?? () {
+                        print('Unsave post pressed for user: $username');
                       },
                       onUnfollow: () {
                         print('Unfollow pressed for user: $username');
@@ -592,6 +602,9 @@ class HeaderWidget extends StatelessWidget {
   final bool isOwnPost;
   final VoidCallback? onHide;
   final VoidCallback? onEdit;
+  final VoidCallback? onSavePost;
+  final VoidCallback? onUnsavePost;
+  final bool isSaved;
 
   const HeaderWidget({
     super.key,
@@ -609,6 +622,9 @@ class HeaderWidget extends StatelessWidget {
     this.isOwnPost = false,
     this.onHide,
     this.onEdit,
+    this.onSavePost,
+    this.onUnsavePost,
+    this.isSaved = false,
   });
 
   @override
@@ -628,6 +644,9 @@ class HeaderWidget extends StatelessWidget {
             isOwnPost: isOwnPost,
             onHide: onHide != null ? () { print('[DEBUG] HeaderWidget: onHide called'); onHide!(); } : null,
             onEdit: onEdit,
+            onSavePost: onSavePost,
+            onUnsavePost: onUnsavePost,
+            isSaved: isSaved,
           ),
           SongControlWidget(
             trackId: trackId,
@@ -683,9 +702,12 @@ class Post extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onHide;
   final VoidCallback? onEdit;
+  final VoidCallback? onSavePost;
+  final VoidCallback? onUnsavePost;
   final bool isLiked;
   final bool isPlaying;
   final bool isCurrentTrack;
+  final bool isSaved;
   final int? likeCount;
   final int? commentCount;
   final bool isOwnPost;
@@ -710,9 +732,12 @@ class Post extends StatelessWidget {
     this.onDelete,
     this.onHide,
     this.onEdit,
+    this.onSavePost,
+    this.onUnsavePost,
     this.isLiked = false,
     this.isPlaying = false,
     this.isCurrentTrack = false,
+    this.isSaved = false,
     this.likeCount,
     this.commentCount,
     this.isOwnPost = false,
@@ -741,7 +766,10 @@ class Post extends StatelessWidget {
           onDelete: onDelete,
           isOwnPost: calculatedIsOwnPost, 
           onHide: onHide, 
-          onEdit: onEdit, 
+          onEdit: onEdit,
+          onSavePost: onSavePost,
+          onUnsavePost: onUnsavePost,
+          isSaved: isSaved,
         ),
         PostArtWidget(albumImage: albumImage),
         FooterWidget(

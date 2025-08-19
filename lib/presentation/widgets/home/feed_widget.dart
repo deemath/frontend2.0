@@ -361,6 +361,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                   isPlaying: widget.isPlaying,
                   isCurrentTrack:
                       widget.currentlyPlayingTrackId == post.trackId,
+                  isSaved: post.isSaved,
                   onUsernameTap: () {
                     if (widget.onUserTap != null && post.userId != null) {
                       widget

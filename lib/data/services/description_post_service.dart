@@ -83,7 +83,16 @@ class ThoughtsPostService {
       final response = await http.get(Uri.parse('$baseUrl/thoughts'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return List<Map<String, dynamic>>.from(data);
+        final allPosts = List<Map<String, dynamic>>.from(data);
+        
+        // Filter out hidden and deleted posts
+        final filteredPosts = allPosts.where((post) {
+          final isHidden = post['isHidden'] ?? 0;
+          final isDeleted = post['isDeleted'] ?? 0;
+          return isHidden == 0 && isDeleted == 0;
+        }).toList();
+        
+        return filteredPosts;
       }
       return [];
     } catch (e) {
@@ -98,7 +107,16 @@ class ThoughtsPostService {
       final response = await http.get(Uri.parse('$baseUrl/thoughts/user/$userId'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return List<Map<String, dynamic>>.from(data);
+        final allPosts = List<Map<String, dynamic>>.from(data);
+        
+        // Filter out hidden and deleted posts
+        final filteredPosts = allPosts.where((post) {
+          final isHidden = post['isHidden'] ?? 0;
+          final isDeleted = post['isDeleted'] ?? 0;
+          return isHidden == 0 && isDeleted == 0;
+        }).toList();
+        
+        return filteredPosts;
       }
       return [];
     } catch (e) {
@@ -137,6 +155,76 @@ class ThoughtsPostService {
     } catch (e) {
       print('Error adding comment: $e');
       return false;
+    }
+  }
+
+  // Delete thoughts post
+  Future<Map<String, dynamic>> deletePost(String postId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/thoughts/$postId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': data['success'] ?? true,
+          'message': data['message'] ?? 'Post deleted successfully',
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to delete post',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Hide thoughts post
+  Future<Map<String, dynamic>> hidePost(String postId) async {
+    print('[DEBUG] hidePost called with postId: $postId');
+    print('[DEBUG] Making API call to: $baseUrl/thoughts/$postId/hide');
+    
+    try {
+      final response = await http.patch(
+        Uri.parse('$baseUrl/thoughts/$postId/hide'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      
+      print('[DEBUG] API response status: ${response.statusCode}');
+      print('[DEBUG] API response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': data['success'] ?? true,
+          'message': data['message'] ?? 'Post hidden successfully',
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to hide post',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
     }
   }
 }

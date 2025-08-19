@@ -95,10 +95,17 @@ class SongPostService {
 
         // Ensure data is a list
         if (data is List) {
-          //print('Successfully fetched ${data.length} posts from all users');
+          // Filter out hidden and deleted posts
+          final filteredData = data.where((post) {
+            final isHidden = post['isHidden'] ?? 0;
+            final isDeleted = post['isDeleted'] ?? 0;
+            return isHidden == 0 && isDeleted == 0;
+          }).toList();
+          
+          //print('Successfully fetched ${filteredData.length} posts from all users');
           return {
             'success': true,
-            'data': data,
+            'data': filteredData,
             'message': 'Posts retrieved successfully',
           };
         } else {
@@ -138,9 +145,17 @@ class SongPostService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        
+        // Filter out hidden and deleted posts
+        final filteredData = data.where((post) {
+          final isHidden = post['isHidden'] ?? 0;
+          final isDeleted = post['isDeleted'] ?? 0;
+          return isHidden == 0 && isDeleted == 0;
+        }).toList();
+        
         return {
           'success': true,
-          'data': data,
+          'data': filteredData,
           'message': 'User posts retrieved successfully',
         };
       } else {
@@ -362,6 +377,128 @@ class SongPostService {
     } catch (e) {
       return {
         'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Save a post
+  Future<Map<String, dynamic>> savePost(String userId, String postId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/profile/$userId/save/$postId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': data['success'] ?? true,
+          'message': data['message'] ?? 'Post saved successfully',
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to save post',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Unsave a post
+  Future<Map<String, dynamic>> unsavePost(String userId, String postId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/profile/$userId/save/$postId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': data['success'] ?? true,
+          'message': data['message'] ?? 'Post unsaved successfully',
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['error'] ??
+              errorData['message'] ??
+              'Failed to unsave post',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Check if a post is saved
+  Future<Map<String, dynamic>> isPostSaved(String userId, String postId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/profile/$userId/saved/$postId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': true,
+          'isSaved': data['isSaved'] ?? false,
+        };
+      } else {
+        return {
+          'success': false,
+          'isSaved': false,
+          'message': 'Failed to check saved status',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'isSaved': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Get all saved posts for a user
+  Future<Map<String, dynamic>> getSavedPosts(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/profile/$userId/saved-posts'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': true,
+          'savedPosts': data['savedPosts'] ?? [],
+        };
+      } else {
+        return {
+          'success': false,
+          'savedPosts': [],
+          'message': 'Failed to get saved posts',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'savedPosts': [],
         'message': 'Network error: $e',
       };
     }

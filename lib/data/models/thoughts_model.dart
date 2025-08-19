@@ -11,6 +11,8 @@ class ThoughtsPost {
   String? songName;
   String? artistName;
   String? coverImage;
+  final int isHidden; // 0 = visible, 1 = hidden
+  final int isDeleted; // 0 = not deleted, 1 = deleted
 
   ThoughtsPost({
     required this.id,
@@ -25,6 +27,8 @@ class ThoughtsPost {
     this.songName,
     this.artistName,
     this.coverImage,
+    required this.isHidden,
+    required this.isDeleted,
   });
 
   factory ThoughtsPost.fromJson(Map<String, dynamic> json) {
@@ -43,8 +47,36 @@ class ThoughtsPost {
     songName: json['songName'],
     artistName: json['artistName'],
     coverImage: json['coverImage'],
+    isHidden: _parseIsHidden(json['isHidden']),
+    isDeleted: _parseIsDeleted(json['isDeleted']),
   );
 }
+
+  // Helper method to parse isHidden field from various types
+  static int _parseIsHidden(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is String) {
+      return value.toLowerCase() == 'true' || value == '1' ? 1 : 0;
+    }
+    if (value is bool) {
+      return value ? 1 : 0;
+    }
+    return 0;
+  }
+
+  // Helper method to parse isDeleted field from various types
+  static int _parseIsDeleted(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is String) {
+      return value.toLowerCase() == 'true' || value == '1' ? 1 : 0;
+    }
+    if (value is bool) {
+      return value ? 1 : 0;
+    }
+    return 0;
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -60,6 +92,8 @@ class ThoughtsPost {
       'songName': songName,
       'artistName': artistName,
       'coverImage': coverImage,
+      'isHidden': isHidden,
+      'isDeleted': isDeleted,
     };
   }
 }

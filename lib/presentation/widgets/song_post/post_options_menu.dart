@@ -8,8 +8,10 @@ class PostOptionsMenu {
     String? postUserId,
     String? currentUserId,
     bool? isOwnPost,
+    bool? isSaved,
     VoidCallback? onCopyLink,
     VoidCallback? onSavePost,
+    VoidCallback? onUnsavePost,
     VoidCallback? onUnfollow,
     VoidCallback? onReport,
     VoidCallback? onEdit,
@@ -20,6 +22,7 @@ class PostOptionsMenu {
     print(
         'PostOptionsMenu - postUserId: $postUserId, currentUserId: $currentUserId');
     print('PostOptionsMenu - isOwnPost: $isOwnPost');
+    print('PostOptionsMenu - isSaved: $isSaved');
     print('PostOptionsMenu - onHide callback is ${onHide != null ? "NOT NULL" : "NULL"}');
 
     // Enhanced logic to determine if post belongs to current user
@@ -118,13 +121,25 @@ class PostOptionsMenu {
                   },
                 ),
               ] else ...[
-                // Show save and unfollow options for other users' posts
+                // Show save/unsave options for other users' posts
                 ListTile(
-                  leading: Icon(LucideIcons.bookmark, color: textColor),
-                  title: Text('Save post', style: TextStyle(color: textColor)),
+                  leading: Icon(
+                    isSaved == true ? LucideIcons.bookmarkMinus : LucideIcons.bookmark,
+                    color: isSaved == true ? Colors.blue : textColor,
+                  ),
+                  title: Text(
+                    isSaved == true ? 'Unsave post' : 'Save post',
+                    style: TextStyle(
+                      color: isSaved == true ? Colors.blue : textColor,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
-                    if (onSavePost != null) onSavePost();
+                    if (isSaved == true) {
+                      if (onUnsavePost != null) onUnsavePost();
+                    } else {
+                      if (onSavePost != null) onSavePost();
+                    }
                   },
                 ),
                 ListTile(

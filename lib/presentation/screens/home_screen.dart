@@ -102,8 +102,14 @@ class _HomeScreenState extends State<HomeScreen> {
           post.likedByMe =
               (json['likedBy'] as List<dynamic>?)?.contains(userId) ?? false;
           return FeedItem.song(post);
-        }).where((item) => item.songPost == null || item.songPost!.isHidden == 0);
+        }).where((item) => item.songPost == null || 
+          (item.songPost!.isHidden == 0 && item.songPost!.isDeleted == 0));
         feedItems.addAll(posts);
+      }
+
+      // Check saved status for all posts if user is logged in
+      if (userId != null) {
+        await _checkSavedStatusForPosts(feedItems);
       }
 
       if (thoughtsResult['success']) {
@@ -113,7 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
           final post = ThoughtsPost.fromJson(json);
           //print('Parsed ThoughtsPost: ' + post.toString());
           return FeedItem.thought(post);
-        });
+        }).where((item) => item.thoughtsPost == null || 
+          (item.thoughtsPost!.isHidden == 0 && item.thoughtsPost!.isDeleted == 0));
         feedItems.addAll(thoughtsPosts);
       }
 
@@ -131,6 +138,34 @@ class _HomeScreenState extends State<HomeScreen> {
         _error = 'Error loading posts: $e';
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _checkSavedStatusForPosts(List<FeedItem> feedItems) async {
+    if (userId == null) {
+      return;
+    }
+
+    try {
+      print('[DEBUG] Checking saved status for ${feedItems.length} feed items');
+      final savedPostsResult = await _songPostService.getSavedPosts(userId!);
+      print('[DEBUG] Saved posts result: $savedPostsResult');
+      
+      if (savedPostsResult['success']) {
+        final List<String> savedPostsIds = List<String>.from(savedPostsResult['savedPosts'] ?? []);
+        print('[DEBUG] Saved posts IDs: $savedPostsIds');
+        
+        for (var item in feedItems) {
+          if (item.type == FeedItemType.song && item.songPost != null) {
+            final post = item.songPost!;
+            final wasSaved = post.isSaved;
+            post.isSaved = savedPostsIds.contains(post.id);
+            print('[DEBUG] Post ${post.id}: wasSaved=$wasSaved, isSaved=${post.isSaved}');
+          }
+        }
+      }
+    } catch (e) {
+      print('[DEBUG] Error in _checkSavedStatusForPosts: $e');
     }
   }
 
@@ -368,7 +403,87 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
       },
+      onSavePost: () async {
+        await _handleSavePost(post);
+      },
+      onUnsavePost: () async {
+        await _handleUnsavePost(post);
+      },
     );
+  }
+
+  Future<void> _handleSavePost(data_model.Post post) async {
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in to save posts')),
+      );
+      return;
+    }
+
+    try {
+      final result = await _songPostService.savePost(userId!, post.id);
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Post saved successfully'), backgroundColor: Colors.green),
+        );
+        // Update the post's saved status in the feed
+        setState(() {
+          final feedItem = _feedItems.firstWhere(
+            (item) => item.songPost?.id == post.id,
+            orElse: () => FeedItem.song(post),
+          );
+          if (feedItem.songPost != null) {
+            // Note: We would need to add an isSaved field to the Post model
+            // For now, we'll just show the success message
+          }
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Failed to save post')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving post: $e')),
+      );
+    }
+  }
+
+  Future<void> _handleUnsavePost(data_model.Post post) async {
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in to unsave posts')),
+      );
+      return;
+    }
+
+    try {
+      final result = await _songPostService.unsavePost(userId!, post.id);
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Post unsaved successfully'), backgroundColor: Colors.orange),
+        );
+        // Update the post's saved status in the feed
+        setState(() {
+          final feedItem = _feedItems.firstWhere(
+            (item) => item.songPost?.id == post.id,
+            orElse: () => FeedItem.song(post),
+          );
+          if (feedItem.songPost != null) {
+            // Note: We would need to add an isSaved field to the Post model
+            // For now, we'll just show the success message
+          }
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Failed to unsave post')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error unsaving post: $e')),
+      );
+    }
   }
 
   String _formatTimestamp(DateTime timestamp) {
