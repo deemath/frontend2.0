@@ -252,6 +252,7 @@ class UserDetailWidget extends StatelessWidget {
   final String? userImage;
   final String? userId; 
   final String? currentUserId; 
+  final String? postId;
   final VoidCallback? onUsernameTap;
   final VoidCallback? onOptionsTap;
   final VoidCallback? onDelete;
@@ -269,6 +270,7 @@ class UserDetailWidget extends StatelessWidget {
     this.userImage,
     this.userId, 
     this.currentUserId, 
+    this.postId,
     this.onUsernameTap,
     this.onOptionsTap,
     this.onDelete,
@@ -351,6 +353,7 @@ class UserDetailWidget extends StatelessWidget {
                       currentUserId: currentUserId, // Pass currentUserId
                       isOwnPost: isOwnPost,
                       isSaved: isSaved,
+                      postId: postId,
                       onCopyLink: () {
                         print('Copy link pressed for user: $username');
                       },
@@ -593,6 +596,7 @@ class HeaderWidget extends StatelessWidget {
   final String? userId; 
   final String? currentUserId; 
   final String? trackId;
+  final String? postId;
   final bool isPlaying;
   final bool isCurrentTrack;
   final VoidCallback? onPlayPause;
@@ -613,6 +617,7 @@ class HeaderWidget extends StatelessWidget {
     this.userId, 
     this.currentUserId,
     this.trackId,
+    this.postId,
     this.isPlaying = false,
     this.isCurrentTrack = false,
     this.onPlayPause,
@@ -638,6 +643,7 @@ class HeaderWidget extends StatelessWidget {
             userImage: userImage,
             userId: userId, 
             currentUserId: currentUserId, 
+            postId: postId,
             onUsernameTap: onUsernameTap,
             onOptionsTap: onOptionsTap,
             onDelete: onDelete,
@@ -692,6 +698,7 @@ class Post extends StatelessWidget {
   final String? userId;
   final String? currentUserId; 
   final String userImage;
+  final String? postId;
 
   final VoidCallback? onLike;
   final VoidCallback? onComment;
@@ -723,6 +730,7 @@ class Post extends StatelessWidget {
     this.userId,
     this.currentUserId, 
     required this.userImage,
+    this.postId,
     this.onLike,
     this.onComment,
     this.onPlayPause,
@@ -755,9 +763,10 @@ class Post extends StatelessWidget {
         HeaderWidget(
           username: username,
           userImage: userImage,
-          userId: userId, // Pass userId
-          currentUserId: currentUserId, // Pass currentUserId
+          userId: userId, 
+          currentUserId: currentUserId, 
           trackId: trackId,
+          postId: postId,
           isPlaying: isPlaying,
           isCurrentTrack: isCurrentTrack,
           onPlayPause: onPlayPause,

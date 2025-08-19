@@ -379,6 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       postUserId: post.userId,
       currentUserId: userId,
+      postId: post.id,
       isOwnPost: isUsersOwnPost, 
       onDelete: () async {
         try {

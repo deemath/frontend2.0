@@ -331,9 +331,10 @@ class _FeedWidgetState extends State<FeedWidget> {
                   caption: post.caption ?? '',
                   username: post.username ?? '',
                   userId: post.userId,
-                  currentUserId: widget.currentUserId, // Pass currentUserId
+                  currentUserId: widget.currentUserId, 
+                  postId: post.id, 
                   userImage: 'assets/images/profile_picture.jpg',
-                  isOwnPost: isOwnPost, // Pass isOwnPost
+                  isOwnPost: isOwnPost, 
                   onLike: () {
                     if (widget.onSongLike != null) {
                       widget.onSongLike!(post);

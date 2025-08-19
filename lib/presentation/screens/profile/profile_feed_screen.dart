@@ -150,7 +150,8 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
       context,
       postUserId: post.userId,
       currentUserId: _currentUserId,
-      isOwnPost: isUsersOwnPost, // Explicitly set based on our calculation
+      postId: post.id,
+      isOwnPost: isUsersOwnPost,
       onCopyLink: () {
         final shareText =
             'Check out this song: ${post.songName} by ${post.artists}';
@@ -160,7 +161,7 @@ class _ProfileFeedScreenState extends State<ProfileFeedScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Post saved')),
         );
-        // Implement save post functionality
+       
       },
       onUnfollow: () {
         // Implement unfollow user functionality
