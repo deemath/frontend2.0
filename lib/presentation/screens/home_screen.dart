@@ -424,7 +424,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final result = await _songPostService.savePost(userId!, post.id);
       if (result['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post saved successfully'), backgroundColor: Colors.green),
+          const SnackBar(content: Text('Post saved successfully'), backgroundColor: Colors.purple),
         );
         // Update the post's saved status in the feed
         setState(() {
