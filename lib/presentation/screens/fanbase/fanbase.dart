@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:frontend/data/models/fanbase/fanbase_model.dart';
-import 'package:frontend/data/services/fanbase/fanbase_service.dart';
+import 'package:frontend/data/models/fanbase_model.dart';
+import 'package:frontend/data/services/fanbase_service.dart';
 import 'package:frontend/presentation/widgets/fanbases/fanbase_card.dart';
 import 'package:frontend/presentation/widgets/common/bottom_bar.dart';
 import 'package:frontend/presentation/widgets/home/header_bar.dart';
@@ -64,14 +64,16 @@ class _FanbasePageState extends State<FanbasePage> {
           itemBuilder: (context, index) {
             final fanbase = fanbases[index];
             return FanbaseCard(
-              fanbaseId: fanbase.id,
-              profileImageUrl: fanbase.fanbasePhotoUrl ?? '',
-              fanbaseName: fanbase.fanbaseName,
-              topic: fanbase.fanbaseTopic,
-              numLikes: fanbase.numLikes,
-              numPosts: fanbase.numPosts,
-              isJoined: false,
-              onJoin: () {},
+              // fanbaseId: fanbase.id,
+              // profileImageUrl: fanbase.fanbasePhotoUrl ?? '',
+              // fanbaseName: fanbase.fanbaseName,
+              // topic: fanbase.fanbaseTopic,
+              // numLikes: fanbase.numLikes,
+              // numPosts: fanbase.numPosts,
+              // isJoined: false,
+              // onJoin: () {},
+              onJoinStateChanged: _loadFanbases,
+              initialFanbase: fanbase,
             );
           },
         );

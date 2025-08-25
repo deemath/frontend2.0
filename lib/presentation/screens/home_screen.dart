@@ -3,6 +3,14 @@ import '../widgets/home/header_bar.dart';
 import '/presentation/widgets/common/bottom_bar.dart';
 import '../widgets/home/feed_widget.dart';
 import '../../data/models/post_model.dart' as data_model;
+import '../../data/models/feed_item.dart';
+import '../../data/models/thoughts_model.dart';
+import '../../data/services/thoughts_service.dart';
+import '../widgets/thoughts/thoughts_feed_card.dart';
+import '../../data/models/feed_item.dart';
+import '../../data/models/thoughts_model.dart';
+import '../../data/services/thoughts_service.dart';
+import '../widgets/thoughts/thoughts_feed_card.dart';
 import '../../data/services/song_post_service.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +20,8 @@ import 'package:dio/dio.dart';
 import '../widgets/song_post/comment.dart';
 import 'package:share_plus/share_plus.dart';
 import './profile/user_profiles.dart';
+import '../widgets/song_post/post_options_menu.dart';
+import './song_posts/update.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? accessToken;
@@ -30,8 +40,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final SongPostService _songPostService = SongPostService();
+  final ThoughtsService _thoughtsService = ThoughtsService();
 
-  List<data_model.Post> _posts = [];
+  List<FeedItem> _feedItems = [];
   bool _isLoading = true;
   String? _error;
   String? _currentlyPlayingTrackId;
@@ -78,40 +89,83 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      final result = await _songPostService.getFollowerPosts(userId!);
-      //print('Follower posts loading result: $result');
+      final songResult = await _songPostService.getFollowerPosts(userId!);
+      final thoughtsResult = await _thoughtsService.getFollowerThoughts(userId!);
+      //print('Fetched thoughtsResult: ' + thoughtsResult.toString());
 
-      if (result['success']) {
-        final List<dynamic> postsData = result['data'];
-        //print('Received ${postsData.length} follower posts');
+      List<FeedItem> feedItems = [];
 
+      if (songResult['success']) {
+        final List<dynamic> postsData = songResult['data'];
         final posts = postsData.map((json) {
           final post = data_model.Post.fromJson(json);
           post.likedByMe =
               (json['likedBy'] as List<dynamic>?)?.contains(userId) ?? false;
-          print(
-              'Post from user: ${post.username}, liked by me: ${post.likedByMe}');
-          return post;
-        }).toList();
-
-        setState(() {
-          _posts = posts;
-          _isLoading = false;
-        });
-
-        //print('Successfully loaded ${posts.length} follower posts');
-      } else {
-        setState(() {
-          _error = result['message'];
-          _isLoading = false;
-        });
+          return FeedItem.song(post);
+        }).where((item) => item.songPost == null || 
+          (item.songPost!.isHidden == 0 && item.songPost!.isDeleted == 0));
+        feedItems.addAll(posts);
       }
+
+      // Check saved status for all posts if user is logged in
+      if (userId != null) {
+        await _checkSavedStatusForPosts(feedItems);
+      }
+
+      if (thoughtsResult['success']) {
+        final List<dynamic> thoughtsData = thoughtsResult['data'];
+        //print('Parsed thoughtsData: ' + thoughtsData.toString());
+        final thoughtsPosts = thoughtsData.map((json) {
+          final post = ThoughtsPost.fromJson(json);
+          //print('Parsed ThoughtsPost: ' + post.toString());
+          return FeedItem.thought(post);
+        }).where((item) => item.thoughtsPost == null || 
+          (item.thoughtsPost!.isHidden == 0 && item.thoughtsPost!.isDeleted == 0));
+        feedItems.addAll(thoughtsPosts);
+      }
+
+
+      // Sort all by createdAt, newest first
+      feedItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      setState(() {
+        _feedItems = feedItems;
+        _isLoading = false;
+      });
     } catch (e) {
       print('Error in _loadPosts: $e');
       setState(() {
         _error = 'Error loading posts: $e';
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _checkSavedStatusForPosts(List<FeedItem> feedItems) async {
+    if (userId == null) {
+      return;
+    }
+
+    try {
+      print('[DEBUG] Checking saved status for ${feedItems.length} feed items');
+      final savedPostsResult = await _songPostService.getSavedPosts(userId!);
+      print('[DEBUG] Saved posts result: $savedPostsResult');
+      
+      if (savedPostsResult['success']) {
+        final List<String> savedPostsIds = List<String>.from(savedPostsResult['savedPosts'] ?? []);
+        print('[DEBUG] Saved posts IDs: $savedPostsIds');
+        
+        for (var item in feedItems) {
+          if (item.type == FeedItemType.song && item.songPost != null) {
+            final post = item.songPost!;
+            final wasSaved = post.isSaved;
+            post.isSaved = savedPostsIds.contains(post.id);
+            print('[DEBUG] Post ${post.id}: wasSaved=$wasSaved, isSaved=${post.isSaved}');
+          }
+        }
+      }
+    } catch (e) {
+      print('[DEBUG] Error in _checkSavedStatusForPosts: $e');
     }
   }
 
@@ -123,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final userData = userDataString != null
           ? jsonDecode(userDataString)
           : {'id': '685fb750cc084ba7e0ef8533'}; // Fallback for testing
-      currentUserId = userData['id']; // Use 'id' instead of '_id'
+      currentUserId = userData['id'];
     }
     if (currentUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -194,13 +248,15 @@ class _HomeScreenState extends State<HomeScreen> {
             final result = await _songPostService.addComment(
                 post.id, userData['id'], userData['name'], text);
             if (result['success']) {
-              final updatedComments = (result['data']['comments'] as List<dynamic>)
-                  .map((c) => data_model.Comment.fromJson(c))
-                  .toList();
+              final updatedComments =
+                  (result['data']['comments'] as List<dynamic>)
+                      .map((c) => data_model.Comment.fromJson(c))
+                      .toList();
               setState(() {
                 post.comments = updatedComments;
               });
-              return updatedComments; // <-- return the updated comments
+              return updatedComments; 
+              return updatedComments; 
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -208,7 +264,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               );
-              return post.comments; // fallback to current comments
+              return post.comments; 
+              return post.comments; 
             }
           },
           postId: post.id,
@@ -286,7 +343,8 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      // Handle error silently
+      
+      
     }
   }
 
@@ -294,6 +352,139 @@ class _HomeScreenState extends State<HomeScreen> {
     final shareText =
         'Check out this song: ${post.songName} by ${post.artists}';
     Share.share(shareText, subject: 'Music from Noot');
+  }
+
+  void _handlePostOptions(data_model.Post post) {
+    print('HomeScreen _handlePostOptions - Post ID: ${post.id}');
+    print('HomeScreen _handlePostOptions - Post User ID: ${post.userId}');
+    print('HomeScreen _handlePostOptions - Current User ID: $userId');
+
+    // Check if either ID is null or empty
+    if (post.userId == null || post.userId!.isEmpty) {
+      print('WARNING: Post userId is null or empty');
+    }
+    if (userId == null || userId!.isEmpty) {
+      print('WARNING: Current userId is null or empty');
+    }
+
+    bool isUsersOwnPost = false;
+    if (post.userId != null && userId != null) {
+      isUsersOwnPost = post.userId == userId;
+      print('Calculated isUsersOwnPost: $isUsersOwnPost');
+    } else {
+      print('Cannot determine if post is user\'s own due to null IDs');
+    }
+
+    PostOptionsMenu.show(
+      context,
+      postUserId: post.userId,
+      currentUserId: userId,
+      postId: post.id,
+      isOwnPost: isUsersOwnPost, 
+      onDelete: () async {
+        try {
+          final result = await _songPostService.deletePost(post.id);
+          if (result['success'] == true) {
+            setState(() {
+              _feedItems.removeWhere((item) =>
+                item is FeedItem && item.songPost?.id == post.id
+              );
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Post deleted successfully'), backgroundColor: Colors.purple),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(result['message'] ?? 'Failed to delete post')),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error deleting post: $e')),
+          );
+        }
+      },
+      onSavePost: () async {
+        await _handleSavePost(post);
+      },
+      onUnsavePost: () async {
+        await _handleUnsavePost(post);
+      },
+    );
+  }
+
+  Future<void> _handleSavePost(data_model.Post post) async {
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in to save posts')),
+      );
+      return;
+    }
+
+    try {
+      final result = await _songPostService.savePost(userId!, post.id);
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Post saved successfully'), backgroundColor: Colors.purple),
+        );
+        // Update the post's saved status in the feed
+        setState(() {
+          final feedItem = _feedItems.firstWhere(
+            (item) => item.songPost?.id == post.id,
+            orElse: () => FeedItem.song(post),
+          );
+          if (feedItem.songPost != null) {
+            // Note: We would need to add an isSaved field to the Post model
+            // For now, we'll just show the success message
+          }
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Failed to save post')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving post: $e')),
+      );
+    }
+  }
+
+  Future<void> _handleUnsavePost(data_model.Post post) async {
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in to unsave posts')),
+      );
+      return;
+    }
+
+    try {
+      final result = await _songPostService.unsavePost(userId!, post.id);
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Post unsaved successfully'), backgroundColor: Colors.orange),
+        );
+        // Update the post's saved status in the feed
+        setState(() {
+          final feedItem = _feedItems.firstWhere(
+            (item) => item.songPost?.id == post.id,
+            orElse: () => FeedItem.song(post),
+          );
+          if (feedItem.songPost != null) {
+            // Note: We would need to add an isSaved field to the Post model
+            // For now, we'll just show the success message
+          }
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Failed to unsave post')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error unsaving post: $e')),
+      );
+    }
   }
 
   String _formatTimestamp(DateTime timestamp) {
@@ -313,19 +504,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Content with backend data
+    
+    
     Widget content = FeedWidget(
-      posts: _posts,
+      feedItems: _feedItems,
       isLoading: _isLoading,
       error: _error,
       onRefresh: _loadPosts,
-      onLike: _handleLike,
-      onComment: _handleComment,
-      onPlay: _handlePlay,
-      onShare: _handleShare,
+      onSongLike: (data_model.Post post) => _handleLike(post),
+      onSongComment: (data_model.Post post) => _handleComment(post),
+      onSongPlay: (data_model.Post post) => _handlePlay(post),
+      onThoughtLike: (ThoughtsPost post) {}, // TODO: implement
+      onThoughtComment: (ThoughtsPost post) {}, // TODO: implement
       currentlyPlayingTrackId: _currentlyPlayingTrackId,
       isPlaying: _isPlaying,
-      // --- Add this callback ---
+      currentUserId: userId,
+      onPostOptions: _handlePostOptions,
       onUserTap: (String userId) {
         Navigator.push(
           context,
@@ -333,6 +527,33 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context) => UserProfilePage(userId: userId),
           ),
         );
+      },
+      onHidePost: (data_model.Post post) async {
+        print('[DEBUG] onHidePost called for post ID: ${post.id}');
+        try {
+          final result = await _songPostService.hidePost(post.id);
+          print('[DEBUG] hidePost backend result: $result');
+          if (result['success'] == true || result['hidden'] == true) {
+            setState(() {
+              final before = _feedItems.length;
+              _feedItems.removeWhere((item) => item.songPost?.id == post.id);
+              final after = _feedItems.length;
+              print('[DEBUG] _feedItems length before: $before, after: $after');
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Post hidden successfully'), backgroundColor: Colors.purple),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(result['message'] ?? 'Failed to hide post')),
+            );
+          }
+        } catch (e) {
+          print('[DEBUG] Exception in onHidePost: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error hiding post: $e')),
+          );
+        }
       },
     );
 

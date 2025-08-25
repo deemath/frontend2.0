@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './user_profiles.dart'; // Import the UserProfilePage
 
 // following: List<Map<String, dynamic>> with userId, username, profileImage
 class FollowingListPage extends StatelessWidget {
@@ -46,7 +47,17 @@ class FollowingListPage extends StatelessWidget {
                               color: Colors.white54, fontSize: 12),
                         )
                       : null,
-                  // Optionally show more info
+                  onTap: () {
+                    if (user['userId'] != null) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => UserProfilePage(
+                            userId: user['userId'],
+                          ),
+                        ),
+                      );
+                    }
+                  },
                 );
               },
             ),

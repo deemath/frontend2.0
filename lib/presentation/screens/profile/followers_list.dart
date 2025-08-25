@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './user_profiles.dart'; // Import the ProfileScreen
 
 // followers: List<Map<String, dynamic>> with userId, username, profileImage
 class FollowersListPage extends StatelessWidget {
@@ -48,6 +49,17 @@ class FollowersListPage extends StatelessWidget {
                                 color: Colors.white54, fontSize: 12),
                           )
                         : null,
+                    onTap: () {
+                      if (follower['userId'] != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => UserProfilePage(
+                              userId: follower['userId'],
+                            ),
+                          ),
+                        );
+                      }
+                    },
                   );
                 } else if (follower is String) {
                   // fallback for string-only entries
@@ -64,6 +76,16 @@ class FollowersListPage extends StatelessWidget {
                       'No details available',
                       style: TextStyle(color: Colors.white54, fontSize: 12),
                     ),
+                    onTap: () {
+                      // For string entries, we'll assume the string is the userId
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => UserProfilePage(
+                            userId: follower,
+                          ),
+                        ),
+                      );
+                    },
                   );
                 } else {
                   return const SizedBox.shrink();

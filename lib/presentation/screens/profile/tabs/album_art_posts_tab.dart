@@ -45,7 +45,9 @@ class AlbumArtPostsTab extends StatelessWidget {
       future: ProfileService().getUserPostStats(userId),
       builder: (context, snapshot) {
         final postStats = snapshot.data ?? [];
+        // Make sure the grid is in a scrollable container
         return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
               if (!showGrid) ...[

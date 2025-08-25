@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+// ...existing code...
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../data/models/profile_model.dart';
 import '../../../../data/services/profile_service.dart';
@@ -20,16 +19,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _fullNameController = TextEditingController();
   String profileImage =
       'https://i.scdn.co/image/ab6761610000e5eb02e3c8b0e6e6e6e6e6e6e6e6';
+  String userType = 'public'; // Default user type
 
   final ProfileService _service = ProfileService();
 
   bool _loading = true;
   bool _saving = false;
 
+  // Define profile type options
+  final List<Map<String, String>> _profileTypes = [
+    {'value': 'public', 'label': 'Public'},
+    {'value': 'private', 'label': 'Private'},
+    {'value': 'artist', 'label': 'Artist'},
+    {'value': 'business', 'label': 'Business'},
+  ];
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.loadUserDataFromSharedPreferences();
       _fetchProfile();
     });
   }
@@ -39,6 +49,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final userId = Provider.of<AuthProvider>(context, listen: false).user?.id;
     if (userId == null) {
       setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not logged in')),
+      );
       return;
     }
     final result = await _service.getUserProfile(userId);
@@ -47,17 +60,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
     // ignore: avoid_print
     print('Profile fetch result: $result');
 
-    if (result['success'] == false) {
+    if (result['success'] == false || result['data'] == null) {
       setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? 'Failed to load profile')),
+      );
       return;
     }
     final data = result['data'];
-    // No need to check for 'profile' key here, as service already extracts it
+    // Defensive: check for required fields
     _usernameController.text = data['username'] ?? '';
     _bioController.text = data['bio'] ?? '';
     _emailController.text = data['email'] ?? '';
     _fullNameController.text = data['fullName'] ?? '';
     profileImage = data['profileImage'] ?? profileImage;
+    userType = data['userType'] ?? 'public'; // Set the user type
     setState(() => _loading = false);
   }
 
@@ -85,6 +102,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       profileImage: profileImage,
       email: _emailController.text,
       fullName: _fullNameController.text,
+      userType: userType, // Include user type in the update
     );
     final result = await _service.updateProfile(userId, editProfile.toJson());
     setState(() => _saving = false);
@@ -93,7 +111,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully!')),
         );
-        // Do not pop here; stay on the edit page
+        // Navigate back with a result
+        Navigator.pop(context, true);
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -114,6 +133,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: AppBar(
         title: const Text('Edit Profile'),
         backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Profile',
+            onPressed: () {
+              _fetchProfile();
+            },
+          ),
+        ],
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
@@ -198,6 +226,47 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
             ),
+            const SizedBox(height: 24),
+            // Add profile type dropdown
+            Container(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey.shade700),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Profile Type',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButton<String>(
+                    value: userType,
+                    isExpanded: true,
+                    dropdownColor: Colors.black87,
+                    style: const TextStyle(color: Colors.white),
+                    underline: Container(), // Remove the default underline
+                    onChanged: (newValue) {
+                      setState(() {
+                        userType = newValue!;
+                      });
+                    },
+                    items: _profileTypes.map<DropdownMenuItem<String>>((type) {
+                      return DropdownMenuItem<String>(
+                        value: type['value'],
+                        child: Text(
+                          type['label']!,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 32),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -208,10 +277,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                   child: const Text('Cancel',
                       style: TextStyle(color: Colors.white)),
-                  // Redirect to /profile after clicking
-                  // Use pushReplacementNamed to avoid stacking
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/profile');
+                    Navigator.pop(context);
                   },
                 ),
                 ElevatedButton(
@@ -229,6 +296,4 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
     );
   }
-
-// END LEGACY NAVIGATION SUPPORT
 }

@@ -24,6 +24,32 @@ class ChatUser {
   }
 }
 
+class SearchUser {
+  final String id;
+  final String username;
+  final String email;
+  final String? profileImage;
+  final bool isOnline;
+
+  SearchUser({
+    required this.id,
+    required this.username,
+    required this.email,
+    this.profileImage,
+    required this.isOnline,
+  });
+
+  factory SearchUser.fromJson(Map<String, dynamic> json) {
+    return SearchUser(
+      id: json['_id'] ?? json['id'] ?? '',
+      username: json['username'] ?? 'Unknown User',
+      email: json['email'] ?? '',
+      profileImage: json['profileImage'],
+      isOnline: json['isOnline'] ?? false,
+    );
+  }
+}
+
 class Message {
   final String id;
   final String senderId;

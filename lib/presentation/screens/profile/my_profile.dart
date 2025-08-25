@@ -1,8 +1,8 @@
-import 'dart:math';
+// import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart'; // Uncomment this
+import 'dart:convert'; // Uncomment this
 import 'tabs/album_art_posts_tab.dart';
 import 'tabs/description_posts_tab.dart';
 import 'tabs/tagged_posts_tab.dart';
@@ -13,6 +13,12 @@ import './settings/options.dart';
 import 'followers_list.dart';
 import 'following_list.dart';
 import 'profile_feed_screen.dart';
+import 'tabs/artist/new_releases_tab.dart'; // Create this for artist features
+import 'tabs/artist/concerts_tab.dart'; // Create this for artist features
+import 'tabs/artist/upcoming_tab.dart'; // Create this for artist features
+import 'tabs/artist/insights_tab.dart'; // Create this for artist features
+import 'tabs/business/ads_tab.dart'; // Create this for business features
+import 'tabs/business/ad_insights_tab.dart'; // Create this for business features
 
 import '../../../data/services/profile_service.dart';
 import '../../../data/models/profile_model.dart';
@@ -30,8 +36,9 @@ class NormalUserProfilePage extends StatefulWidget {
 }
 
 class _NormalUserProfilePageState extends State<NormalUserProfilePage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+    with TickerProviderStateMixin {
+  TabController? _tabController;
+  final ScrollController _tabScrollController = ScrollController(); // Add this
 
   String? userId;
   ProfileModel? profile;
@@ -46,16 +53,52 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabScrollController.addListener(() {
+      if (_tabScrollController.offset < 0) {
+        _tabScrollController.jumpTo(0);
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) => _initUserIdAndFetch());
   }
 
   Future<void> _initUserIdAndFetch() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    String? id = authProvider.user?.id;
-    setState(() {
-      userId = id;
-    });
-    _fetchProfileData();
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      String? id = authProvider.user?.id;
+
+      // Add debug print
+      print("AuthProvider user ID: $id");
+
+      // If ID is null, try to get it from SharedPreferences directly
+      if (id == null) {
+        final prefs = await SharedPreferences.getInstance();
+        final userDataString = prefs.getString('user_data');
+        print("SharedPrefs user_data: $userDataString");
+
+        if (userDataString != null) {
+          final userData = jsonDecode(userDataString);
+          id = userData['id'] as String?;
+          print("Extracted ID from SharedPrefs: $id");
+        }
+      }
+
+      setState(() {
+        userId = id;
+      });
+
+      if (userId == null) {
+        print("WARNING: User ID is still null after all attempts");
+      } else {
+        print("User ID set: $userId");
+      }
+
+      _fetchProfileData();
+    } catch (e) {
+      print("Error in _initUserIdAndFetch: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _fetchProfileData() async {
@@ -91,6 +134,13 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
 
         profileNotFound = false;
         isLoading = false;
+
+        // --- Only recreate TabController here after profile is loaded ---
+        final tabCount = getProfileTabs().length;
+        if (_tabController == null || _tabController!.length != tabCount) {
+          _tabController?.dispose();
+          _tabController = TabController(length: tabCount, vsync: this);
+        }
       });
     } else if (profileResult['message'] == 'Profile not found') {
       setState(() {
@@ -109,9 +159,136 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
     }
   }
 
+  // Helper to get user type (normal, artist, business)
+  String get userType => profile?.userType ?? 'public';
+
+  // Helper to get tabs based on user type
+  List<Tab> getProfileTabs() {
+    if (userType == 'artist') {
+      return const [
+        Tab(icon: Icon(Icons.grid_on), text: "Posts"),
+        // Tab(icon: Icon(Icons.music_note), text: "New Releases"),
+        Tab(icon: Icon(Icons.description), text: "Description"),
+        Tab(icon: Icon(Icons.event), text: "Concerts"),
+        Tab(icon: Icon(Icons.upcoming), text: "Upcoming"),
+        Tab(icon: Icon(Icons.person_pin), text: "Tagged"),
+      ];
+    } else if (userType == 'business') {
+      return const [
+        Tab(icon: Icon(Icons.grid_on), text: "Posts"),
+        Tab(icon: Icon(Icons.campaign), text: "Advertisements"),
+        Tab(icon: Icon(Icons.analytics), text: "Ad Insights"),
+        Tab(icon: Icon(Icons.description), text: "Description"),
+        Tab(icon: Icon(Icons.person_pin), text: "Tagged"),
+      ];
+    } else {
+      return const [
+        Tab(icon: Icon(Icons.grid_on)),
+        Tab(icon: Icon(Icons.description)),
+        Tab(icon: Icon(Icons.person_pin)),
+      ];
+    }
+  }
+
+  // Helper to get tab views based on user type
+  List<Widget> getProfileTabViews() {
+    if (userType == 'artist') {
+      return [
+        AlbumArtPostsTab(
+          username: profile!.username,
+          fullName: profile!.fullName,
+          posts: postCount,
+          followers: profile!.followers.length,
+          following: profile!.following.length,
+          albumImages: albumImages,
+          description: profile!.bio,
+          showGrid: true,
+          profileImage: profile!.profileImage,
+          postsList: posts,
+          onPostTap: (postId) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfileFeedScreen(
+                  userId: userId!,
+                  initialPostId: postId,
+                ),
+              ),
+            );
+          },
+        ),
+        ArtistNewReleasesTab(userId: userId!), // Implement this tab
+        const DescriptionPostsTab(),
+        ArtistConcertsTab(userId: userId!), // Implement this tab
+        ArtistUpcomingTab(userId: userId!), // Implement this tab
+        // ArtistInsightsTab(userId: userId!), // REMOVE
+        const TaggedPostsTab(),
+      ];
+    } else if (userType == 'business') {
+      return [
+        AlbumArtPostsTab(
+          username: profile!.username,
+          fullName: profile!.fullName,
+          posts: postCount,
+          followers: profile!.followers.length,
+          following: profile!.following.length,
+          albumImages: albumImages,
+          description: profile!.bio,
+          showGrid: true,
+          profileImage: profile!.profileImage,
+          postsList: posts,
+          onPostTap: (postId) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfileFeedScreen(
+                  userId: userId!,
+                  initialPostId: postId,
+                ),
+              ),
+            );
+          },
+        ),
+        BusinessAdsTab(userId: userId!), // Implement this tab
+        BusinessAdInsightsTab(userId: userId!), // Implement this tab
+        const DescriptionPostsTab(),
+        const TaggedPostsTab(),
+      ];
+    } else {
+      return [
+        AlbumArtPostsTab(
+          username: profile!.username,
+          fullName: profile!.fullName,
+          posts: postCount,
+          followers: profile!.followers.length,
+          following: profile!.following.length,
+          albumImages: albumImages,
+          description: profile!.bio,
+          showGrid: true,
+          profileImage: profile!.profileImage,
+          postsList: posts,
+          onPostTap: (postId) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfileFeedScreen(
+                  userId: userId!,
+                  initialPostId: postId,
+                ),
+              ),
+            );
+          },
+        ),
+        const DescriptionPostsTab(),
+        const TaggedPostsTab(),
+      ];
+    }
+  }
+
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
+    _tabScrollController.dispose(); // Dispose controller
     super.dispose();
   }
 
@@ -268,79 +445,99 @@ class _NormalUserProfilePageState extends State<NormalUserProfilePage>
               );
             },
           ),
-          // --- Add Edit Profile Button ---
+          // --- Add Insights and Edit Profile Buttons aligned horizontally ---
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: SizedBox(
-              width: 160,
-              child: OutlinedButton(
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const EditProfilePage()),
-                  );
-                  if (result == true) {
-                    // Only fetch if profile was updated
-                    await _fetchProfileData();
-                  }
-                },
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.white),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Insights Button (left side)
+                if (userType == 'artist')
+                  SizedBox(
+                    width: 160,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ArtistInsightsTab(userId: userId!),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.insights, color: Colors.white),
+                      label: const Text(
+                        'Insights',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white),
+                        backgroundColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                if (userType == 'artist') const SizedBox(width: 12),
+                // Edit Profile Button (right side)
+                SizedBox(
+                  width: 160,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const EditProfilePage()),
+                      );
+                      if (result == true) {
+                        // Only fetch if profile was updated
+                        await _fetchProfileData();
+                      }
+                    },
+                    icon: const Icon(Icons.edit, color: Colors.white),
+                    label: const Text(
+                      'Edit Profile',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.white),
+                      backgroundColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
                 ),
-                child: const Text(
-                  'Edit Profile',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
+              ],
             ),
           ),
           // TabBar under profile details
           Container(
             color: Colors.black,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.zero,
+            margin: EdgeInsets.zero,
             child: TabBar(
               controller: _tabController,
               indicatorColor: Colors.white,
-              tabs: const [
-                Tab(icon: Icon(Icons.grid_on)),
-                Tab(icon: Icon(Icons.description)),
-                Tab(icon: Icon(Icons.person_pin)),
-              ],
+              isScrollable: false,
+              labelPadding: const EdgeInsets.symmetric(horizontal: 0),
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.grey,
+              tabs: getProfileTabs(),
             ),
           ),
-          // TabBarView for posts
+          // TabBarView for posts - Make sure each tab view is scrollable
           Expanded(
-            child: profile != null
+            child: profile != null && _tabController != null
                 ? TabBarView(
+                    physics:
+                        const AlwaysScrollableScrollPhysics(), // Enable scrolling in TabBarView
                     controller: _tabController,
-                    children: [
-                      AlbumArtPostsTab(
-                        username: profile!.username,
-                        fullName: profile!.fullName,
-                        posts: postCount,
-                        followers: profile!.followers.length,
-                        following: profile!.following.length,
-                        albumImages: albumImages,
-                        description: profile!.bio,
-                        showGrid: true,
-                        profileImage: profile!.profileImage,
-                        postsList: posts,
-                        // Make posts clickable in grid tab as well
-                        onPostTap: (postId) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProfileFeedScreen(
-                                userId: userId!,
-                                initialPostId: postId,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const DescriptionPostsTab(),
-                      const TaggedPostsTab(),
-                    ],
+                    children: getProfileTabViews(),
                   )
                 : const Center(
                     child: Text(
