@@ -106,7 +106,8 @@ class MyApp extends StatelessWidget {
           case '/fanbases':
             return MaterialPageRoute(builder: (_) => const FanbasePage());
           case '/profile':
-            return MaterialPageRoute(builder: (_) => const NormalUserProfilePage());
+            return MaterialPageRoute(
+                builder: (_) => const NormalUserProfilePage());
           case '/search':
             return MaterialPageRoute(builder: (_) => const SearchFeedScreen());
           // case '/demodespost':

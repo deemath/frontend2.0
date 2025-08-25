@@ -6,6 +6,7 @@ class UserSearchResults extends StatelessWidget {
   final String? query;
   final bool shrinkWrap;
   final ScrollPhysics? physics;
+  final Function(String) onUserTap;
 
   const UserSearchResults({
     Key? key,
@@ -13,6 +14,7 @@ class UserSearchResults extends StatelessWidget {
     this.query,
     this.shrinkWrap = false,
     this.physics,
+    required this.onUserTap,
   }) : super(key: key);
 
   @override
@@ -40,6 +42,7 @@ class UserSearchResults extends StatelessWidget {
         final user = users[index];
         final userImage = user['userImage'] ?? 'assets/images/profile_picture.jpg';
         final isNetworkImage = userImage.startsWith('http');
+        final userId = user['id'] ?? user['userId'] ?? '';
 
         return ListTile(
           leading: CircleAvatar(
@@ -55,6 +58,9 @@ class UserSearchResults extends StatelessWidget {
             },
             child: const Text('Follow'),
           ),
+          onTap: userId.isNotEmpty 
+              ? () => onUserTap(userId)
+              : null,
         );
       },
     );
